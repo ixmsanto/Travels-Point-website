@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,500;1,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=block" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:'Manrope',system-ui,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  img{display:block;max-width:100%}
+  a{color:inherit;text-decoration:none}
+  button,input,select,textarea{font-family:inherit;color:inherit}
+  ::selection{background:rgba(11,78,162,.22)}
+  ::-webkit-scrollbar{width:11px;height:11px}
+  ::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:99px;border:3px solid var(--bg)}
+  ::-webkit-scrollbar-track{background:var(--bg)}
+  :root{
+    --bg:#ffffff; --bg-2:#f5f9ff; --surface:#ffffff; --surface-2:#f5f9ff;
+    --text:#1b2a41; --text-soft:#51617a; --text-faint:#8696aa;
+    --border:#e4ecf3; --border-strong:#d2deea;
+    --primary:#0b4ea2; --primary-deep:#083b7c; --primary-soft:#e6effa;
+    --accent:#f57c00; --accent-soft:#fdecd9;
+    --green:#4caf50; --green-deep:#3c9440; --green-soft:#e7f4e8;
+    --glass:rgba(255,255,255,.62); --glass-strong:rgba(255,255,255,.82); --glass-border:rgba(255,255,255,.7);
+    --shadow-sm:0 1px 2px rgba(27,42,65,.06), 0 4px 14px -8px rgba(27,42,65,.12);
+    --shadow-md:0 12px 34px -14px rgba(27,42,65,.22);
+    --shadow-lg:0 36px 70px -28px rgba(27,42,65,.40);
+    --ring:rgba(11,78,162,.45);
+  }
+  [data-theme="dark"]{
+    --bg:#070d17; --bg-2:#0b1626; --surface:#101e31; --surface-2:#0d1929;
+    --text:#eaf2fb; --text-soft:#a3b6c9; --text-faint:#6a8197;
+    --border:#1d2f47; --border-strong:#27405d;
+    --primary:#5b9bff; --primary-deep:#2f6fe0; --primary-soft:rgba(91,155,255,.16);
+    --accent:#f9952f; --accent-soft:rgba(249,149,47,.16);
+    --green:#5cc561; --green-deep:#4caf50; --green-soft:rgba(92,197,97,.16);
+    --glass:rgba(14,28,46,.55); --glass-strong:rgba(13,25,42,.78); --glass-border:rgba(255,255,255,.08);
+    --shadow-sm:0 1px 2px rgba(0,0,0,.35), 0 6px 20px -10px rgba(0,0,0,.5);
+    --shadow-md:0 16px 40px -16px rgba(0,0,0,.6);
+    --shadow-lg:0 40px 80px -30px rgba(0,0,0,.7);
+    --ring:rgba(91,155,255,.5);
+  }
+  @keyframes tpFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
+  @keyframes tpFloat2{0%,100%{transform:translateY(0)}50%{transform:translateY(14px)}}
+  @keyframes tpPulse{0%{box-shadow:0 0 0 0 rgba(37,211,102,.5)}70%{box-shadow:0 0 0 16px rgba(37,211,102,0)}100%{box-shadow:0 0 0 0 rgba(37,211,102,0)}}
+  @keyframes tpSpin{to{transform:rotate(360deg)}}
+  @keyframes tpShimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+  @keyframes tpCue{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(7px);opacity:1}}
+  [data-reveal][data-rv="in"]{animation:tpRevealIn .85s cubic-bezier(.16,1,.3,1)}
+  [data-stagger][data-rv="in"]>*{animation:tpRevealIn .8s cubic-bezier(.16,1,.3,1)}
+  [data-stagger][data-rv="in"]>*:nth-child(2){animation-delay:.06s}
+  [data-stagger][data-rv="in"]>*:nth-child(3){animation-delay:.12s}
+  [data-stagger][data-rv="in"]>*:nth-child(4){animation-delay:.18s}
+  [data-stagger][data-rv="in"]>*:nth-child(5){animation-delay:.24s}
+  [data-stagger][data-rv="in"]>*:nth-child(6){animation-delay:.3s}
+  @keyframes tpRevealIn{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important}}
+  .ms{font-family:'Material Symbols Outlined';font-weight:normal;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;display:inline-block;white-space:nowrap;direction:ltr;-webkit-font-feature-settings:'liga';font-feature-settings:'liga';-webkit-font-smoothing:antialiased;font-variation-settings:'opsz' 24}
+</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TravelAgency","name":"Travels Point","description":"Tailor-made domestic and international tour packages, honeymoons, family and group travel, visa, flight and hotel bookings.","url":"https://travelspoint.com","telephone":"+971-4-555-0192","email":"hello@travelspoint.com","priceRange":"$$$","areaServed":"Worldwide","address":{"@type":"PostalAddress","streetAddress":"Office 1204, Marina Plaza","addressLocality":"Dubai Marina","addressCountry":"AE"},"aggregateRating":{"@type":"AggregateRating","ratingValue":"4.9","reviewCount":"6128"}}</script>
+</helmet>
+<div style="min-height:100vh;background:var(--bg);color:var(--text);position:relative;overflow-x:hidden;transition:background-color .5s ease,color .5s ease">
+
+  <div style="position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:var(--bg);opacity:{{ splashOpacity }};pointer-events:{{ splashPe }};transition:opacity .6s ease">
+    <div style="display:flex;align-items:center;gap:13px">
+      <img src="assets/logo-full.png" alt="Travels Point" style="height:112px;width:auto;display:block">
+    </div>
+    <div style="width:34px;height:34px;border-radius:50%;border:3px solid var(--border);border-top-color:var(--primary);animation:tpSpin .8s linear infinite"></div>
+  </div>
+
+  <div style="position:fixed;left:50%;bottom:34px;transform:translateX(-50%);z-index:160;display:flex;align-items:center;gap:10px;padding:13px 20px;border-radius:14px;background:var(--text);color:var(--bg);font-size:14px;font-weight:600;box-shadow:var(--shadow-lg);opacity:{{ toastOpacity }};transition:opacity .35s ease,transform .35s ease;pointer-events:none;max-width:88vw">
+    <span class="ms" style="font-size:19px;color:var(--primary)">auto_awesome</span><span>{{ toast }}</span>
+  </div>
+
+  <sc-if value="{{ showChrome }}" hint-placeholder-val="{{ true }}">
+  <header style="position:sticky;top:0;z-index:120;backdrop-filter:blur(18px) saturate(1.5);-webkit-backdrop-filter:blur(18px) saturate(1.5);background:var(--glass);border-bottom:1px solid var(--glass-border);transition:background-color .5s ease">
+    <div style="max-width:1240px;margin:0 auto;padding:0 clamp(18px,4vw,40px);height:74px;display:flex;align-items:center;justify-content:space-between;gap:20px">
+      <button type="button" onClick="{{ goHome }}" style="display:flex;align-items:center;gap:11px;background:none;border:none;cursor:pointer;padding:0;flex-shrink:0">
+        <img src="assets/logo-mark.png" alt="" style="height:42px;width:auto;display:block">
+        <span style="font-family:'Cormorant Garamond',serif;font-size:25px;font-weight:600;color:var(--text);letter-spacing:.005em;white-space:nowrap">Travels Point</span>
+      </button>
+
+      <sc-if value="{{ showDesktopNav }}" hint-placeholder-val="{{ true }}">
+        <nav style="display:flex;align-items:center;gap:6px">
+          <sc-for list="{{ navLinks }}" as="link" hint-placeholder-count="3">
+            <button type="button" onClick="{{ link.onClick }}" style="position:relative;background:none;border:none;cursor:pointer;font-size:15px;font-weight:600;color:var(--text);padding:9px 15px;border-radius:10px;opacity:.85;transition:opacity .2s,color .2s,background .2s" style-hover="opacity:1;color:var(--primary);background:var(--primary-soft)">
+              {{ link.label }}
+              <sc-if value="{{ link.active }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:15px;right:15px;bottom:3px;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--primary),var(--primary-deep))"></span></sc-if>
+            </button>
+          </sc-for>
+        </nav>
+        <div style="display:flex;align-items:center;gap:11px">
+          <button type="button" onClick="{{ toggleTheme }}" aria-label="Toggle dark mode" style="width:42px;height:42px;border-radius:12px;border:1px solid var(--border-strong);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-soft);transition:border-color .2s,color .2s,transform .2s" style-hover="border-color:var(--primary);color:var(--primary);transform:translateY(-1px)"><span class="ms" style="font-size:21px">{{ themeIcon }}</span></button>
+          <button type="button" onClick="{{ planTrip }}" style="display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--primary),var(--primary-deep));color:#fff;border:none;cursor:pointer;font-size:14.5px;font-weight:700;padding:12px 22px;border-radius:12px;white-space:nowrap;box-shadow:0 12px 26px -12px var(--ring);transition:transform .2s cubic-bezier(.2,1,.3,1),box-shadow .2s,filter .2s,gap .2s" style-hover="transform:translateY(-2px);filter:brightness(1.07);gap:12px;box-shadow:0 18px 36px -14px var(--ring)" style-active="transform:translateY(0) scale(.97)">Plan My Trip <span class="ms" style="font-size:18px">arrow_forward</span></button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showMobileNav }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;gap:9px">
+          <button type="button" onClick="{{ toggleTheme }}" aria-label="Toggle dark mode" style="width:42px;height:42px;border-radius:12px;border:1px solid var(--border-strong);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-soft);transition:border-color .2s,color .2s,transform .2s" style-hover="border-color:var(--primary);color:var(--primary);transform:translateY(-1px)"><span class="ms" style="font-size:21px">{{ themeIcon }}</span></button>
+        </div>
+      </sc-if>
+    </div>
+
+    <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="border-top:1px solid var(--border);background:var(--surface);padding:14px clamp(18px,4vw,40px) 22px;display:flex;flex-direction:column;gap:6px">
+        <sc-for list="{{ navLinks }}" as="link" hint-placeholder-count="3">
+          <button type="button" onClick="{{ link.onClick }}" style="text-align:left;background:none;border:none;cursor:pointer;font-size:17px;font-weight:600;color:var(--text);padding:13px 6px;border-bottom:1px solid var(--border);transition:color .2s,padding .2s" style-hover="color:var(--primary);padding-left:12px">{{ link.label }}</button>
+        </sc-for>
+        <button type="button" onClick="{{ planTrip }}" style="margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,var(--primary),var(--primary-deep));color:#fff;border:none;cursor:pointer;font-size:15px;font-weight:700;padding:14px;border-radius:12px;transition:transform .2s,filter .2s,box-shadow .2s" style-hover="transform:translateY(-2px);filter:brightness(1.07);box-shadow:0 16px 32px -14px var(--ring)" style-active="transform:translateY(0) scale(.98)">Plan My Trip <span class="ms" style="font-size:18px">arrow_forward</span></button>
+      </div>
+    </sc-if>
+  </header>
+  </sc-if>
+
+  <main id="tp-main">
+    <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+      <div>
+        <section style="position:relative;min-height:clamp(640px,93svh,960px);display:flex;align-items:center;overflow:hidden">
+          <div style="position:absolute;inset:0;background:linear-gradient(150deg,#083b7c 0%,#0b4ea2 38%,#1565c5 70%,#2f8fd6 100%)"></div>
+          <sc-if value="{{ hasHeroVideo }}" hint-placeholder-val="{{ false }}"><video autoplay muted loop playsinline poster="" src="{{ heroVideo }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1"></video></sc-if>
+          <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.05) 0 2px,transparent 2px 22px);opacity:.5;z-index:1"></div>
+          <div style="position:absolute;inset:0;background:radial-gradient(120% 80% at 78% 18%,rgba(245,124,0,.22),transparent 55%),linear-gradient(180deg,rgba(4,16,28,.45) 0%,rgba(4,16,28,.28) 32%,rgba(4,16,28,.7) 100%);z-index:1"></div>
+          <div style="position:absolute;top:14%;right:9%;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(245,124,0,.5),rgba(245,124,0,0) 70%);filter:blur(6px);animation:tpFloat 9s ease-in-out infinite"></div>
+          <div style="position:absolute;bottom:16%;left:6%;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle at 40% 40%,rgba(125,196,234,.45),rgba(125,196,234,0) 70%);filter:blur(4px);animation:tpFloat2 7s ease-in-out infinite"></div>
+          <span class="ms" style="position:absolute;top:24%;left:11%;font-size:30px;color:rgba(255,255,255,.32);animation:tpFloat 8s ease-in-out infinite">flight</span>
+          <span class="ms" style="position:absolute;bottom:30%;right:13%;font-size:26px;color:rgba(255,255,255,.28);animation:tpFloat2 6.5s ease-in-out infinite">near_me</span>
+
+          <div style="position:relative;z-index:2;max-width:1240px;margin:0 auto;padding:96px clamp(18px,4vw,40px) 60px;width:100%">
+            <div style="max-width:780px" data-stagger>
+              <span style="display:inline-flex;align-items:center;gap:9px;padding:9px 17px;border-radius:99px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.26);backdrop-filter:blur(8px);color:#fff;font-size:13px;font-weight:600;letter-spacing:.02em">
+                <span style="display:flex;gap:1px;color:var(--accent)"><span class="ms" style="font-size:15px">star</span><span class="ms" style="font-size:15px">star</span><span class="ms" style="font-size:15px">star</span><span class="ms" style="font-size:15px">star</span><span class="ms" style="font-size:15px">star</span></span>
+                Rated 4.9 / 5 · 24,000+ journeys crafted
+              </span>
+              <h1 style="margin:22px 0 0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(44px,7.2vw,88px);line-height:1.02;letter-spacing:-.012em;color:#fff;text-wrap:balance">Explore The World With <span style="font-style:italic;color:var(--accent)">Travels Point</span></h1>
+              <p style="margin:24px 0 0;max-width:580px;font-size:clamp(16px,1.6vw,20px);line-height:1.65;color:rgba(255,255,255,.9)">Discover unforgettable journeys, exclusive tour packages and personalized travel experiences — designed end to end by people who know the world.</p>
+              <div style="margin-top:34px;display:flex;flex-wrap:wrap;gap:14px">
+                <button type="button" onClick="{{ goPackages }}" style="display:flex;align-items:center;gap:9px;background:linear-gradient(135deg,var(--primary),var(--primary-deep));color:#fff;border:none;cursor:pointer;font-size:16px;font-weight:700;padding:16px 30px;border-radius:14px;box-shadow:0 18px 40px -16px rgba(11,78,162,.8);transition:transform .2s cubic-bezier(.2,1,.3,1),box-shadow .2s,filter .2s,gap .2s" style-hover="transform:translateY(-2px);filter:brightness(1.07);gap:13px;box-shadow:0 24px 48px -16px rgba(11,78,162,.92)" style-active="transform:translateY(0) scale(.98)">Explore Packages <span class="ms" style="font-size:20px">luggage</span></button>
+                <button type="button" onClick="{{ goContact }}" style="display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.4);cursor:pointer;font-size:16px;font-weight:700;padding:16px 30px;border-radius:14px;backdrop-filter:blur(8px);transition:background .2s,border-color .2s,transform .2s" style-hover="background:rgba(255,255,255,.26);border-color:rgba(255,255,255,.75);transform:translateY(-2px)" style-active="transform:translateY(0) scale(.98)">Contact Us <span class="ms" style="font-size:20px">chat_bubble</span></button>
+              </div>
+            </div>
+
+            <div data-reveal style="margin-top:46px;max-width:1060px;background:var(--glass-strong);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);border:1px solid var(--glass-border);border-radius:22px;padding:16px;box-shadow:var(--shadow-lg)">
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:end">
+                <label style="display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-radius:13px;background:var(--surface-2);border:1px solid var(--border)">
+                  <span style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint)"><span class="ms" style="font-size:15px;color:var(--primary)">place</span>Destination</span>
+                  <input list="tp-dests" value="{{ search.destination }}" onChange="{{ onSearchDestination }}" placeholder="Where to?" style="border:none;background:none;outline:none;font-size:15px;font-weight:600;color:var(--text);width:100%">
+                  <datalist id="tp-dests"><sc-for list="{{ searchDestinations }}" as="d" hint-placeholder-count="6"><option value="{{ d }}"></option></sc-for></datalist>
+                </label>
+                <label style="display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-radius:13px;background:var(--surface-2);border:1px solid var(--border)">
+                  <span style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint)"><span class="ms" style="font-size:15px;color:var(--primary)">calendar_month</span>Travel dates</span>
+                  <input type="date" value="{{ search.dates }}" onChange="{{ onSearchDates }}" style="border:none;background:none;outline:none;font-size:15px;font-weight:600;color:var(--text);width:100%">
+                </label>
+                <label style="display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-radius:13px;background:var(--surface-2);border:1px solid var(--border)">
+                  <span style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint)"><span class="ms" style="font-size:15px;color:var(--primary)">group</span>Travelers</span>
+                  <select value="{{ search.travelers }}" onChange="{{ onSearchTravelers }}" style="border:none;background:none;outline:none;font-size:15px;font-weight:600;color:var(--text);width:100%;cursor:pointer"><sc-for list="{{ travelersOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o }}">{{ o }}</option></sc-for></select>
+                </label>
+                <label style="display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-radius:13px;background:var(--surface-2);border:1px solid var(--border)">
+                  <span style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint)"><span class="ms" style="font-size:15px;color:var(--primary)">tune</span>Trip type</span>
+                  <select value="{{ search.type }}" onChange="{{ onSearchType }}" style="border:none;background:none;outline:none;font-size:15px;font-weight:600;color:var(--text);width:100%;cursor:pointer"><sc-for list="{{ typeOptions }}" as="o" hint-placeholder-count="6"><option value="{{ o }}">{{ o }}</option></sc-for></select>
+                </label>
+                <label style="display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-radius:13px;background:var(--surface-2);border:1px solid var(--border)">
+                  <span style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint)"><span class="ms" style="font-size:15px;color:var(--primary)">payments</span>Budget</span>
+                  <select value="{{ search.budget }}" onChange="{{ onSearchBudget }}" style="border:none;background:none;outline:none;font-size:15px;font-weight:600;color:var(--text);width:100%;cursor:pointer"><sc-for list="{{ budgetOptions }}" as="o" hint-placeholder-count="5"><option value="{{ o }}">{{ o }}</option></sc-for></select>
+                </label>
+                <button type="button" onClick="{{ runSearch }}" style="display:flex;align-items:center;justify-content:center;gap:8px;height:100%;min-height:62px;background:linear-gradient(135deg,var(--primary),var(--primary-deep));color:#fff;border:none;cursor:pointer;font-size:15px;font-weight:700;padding:0 22px;border-radius:13px;box-shadow:0 14px 30px -14px var(--ring)"><span class="ms" style="font-size:21px">search</span>Search</button>
+              </div>
+            </div>
+            <span style="display:block;margin-top:14px;font-family:ui-monospace,Menlo,monospace;font-size:11px;color:rgba(255,255,255,.55);letter-spacing:.04em">[ hero film — drop your clip at assets/hero.mp4 or set the Hero video tweak ]</span>
+          </div>
+          <div style="position:absolute;bottom:22px;left:50%;transform:translateX(-50%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:4px;color:rgba(255,255,255,.7)"><span style="font-size:11px;letter-spacing:.16em;text-transform:uppercase">Scroll</span><span class="ms" style="font-size:22px;animation:tpCue 1.8s ease-in-out infinite">keyboard_arrow_down</span></div>
+        </section>
+
+        <section style="padding:clamp(64px,9vw,118px) clamp(18px,4vw,40px);background:var(--bg)">
+          <div style="max-width:1240px;margin:0 auto">
+            <div data-reveal style="text-align:center;max-width:680px;margin:0 auto clamp(40px,5vw,60px)">
+              <span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--primary-deep)"><span style="width:26px;height:1px;background:var(--primary)"></span>Why Travels Point</span>
+              <h2 style="margin:16px 0 0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(32px,4.6vw,54px);line-height:1.06;letter-spacing:-.01em;color:var(--text)">Travel with people who sweat the details</h2>
+              <p style="margin:16px 0 0;font-size:clamp(15px,1.4vw,18px);line-height:1.7;color:var(--text-soft)">From the first spark of an idea to the flight home, every part of your journey is handled by specialists who do this all day, every day.</p>
+            </div>
+            <div data-stagger style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px">
+              <sc-for list="{{ features }}" as="f" hint-placeholder-count="6">
+                <div style="--tp-ic:1;--tp-rot:0deg;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:30px 26px;box-shadow:var(--shadow-sm);transition:transform .4s cubic-bezier(.2,1,.3,1),box-shadow .4s,border-color .4s;cursor:default" style-hover="--tp-ic:1.12;--tp-rot:-7deg;transform:translateY(-7px);box-shadow:var(--shadow-md);border-color:color-mix(in oklab,var(--primary) 35%,var(--border))">
+                  <div style="width:54px;height:54px;border-radius:15px;background:linear-gradient(135deg,var(--primary-soft),color-mix(in oklab,var(--accent) 16%,var(--primary-soft)));display:flex;align-items:center;justify-content:center;margin-bottom:20px;transform:rotate(var(--tp-rot)) scale(var(--tp-ic));transition:transform .45s cubic-bezier(.2,1,.4,1)"><span class="ms" style="font-size:27px;color:var(--primary-deep);font-variation-settings:'wght' 400">{{ f.icon }}</span></div>
+                  <h3 style="margin:0 0 8px;font-size:19px;font-weight:700;color:var(--text);letter-spacing:-.01em">{{ f.title }}</h3>
+                  <p style="margin:0;font-size:15px;line-height:1.65;color:var(--text-soft)">{{ f.desc }}</p>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+        <section id="destinations" style="padding:clamp(64px,9vw,118px) clamp(18px,4vw,40px);background:var(--bg-2)">
+          <div style="max-width:1240px;margin:0 auto">
+            <div data-reveal style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end;justify-content:space-between;margin-bottom:clamp(34px,4vw,52px)">
+              <div style="max-width:620px">
+                <span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--primary-deep)"><span style="width:26px;height:1px;background:var(--primary)"></span>Featured Destinations</span>
+                <h2 style="margin:16px 0 0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(32px,4.6vw,54px);line-height:1.06;letter-spacing:-.01em;color:var(--text)">Where will you wake up next?</h2>
+              </div>
+              <button type="button" onClick="{{ goPackages }}" style="display:inline-flex;align-items:center;gap:8px;background:var(--surface);color:var(--text);border:1px solid var(--border-strong);border-radius:12px;padding:13px 20px;font-size:14.5px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-sm);transition:background .2s,border-color .2s,color .2s,transform .2s,box-shadow .2s" style-hover="background:var(--surface-2);border-color:var(--primary);color:var(--primary);transform:translateY(-2px);box-shadow:var(--shadow-md)" style-active="transform:translateY(0) scale(.98)">View all packages <span class="ms" style="font-size:18px;color:var(--primary-deep)">arrow_forward</span></button>
+            </div>
+            <div data-stagger style="display:grid;grid-template-columns:repeat(auto-fit,minmax(296px,1fr));gap:22px">
+              <sc-for list="{{ destinations }}" as="d" hint-placeholder-count="6">
+                <article style="--tp-z:1;background:var(--surface);border:1px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:var(--shadow-sm);transition:transform .45s cubic-bezier(.2,1,.3,1),box-shadow .45s,border-color .45s;cursor:pointer" style-hover="--tp-z:1.08;transform:translateY(-8px);box-shadow:var(--shadow-lg);border-color:color-mix(in oklab,var(--primary) 30%,var(--border))" onClick="{{ d.onExplore }}">
+                  <div style="position:relative;height:218px;overflow:hidden">
+                    <div style="position:absolute;inset:0;background:{{ d.bgCss }};background-size:cover;background-position:center;transform:scale(var(--tp-z));transition:transform .6s cubic-bezier(.2,1,.3,1)">
+                      <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.07) 0 2px,transparent 2px 16px)"></div>
+                      <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,18,30,.05) 40%,rgba(6,18,30,.5) 100%)"></div>
+                    </div>
+                    <span style="position:absolute;top:14px;left:14px;display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:99px;background:rgba(255,255,255,.92);color:#1b2a41;font-size:12px;font-weight:700;letter-spacing:.02em;backdrop-filter:blur(4px)"><span class="ms" style="font-size:14px;color:var(--primary-deep)">{{ d.tagIcon }}</span>{{ d.tag }}</span>
+                    <span style="position:absolute;bottom:12px;right:14px;font-family:ui-monospace,Menlo,monospace;font-size:10px;color:rgba(255,255,255,.72);letter-spacing:.03em">[ photo · {{ d.name }} ]</span>
+                    <div style="position:absolute;left:16px;bottom:13px;color:#fff">
+                      <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;line-height:1">{{ d.name }}</div>
+                      <div style="display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;opacity:.9;margin-top:3px"><span class="ms" style="font-size:14px">location_on</span>{{ d.country }}</div>
+                    </div>
+                  </div>
+                  <div style="padding:20px 22px 22px">
+                    <p style="margin:0 0 16px;font-size:14.5px;line-height:1.6;color:var(--text-soft)">{{ d.blurb }}</p>
+                    <div style="display:flex;align-items:center;justify-content:space-between">
+                      <div><span style="font-size:12px;color:var(--text-faint);font-weight:600">from</span> <span style="font-size:21px;font-weight:800;color:var(--text);letter-spacing:-.01em">{{ d.priceFmt }}</span> <span style="font-size:12.5px;color:var(--text-faint)">/ person</span></div>
+                      <span style="display:inline-flex;align-items:center;gap:6px;color:var(--primary-deep);font-size:14.5px;font-weight:700">Explore <span class="ms" style="font-size:18px">arrow_forward</span></span>
+                    </div>
+                  </div>
+                </article>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+        <section id="offers" style="padding:clamp(64px,9vw,118px) clamp(18px,4vw,40px);background:var(--bg)">
+          <div style="max-width:1240px;margin:0 auto">
+            <div data-reveal style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end;justify-content:space-between;margin-bottom:clamp(30px,4vw,46px)">
+              <div style="max-width:640px">
+                <span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--green-deep)"><span class="ms" style="font-size:16px">local_fire_department</span>Offers &amp; Promotions</span>
+                <h2 style="margin:14px 0 0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(32px,4.6vw,54px);line-height:1.06;letter-spacing:-.01em;color:var(--text)">Limited-time escapes, curated for now</h2>
+              </div>
+              <div style="display:inline-flex;padding:5px;border-radius:13px;background:var(--surface-2);border:1px solid var(--border)">
+                <button type="button" onClick="{{ setOfferCarousel }}" style="display:inline-flex;align-items:center;gap:7px;border:none;cursor:pointer;font-size:13.5px;font-weight:700;padding:9px 16px;border-radius:9px;background:{{ offerCarouselBg }};color:{{ offerCarouselFg }};box-shadow:{{ offerCarouselShadow }}"><span class="ms" style="font-size:17px">view_carousel</span>Carousel</button>
+                <button type="button" onClick="{{ setOfferGrid }}" style="display:inline-flex;align-items:center;gap:7px;border:none;cursor:pointer;font-size:13.5px;font-weight:700;padding:9px 16px;border-radius:9px;background:{{ offerGridBg }};color:{{ offerGridFg }};box-shadow:{{ offerGridShadow }}"><span class="ms" style="font-size:17px">grid_view</span>Grid</button>
+              </div>
+            </div>
+
+            <sc-if value="{{ offerIsCarousel }}" hint-placeholder-val="{{ true }}">
+              <div data-reveal>
+                <div style="position:relative;border-radius:26px;overflow:hidden;box-shadow:var(--shadow-md)">
+                  <div style="display:flex;transform:{{ offerTransform }};transition:transform .65s cubic-bezier(.16,1,.3,1)">
+                    <sc-for list="{{ offers }}" as="o" hint-placeholder-count="4">
+                      <div style="min-width:100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));background:var(--surface)">
+                        <div style="position:relative;min-height:300px;background:{{ o.bgCss }};background-size:cover;background-position:center">
+                          <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.07) 0 2px,transparent 2px 18px)"></div>
+                          <div style="position:absolute;top:20px;left:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;width:84px;height:84px;border-radius:50%;background:var(--green);color:#fff;box-shadow:0 12px 26px -10px rgba(76,175,80,.7)"><span style="font-size:24px;font-weight:800;line-height:1">{{ o.discount }}%</span><span style="font-size:10px;font-weight:800;letter-spacing:.14em">OFF</span></div>
+                          <span style="position:absolute;bottom:14px;left:20px;font-family:ui-monospace,Menlo,monospace;font-size:10px;color:rgba(255,255,255,.72)">[ photo · {{ o.title }} ]</span>
+                        </div>
+                        <div style="padding:clamp(26px,3.5vw,42px);display:flex;flex-direction:column;justify-content:center">
+                          <span style="align-self:flex-start;display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:99px;font-size:12px;font-weight:700;background:{{ o.st.bg }};color:{{ o.st.fg }}"><span class="ms" style="font-size:14px">schedule</span>{{ o.status }}</span>
+                          <h3 style="margin:16px 0 0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(28px,3.4vw,40px);line-height:1.08;color:var(--text)">{{ o.title }}</h3>
+                          <p style="margin:12px 0 0;font-size:16px;line-height:1.65;color:var(--text-soft)">{{ o.desc }}</p>
+                          <div style="display:flex;align-items:center;gap:8px;margin:18px 0 24px;color:var(--text-faint);font-size:13.5px;font-weight:600"><span class="ms" style="font-size:18px;color:var(--accent)">event_busy</span>Valid until {{ o.expiry }}</div>
+                          <button type="button" onClick="{{ o.onBook }}" style="align-self:flex-start;display:inline-flex;align-items:center;gap:9px;background:linear-gradient(135deg,var(--primary),var(--primary-deep));color:#fff;border:none;cursor:pointer;font-size:15px;font-weight:700;padding:15px 28px;border-radius:13px;box-shadow:0 14px 30px -14px var(--ring);transition:transform .2s cubic-bezier(.2,1,.3,1),box-shadow .2s,filter .2s,gap .2s" style-hover="transform:translateY(-2px);filter:brightness(1.07);gap:13px;box-shadow:0 20px 40px -14px var(--ring)" style-active="transform:translateY(0) scale(.98)">{{ o.cta }} <span class="ms" style="font-size:19px">arrow_forward</span></button>
+                        </div>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <button type="button" onClick="{{ prevOffer }}" aria-label="Previous offer" style="position:absolute;top:50%;left:16px;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;border:none;cursor:pointer;background:var(--glass-strong);backdrop-filter:blur(10px);color:var(--text);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-md)"><span class="ms" style="font-size:24px">chevron_left</span></button>
+                  <button type="button" onClick="{{ nextOffer }}" aria-label="Next offer" style="position:absolute;top:50%;right:16px;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;border:none;cursor:pointer;background:var(--glass-strong);backdrop-filter:blur(10px);color:var(--text);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-md)"><span class="ms" style="font-size:24px">chevron_right</span></button>
+                </div>
+                <div style="display:flex;justify-content:center;gap:9px;margin-top:20px">
+                  <sc-for list="{{ offerDots }}" as="dot" hint-placeholder-count="4"><button type="button" onClick="{{ dot.onClick }}" aria-label="Go to offer" style="width:{{ dot.w }};height:9px;border-radius:99px;border:none;cursor:pointer;background:{{ dot.bg }};transition:all .35s"></button></sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ offerIsGrid }}" hint-placeholder-val="{{ false }}">
+              <div data-stagger style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px">
+                <sc-for list="{{ offers }}" as="o" hint-placeholder-count="4">
+                  <div style="background:var(--surface);border:1px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:var(--shadow-sm);display:flex;flex-direction:column">
+                    <div style="position:relative;height:170px;background:{{ o.bgCss }};background-size:cover;background-position:center">
+                      <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.07) 0 2px,transparent 2px 16px)"></div>
+                      <span style="position:absolute;top:13px;right:13px;display:inline-flex;align-items:center;padding:7px 12px;border-radius:99px;background:var(--green);color:#fff;font-size:13px;font-weight:800;box-shadow:0 8px 18px -8px rgba(76,175,80,.7)">{{ o.discountLabel }}</span>
+                    </div>
+                    <div style="padding:20px 22px 22px;display:flex;flex-direction:column;flex:1">
+                      <h3 style="margin:0 0 8px;font-size:19px;font-weight:700;color:var(--text);letter-spacing:-.01em">{{ o.title }}</h3>
+                      <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:var(--text-soft);flex:1">{{ o.desc }}</p>
+                      <div style="display:flex;align-items:center;gap:7px;margin-bottom:16px;color:var(--text-faint);font-size:12.5px;font-weight:600"><span class="ms" style="font-size:16px;color:var(--accent)">event_busy</span>Until {{ o.expiry }}</div>
+                      <button type="button" onClick="{{ o.onBook }}" style="display:inline-flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,var(--accent),#d96b00);color:#fff;border:none;cursor:pointer;font-size:14.5px;font-weight:700;padding:13px;border-radius:12px;box-shadow:0 10px 22px -12px rgba(245,124,0,.7);transition:transform .2s cubic-bezier(.2,1,.3,1),box-shadow .2s,filter .2s,gap .2s" style-hover="transform:translateY(-2px);filter:brightness(1.06);gap:11px;box-shadow:0 16px 32px -12px rgba(245,124,0,.8)" style-active="transform:translateY(0) scale(.98)">{{ o.cta }} <span class="ms" style="font-size:18px">arrow_forward</span></button>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </section>
+        <section id="packages" style="padding:clamp(64px,9vw,118px) clamp(18px,4vw,40px);background:var(--bg-2)">
+          <div style="max-width:1240px;margin:0 auto">
+            <div data-reveal style="text-align:center;max-width:680px;margin:0 auto clamp(34px,4vw,54px)">
+              <span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--primary-deep)"><span style="width:26px;height:1px;background:var(--primary)"></span>Popular Tour Packages</span>
+              <h2 style="margin:16px 0 0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(32px,4.6vw,54px);line-height:1.06;letter-spacing:-.01em;color:var(--text)">Itineraries our travelers love most</h2>
+            </div>
+            <div data-stagger style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px">
+              <sc-for list="{{ packagesHome }}" as="p" hint-placeholder-count="6">
+                <article style="--tp-z:1;background:var(--surface);border:1px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;transition:transform .45s cubic-bezier(.2,1,.3,1),box-shadow .45s,border-color .45s" style-hover="--tp-z:1.07;transform:translateY(-8px);box-shadow:var(--shadow-lg);border-color:color-mix(in oklab,var(--primary) 30%,var(--border))">
+                  <div style="position:relative;height:198px;overflow:hidden">
+                    <div style="position:absolute;inset:0;background:{{ p.bgCss }};background-size:cover;background-position:center;transform:scale(var(--tp-z));transition:transform .6s cubic-bezier(.2,1,.3,1)">
+                      <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.07) 0 2px,transparent 2px 16px)"></div>
+                      <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,18,30,.04) 45%,rgba(6,18,30,.42) 100%)"></div>
+                    </div>
+                    <span style="position:absolute;top:13px;left:13px;display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:99px;background:rgba(255,255,255,.92);color:#1b2a41;font-size:12px;font-weight:700;backdrop-filter:blur(4px)"><span class="ms" style="font-size:14px;color:var(--primary-deep)">schedule</span>{{ p.duration }}</span>
+                    <span style="position:absolute;top:13px;right:13px;display:inline-flex;align-items:center;gap:4px;padding:7px 11px;border-radius:99px;background:rgba(11,28,44,.6);color:#fff;font-size:12.5px;font-weight:700;backdrop-filter:blur(4px)"><span class="ms" style="font-size:14px;color:var(--accent)">star</span>{{ p.ratingFmt }}</span>
+                    <span style="position:absolute;bottom:11px;right:13px;font-family:ui-monospace,Menlo,monospace;font-size:10px;color:rgba(255,255,255,.7)">[ photo · {{ p.location }} ]</span>
+                  </div>
+                  <div style="padding:20px 22px 22px;display:flex;flex-direction:column;flex:1">
+                    <div style="display:flex;align-items:center;gap:5px;color:var(--text-faint);font-size:12.5px;font-weight:600;margin-bottom:6px"><span class="ms" style="font-size:15px;color:var(--primary)">location_on</span>{{ p.location }}</div>
+                    <h3 style="margin:0 0 14px;font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.01em;line-height:1.2">{{ p.title }}</h3>
+                    <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px">
+                      <sc-for list="{{ p.services }}" as="s" hint-placeholder-count="4"><span style="display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border);font-size:12px;font-weight:600;color:var(--text-soft)"><span class="ms" style="font-size:14px;color:var(--primary-deep)">check_circle</span>{{ s }}</span></sc-for>
+                    </div>
+                    <div style="margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:16px;border-top:1px solid var(--border)">
+                      <div><span style="font-size:12px;color:var(--text-faint);font-weight:600">from</span> <span style="font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.01em">{{ p.priceFmt }}</span></div>
+                      <button type="button" onClick="{{ p.onView }}" style="display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,var(--primary),var(--primary-deep));color:#fff;border:none;cursor:pointer;font-size:14px;font-weight:700;padding:12px 18px;border-radius:12px;box-shadow:0 12px 24px -14px var(--ring);transition:transform .2s cubic-bezier(.2,1,.3,1),box-shadow .2s,filter .2s,gap .2s" style-hover="transform:translateY(-2px);filter:brightness(1.07);gap:11px;box-shadow:0 18px 34px -14px var(--ring)" style-active="transform:translateY(0) scale(.97)">View Details <span class="ms" style="font-size:17px">arrow_forward</span></button>
+                    </div>
+                  </div>
+                </article>
+              </sc-for>
+            </div>
+            <div style="display:flex;justify-content:center;margin-top:clamp(34px,4vw,48px)">
+              <button type="button" onClick="{{ goPackages }}" style="display:inline-flex;align-items:center;gap:9px;background:linear-gradient(135deg,var(--primary),var(--primary-deep));color:#fff;border:none;cursor:pointer;font-size:15.5px;font-weight:700;padding:15px 30px;border-radius:14px;box-shadow:0 16px 34px -16px var(--ring);transition:transform .2s cubic-bezier(.2,1,.3,1),box-shadow .2s,filter .2s,gap .2s" style-hover="transform:translateY(-2px);filter:brightness(1.07);gap:13px;box-shadow:0 22px 44px -16px var(--ring)" style-active="transform:translateY(0) scale(.98)">View All Packages <span class="ms" style="font-size:19px">arrow_forward</span></button>
+            </div>
+          </div>
+        </section>
+        <section style="padding:clamp(64px,9vw,118px) clamp(18px,4vw,40px);background:var(--bg)">
+          <div style="max-width:1240px;margin:0 auto">
+            <div data-reveal style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end;justify-content:space-between;margin-bottom:clamp(30px,4vw,46px)">
+              <div style="max-width:620px">
+                <span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--primary-deep)"><span style="width:26px;height:1px;background:var(--primary)"></span>Travel Gallery</span>
+                <h2 style="margin:16px 0 0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(32px,4.6vw,54px);line-height:1.06;letter-spacing:-.01em;color:var(--text)">Moments from the journey</h2>
+              </div>
+              <button type="button" onClick="{{ goGallery }}" style="display:inline-flex;align-items:center;gap:8px;background:var(--surface);color:var(--text);border:1px solid var(--border-strong);border-radius:12px;padding:13px 20px;font-size:14.5px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-sm)">View Gallery <span class="ms" style="font-size:18px;color:var(--primary-deep)">arrow_forward</span></button>
+            </div>
+            <div data-stagger style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px">
+              <sc-for list="{{ galleryHome }}" as="g" hint-placeholder-count="8">
+                <button type="button" onClick="{{ goGallery }}" style="--gz:1;position:relative;aspect-ratio:1/1;border:none;cursor:pointer;border-radius:18px;overflow:hidden;padding:0;box-shadow:var(--shadow-sm)" style-hover="--gz:1.09">
+                  <span style="position:absolute;inset:0;background:{{ g.bgCss }};background-size:cover;background-position:center;transform:scale(var(--gz));transition:transform .6s cubic-bezier(.2,1,.3,1)"></span>
+                  <span style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,18,30,0) 38%,rgba(6,18,30,.62) 100%)"></span>
+                  <span style="position:absolute;top:11px;left:11px;display:inline-flex;padding:4px 10px;border-radius:99px;background:rgba(255,255,255,.92);color:#1b2a41;font-size:10.5px;font-weight:700;letter-spacing:.03em">{{ g.category }}</span>
+                  <span style="position:absolute;left:14px;right:14px;bottom:13px;text-align:left;font-size:14px;font-weight:700;color:#fff;line-height:1.25">{{ g.topic }}</span>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+        <section style="position:relative;padding:clamp(64px,9vw,120px) clamp(18px,4vw,40px);background:linear-gradient(165deg,#062a52 0%,#083b7c 55%,#0b4ea2 100%);overflow:hidden">
+          <div style="position:absolute;top:-40px;right:6%;font-family:'Cormorant Garamond',serif;font-size:340px;line-height:1;color:rgba(255,255,255,.05);pointer-events:none">&rdquo;</div>
+          <div style="position:absolute;bottom:10%;left:5%;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle at 40% 40%,rgba(245,124,0,.4),transparent 70%);filter:blur(6px);animation:tpFloat 9s ease-in-out infinite"></div>
+          <div style="position:relative;max-width:1000px;margin:0 auto">
+            <div data-reveal style="text-align:center;max-width:640px;margin:0 auto clamp(32px,4vw,48px)">
+              <span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)"><span class="ms" style="font-size:16px">favorite</span>Loved by travelers</span>
+              <h2 style="margin:14px 0 0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(32px,4.6vw,54px);line-height:1.06;letter-spacing:-.01em;color:#fff">Stories worth the airfare</h2>
+            </div>
+            <div data-reveal style="position:relative;overflow:hidden;border-radius:26px">
+              <div style="display:flex;transform:{{ testiTransform }};transition:transform .65s cubic-bezier(.16,1,.3,1)">
+                <sc-for list="{{ testimonials }}" as="t" hint-placeholder-count="5">
+                  <div style="min-width:100%;padding:6px">
+                    <div style="background:var(--glass-strong);backdrop-filter:blur(20px) saturate(1.3);-webkit-backdrop-filter:blur(20px) saturate(1.3);border:1px solid var(--glass-border);border-radius:24px;padding:clamp(28px,4vw,48px);box-shadow:var(--shadow-lg);text-align:center">
+                      <div style="display:flex;justify-content:center;gap:3px;margin-bottom:18px;color:var(--accent)"><span class="ms" style="font-size:22px">star</span><span class="ms" style="font-size:22px">star</span><span class="ms" style="font-size:22px">star</span><span class="ms" style="font-size:22px">star</span><span class="ms" style="font-size:22px">star</span></div>
+                      <p style="margin:0 auto;max-width:640px;font-family:'Cormorant Garamond',serif;font-weight:500;font-style:italic;font-size:clamp(21px,2.6vw,30px);line-height:1.4;letter-spacing:-.005em;color:var(--text)">&ldquo;{{ t.review }}&rdquo;</p>
+                      <div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-top:26px">
+                        <div style="position:relative;width:54px;height:54px;border-radius:50%;background:{{ t.bgCss }};background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:18px;flex-shrink:0;overflow:hidden;box-shadow:var(--shadow-sm)">{{ t.initialsShown }}</div>
+                        <div style="text-align:left">
+                          <div style="font-size:16px;font-weight:800;color:var(--text)">{{ t.name }}</div>
+                          <div style="font-size:13px;font-weight:600;color:var(--text-faint)">{{ t.location }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:18px;margin-top:26px">
+              <button type="button" onClick="{{ prevTesti }}" aria-label="Previous" style="width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);backdrop-filter:blur(8px);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center"><span class="ms" style="font-size:24px">chevron_left</span></button>
+              <div style="display:flex;gap:9px">
+                <sc-for list="{{ testiDots }}" as="dot" hint-placeholder-count="5"><button type="button" onClick="{{ dot.onClick }}" aria-label="Go to review" style="width:{{ dot.w }};height:9px;border-radius:99px;border:none;cursor:pointer;background:{{ dot.bg }};transition:all .35s"></button></sc-for>
+              </div>
+              <button type="button" onClick="{{ nextTesti }}" aria-label="Next" style="width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);backdrop-filter:blur(8px);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center"><span class="ms" style="font-size:24px">chevron_right</span></button>
+            </div>
+          </div>
+        </section>
+        <section style="padding:clamp(56px,7vw,96px) clamp(18px,4vw,40px);background:var(--bg)">
+          <div data-stagger style="max-width:1140px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:20px">
+            <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
+              <div style="text-align:center;padding:30px 20px;background:var(--surface);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow-sm)">
+                <div style="width:52px;height:52px;border-radius:14px;margin:0 auto 16px;background:linear-gradient(135deg,var(--primary-soft),var(--accent-soft));display:flex;align-items:center;justify-content:center"><span class="ms" style="font-size:26px;color:var(--primary-deep)">{{ s.icon }}</span></div>
+                <div style="font-weight:800;font-size:clamp(38px,5vw,58px);line-height:1;letter-spacing:-.02em;background:linear-gradient(135deg,var(--primary-deep),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent"><span data-count="{{ s.value }}">{{ s.display }}</span>{{ s.suffix }}</div>
+                <div style="margin-top:10px;font-size:14.5px;font-weight:700;color:var(--text-soft);letter-spacing:.01em">{{ s.label }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+        <section style="padding:clamp(20px,4vw,56px) clamp(18px,4vw,40px) clamp(56px,8vw,100px)">
+          <div data-reveal style="position:relative;max-width:1140px;margin:0 auto;border-radius:30px;overflow:hidden;background:linear-gradient(135deg,#083b7c 0%,#0b4ea2 50%,#1565c5 100%);box-shadow:var(--shadow-lg)">
+            <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.05) 0 2px,transparent 2px 22px);opacity:.6"></div>
+            <div style="position:absolute;top:-60px;right:-30px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle at 40% 40%,rgba(245,124,0,.45),transparent 70%);filter:blur(8px);animation:tpFloat 10s ease-in-out infinite"></div>
+            <span class="ms" style="position:absolute;bottom:18%;left:8%;font-size:34px;color:rgba(255,255,255,.22);animation:tpFloat2 7s ease-in-out infinite">flight_takeoff</span>
+            <div style="position:relative;padding:clamp(44px,7vw,84px) clamp(24px,5vw,72px);text-align:center">
+              <span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)"><span class="ms" style="font-size:16px">auto_awesome</span>Your next chapter</span>
+              <h2 style="margin:16px auto 0;max-width:740px;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(36px,5.6vw,68px);line-height:1.04;letter-spacing:-.012em;color:#fff;text-wrap:balance">Ready For Your Next Adventure?</h2>
+              <p style="margin:18px auto 0;max-width:560px;font-size:clamp(15px,1.5vw,19px);line-height:1.65;color:rgba(255,255,255,.9)">Tell us where you have always wanted to go. We will craft the itinerary, handle every booking and have you packed in no time.</p>
+              <div style="margin-top:34px;display:flex;flex-wrap:wrap;gap:14px;justify-content:center">
+                <button type="button" onClick="{{ planTrip }}" style="display:inline-flex;align-items:center;gap:9px;background:#fff;color:#083b7c;border:none;cursor:pointer;font-size:16px;font-weight:800;padding:16px 32px;border-radius:14px;box-shadow:0 18px 40px -16px rgba(0,0,0,.4)">Plan My Trip <span class="ms" style="font-size:20px">arrow_forward</span></button>
+                <button type="button" onClick="{{ openWhatsApp }}" style="display:inline-flex;align-items:center;gap:9px;background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.4);cursor:pointer;font-size:16px;font-weight:700;padding:16px 30px;border-radius:14px;backdrop-filter:blur(8px)"><span class="ms" style="font-size:20px">chat</span>Chat on WhatsApp</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isPackages }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <section style="position:relative;padding:clamp(58px,8vw,108px) clamp(18px,4vw,40px) clamp(36px,4vw,56px);background:linear-gradient(158deg,#062a52 0%,#083b7c 58%,#0b4ea2 100%);overflow:hidden">
+          <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.05) 0 2px,transparent 2px 22px);opacity:.45"></div>
+          <div style="position:absolute;top:-30px;right:6%;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle at 40% 40%,rgba(245,124,0,.42),transparent 70%);filter:blur(8px);animation:tpFloat 10s ease-in-out infinite"></div>
+          <span class="ms" style="position:absolute;bottom:20%;left:7%;font-size:32px;color:rgba(255,255,255,.22);animation:tpFloat2 7s ease-in-out infinite">flight</span>
+          <div style="position:relative;max-width:1240px;margin:0 auto;text-align:center">
+            <span style="display:inline-flex;align-items:center;gap:9px;padding:9px 17px;border-radius:99px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.26);backdrop-filter:blur(8px);color:#fff;font-size:13px;font-weight:700;letter-spacing:.04em"><span class="ms" style="font-size:16px;color:var(--accent)">luggage</span>Tour Packages</span>
+            <h1 style="margin:18px 0 0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(40px,6.4vw,76px);line-height:1.03;letter-spacing:-.012em;color:#fff;text-wrap:balance">Find your perfect getaway</h1>
+            <p style="margin:18px auto 0;max-width:620px;font-size:clamp(15px,1.5vw,19px);line-height:1.65;color:rgba(255,255,255,.9)">Handcrafted itineraries across India and around the world — every detail planned, every booking handled end to end.</p>
+          </div>
+        </section>
+
+        <div style="position:sticky;top:73px;z-index:90;background:var(--glass);backdrop-filter:blur(16px) saturate(1.5);-webkit-backdrop-filter:blur(16px) saturate(1.5);border-bottom:1px solid var(--border)">
+          <div style="max-width:1240px;margin:0 auto;padding:13px clamp(18px,4vw,40px);display:flex;justify-content:center">
+            <div style="display:inline-flex;flex-wrap:wrap;gap:7px;padding:6px;border-radius:15px;background:var(--surface-2);border:1px solid var(--border)">
+              <sc-for list="{{ pkgTabs }}" as="t" hint-placeholder-count="3">
+                <button type="button" onClick="{{ t.onClick }}" style="border:1px solid {{ t.bd }};cursor:pointer;font-size:14px;font-weight:700;padding:10px 22px;border-radius:11px;background:{{ t.bg }};color:{{ t.fg }};transition:all .3s">{{ t.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <sc-if value="{{ showIndia }}" hint-placeholder-val="{{ true }}">
+        <section style="padding:clamp(44px,6vw,76px) clamp(18px,4vw,40px) clamp(18px,3vw,30px);background:var(--bg)">
+          <div style="max-width:1240px;margin:0 auto">
+            <div data-reveal style="display:flex;flex-wrap:wrap;align-items:center;gap:15px;margin-bottom:clamp(26px,3vw,38px)">
+              <span style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--primary),var(--primary-deep));display:flex;align-items:center;justify-content:center;box-shadow:0 12px 26px -12px var(--ring)"><span class="ms" style="font-size:26px;color:#fff">temple_hindu</span></span>
+              <div>
+                <h2 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(28px,3.6vw,46px);line-height:1.04;letter-spacing:-.01em;color:var(--text)">India</h2>
+                <p style="margin:4px 0 0;font-size:14px;color:var(--text-faint);font-weight:600">{{ pkgIndiaCount }} curated journeys across the subcontinent</p>
+              </div>
+            </div>
+            <div data-stagger style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px">
+              <sc-for list="{{ packagesIndia }}" as="p" hint-placeholder-count="6">
+                <article style="--tp-z:1;background:var(--surface);border:1px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;transition:transform .45s cubic-bezier(.2,1,.3,1),box-shadow .45s,border-color .45s" style-hover="--tp-z:1.07;transform:translateY(-8px);box-shadow:var(--shadow-lg);border-color:color-mix(in oklab,var(--primary) 30%,var(--border))">
+                  <div style="position:relative;height:198px;overflow:hidden">
+                    <div style="position:absolute;inset:0;background:{{ p.bgCss }};background-size:cover;background-position:center;transform:scale(var(--tp-z));transition:transform .6s cubic-bezier(.2,1,.3,1)">
+                      <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.07) 0 2px,transparent 2px 16px)"></div>
+                      <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,18,30,.04) 45%,rgba(6,18,30,.42) 100%)"></div>
+                    </div>
+                    <span style="position:absolute;top:13px;left:13px;display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:99px;background:rgba(255,255,255,.92);color:#1b2a41;font-size:12px;font-weight:700;backdrop-filter:blur(4px)"><span class="ms" style="font-size:14px;color:var(--primary-deep)">schedule</span>{{ p.duration }}</span>
+                    <span style="position:absolute;top:13px;right:13px;display:inline-flex;align-items:center;gap:4px;padding:7px 11px;border-radius:99px;background:rgba(11,28,44,.6);color:#fff;font-size:12.5px;font-weight:700;backdrop-filter:blur(4px)"><span class="ms" style="font-size:14px;color:var(--accent)">star</span>{{ p.ratingFmt }}</span>
+                    <span style="position:absolute;bottom:11px;right:13px;font-family:ui-monospace,Menlo,monospace;font-size:10px;color:rgba(255,255,255,.7)">[ photo · {{ p.location }} ]</span>
+                  </div>
+                  <div style="padding:20px 22px 22px;display:flex;flex-direction:column;flex:1">
+                    <div style="display:flex;align-items:center;gap:5px;color:var(--text-faint);font-size:12.5px;font-weight:600;margin-bottom:6px"><span class="ms" style="font-size:15px;color:var(--primary)">location_on</span>{{ p.location }}</div>
+                    <h3 style="margin:0 0 14px;font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.01em;line-height:1.2">{{ p.title }}</h3>
+                    <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px">
+                      <sc-for list="{{ p.services }}" as="s" hint-placeholder-count="4"><span style="display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border);font-size:12px;font-weight:600;color:var(--text-soft)"><span class="ms" style="font-size:14px;color:var(--primary-deep)">check_circle</span>{{ s }}</span></sc-for>
+                    </div>
+                    <div style="margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:16px;border-top:1px solid var(--border)">
+                      <div><span style="font-size:12px;color:var(--text-faint);font-weight:600">from</span> <span style="font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.01em">{{ p.priceFmt }}</span></div>
+                      <button type="button" onClick="{{ p.onView }}" style="display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,var(--primary),var(--primary-deep));color:#fff;border:none;cursor:pointer;font-size:14px;font-weight:700;padding:12px 18px;border-radius:12px;box-shadow:0 12px 24px -14px var(--ring);transition:transform .2s cubic-bezier(.2,1,.3,1),box-shadow .2s,filter .2s,gap .2s" style-hover="transform:translateY(-2px);filter:brightness(1.07);gap:11px;box-shadow:0 18px 34px -14px var(--ring)" style-active="transform:translateY(0) scale(.97)">View Details <span class="ms" style="font-size:17px">arrow_forward</span></button>
+                    </div>
+                  </div>
+                </article>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+        </sc-if>
+
+        <sc-if value="{{ showIntl }}" hint-placeholder-val="{{ true }}">
+        <section style="padding:clamp(34px,5vw,60px) clamp(18px,4vw,40px) clamp(58px,8vw,104px);background:var(--bg)">
+          <div style="max-width:1240px;margin:0 auto">
+            <div data-reveal style="display:flex;flex-wrap:wrap;align-items:center;gap:15px;margin-bottom:clamp(26px,3vw,38px)">
+              <span style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#d96b00);display:flex;align-items:center;justify-content:center;box-shadow:0 12px 26px -12px rgba(245,124,0,.6)"><span class="ms" style="font-size:26px;color:#fff">public</span></span>
+              <div>
+                <h2 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(28px,3.6vw,46px);line-height:1.04;letter-spacing:-.01em;color:var(--text)">International</h2>
+                <p style="margin:4px 0 0;font-size:14px;color:var(--text-faint);font-weight:600">{{ pkgIntlCount }} unforgettable escapes around the globe</p>
+              </div>
+            </div>
+            <div data-stagger style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px">
+              <sc-for list="{{ packagesIntl }}" as="p" hint-placeholder-count="6">
+                <article style="--tp-z:1;background:var(--surface);border:1px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;transition:transform .45s cubic-bezier(.2,1,.3,1),box-shadow .45s,border-color .45s" style-hover="--tp-z:1.07;transform:translateY(-8px);box-shadow:var(--shadow-lg);border-color:color-mix(in oklab,var(--primary) 30%,var(--border))">
+                  <div style="position:relative;height:198px;overflow:hidden">
+                    <div style="position:absolute;inset:0;background:{{ p.bgCss }};background-size:cover;background-position:center;transform:scale(var(--tp-z));transition:transform .6s cubic-bezier(.2,1,.3,1)">
+                      <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.07) 0 2px,transparent 2px 16px)"></div>
+                      <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,18,30,.04) 45%,rgba(6,18,30,.42) 100%)"></div>
+                    </div>
+                    <span style="position:absolute;top:13px;left:13px;display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:99px;background:rgba(255,255,255,.92);color:#1b2a41;font-size:12px;font-weight:700;backdrop-filter:blur(4px)"><span class="ms" style="font-size:14px;color:var(--primary-deep)">schedule</span>{{ p.duration }}</span>
+                    <span style="position:absolute;top:13px;right:13px;display:inline-flex;align-items:center;gap:4px;padding:7px 11px;border-radius:99px;background:rgba(11,28,44,.6);color:#fff;font-size:12.5px;font-weight:700;backdrop-filter:blur(4px)"><span class="ms" style="font-size:14px;color:var(--accent)">star</span>{{ p.ratingFmt }}</span>
+                    <span style="position:absolute;bottom:11px;right:13px;font-family:ui-monospace,Menlo,monospace;font-size:10px;color:rgba(255,255,255,.7)">[ photo · {{ p.location }} ]</span>
+                  </div>
+                  <div style="padding:20px 22px 22px;display:flex;flex-direction:column;flex:1">
+                    <div style="display:flex;align-items:center;gap:5px;color:var(--text-faint);font-size:12.5px;font-weight:600;margin-bottom:6px"><span class="ms" style="font-size:15px;color:var(--primary)">location_on</span>{{ p.location }}</div>
+                    <h3 style="margin:0 0 14px;font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.01em;line-height:1.2">{{ p.title }}</h3>
+                    <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px">
+                      <sc-for list="{{ p.services }}" as="s" hint-placeholder-count="4"><span style="display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border);font-size:12px;font-weight:600;color:var(--text-soft)"><span class="ms" style="font-size:14px;color:var(--primary-deep)">check_circle</span>{{ s }}</span></sc-for>
+                    </div>
+                    <div style="margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:16px;border-top:1px solid var(--border)">
+                      <div><span style="font-size:12px;color:var(--text-faint);font-weight:600">from</span> <span style="font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.01em">{{ p.priceFmt }}</span></div>
+                      <button type="button" onClick="{{ p.onView }}" style="display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,var(--primary),var(--primary-deep));color:#fff;border:none;cursor:pointer;font-size:14px;font-weight:700;padding:12px 18px;border-radius:12px;box-shadow:0 12px 24px -14px var(--ring);transition:transform .2s cubic-bezier(.2,1,.3,1),box-shadow .2s,filter .2s,gap .2s" style-hover="transform:translateY(-2px);filter:brightness(1.07);gap:11px;box-shadow:0 18px 34px -14px var(--ring)" style-active="transform:translateY(0) scale(.97)">View Details <span class="ms" style="font-size:17px">arrow_forward</span></button>
+                    </div>
+                  </div>
+                </article>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isGallery }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <section style="position:relative;padding:clamp(58px,8vw,108px) clamp(18px,4vw,40px) clamp(34px,4vw,50px);background:linear-gradient(158deg,#062a52 0%,#083b7c 58%,#0b4ea2 100%);overflow:hidden">
+          <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.05) 0 2px,transparent 2px 22px);opacity:.45"></div>
+          <div style="position:absolute;top:-30px;right:8%;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle at 40% 40%,rgba(245,124,0,.4),transparent 70%);filter:blur(8px);animation:tpFloat 9s ease-in-out infinite"></div>
+          <div style="position:relative;max-width:1240px;margin:0 auto;text-align:center">
+            <span style="display:inline-flex;align-items:center;gap:9px;padding:9px 17px;border-radius:99px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.26);backdrop-filter:blur(8px);color:#fff;font-size:13px;font-weight:700;letter-spacing:.04em"><span class="ms" style="font-size:16px;color:var(--accent)">photo_library</span>Travel Gallery</span>
+            <h1 style="margin:18px 0 0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(40px,6.4vw,76px);line-height:1.03;letter-spacing:-.012em;color:#fff;text-wrap:balance">The world, through our travelers</h1>
+            <p style="margin:18px auto 0;max-width:600px;font-size:clamp(15px,1.5vw,19px);line-height:1.65;color:rgba(255,255,255,.9)">A look at the places, faces and moments from journeys we have planned.</p>
+          </div>
+        </section>
+
+        <div style="position:sticky;top:73px;z-index:90;background:var(--glass);backdrop-filter:blur(16px) saturate(1.5);-webkit-backdrop-filter:blur(16px) saturate(1.5);border-bottom:1px solid var(--border)">
+          <div style="max-width:1280px;margin:0 auto;padding:13px clamp(18px,4vw,40px);display:flex;gap:8px;overflow-x:auto;justify-content:center;flex-wrap:wrap">
+            <sc-for list="{{ galTabs }}" as="t" hint-placeholder-count="5">
+              <button type="button" onClick="{{ t.onClick }}" style="white-space:nowrap;border:1px solid {{ t.bd }};cursor:pointer;font-size:13.5px;font-weight:700;padding:9px 18px;border-radius:99px;background:{{ t.bg }};color:{{ t.fg }};transition:all .3s">{{ t.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+
+        <section style="padding:clamp(34px,5vw,60px) clamp(18px,4vw,40px) clamp(58px,8vw,104px);background:var(--bg)">
+          <div style="max-width:1280px;margin:0 auto">
+            <div data-stagger style="display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:16px">
+              <sc-for list="{{ galleryView }}" as="g" hint-placeholder-count="9">
+                <div style="--gz:1;position:relative;aspect-ratio:4/5;border-radius:20px;overflow:hidden;box-shadow:var(--shadow-sm);cursor:pointer" style-hover="--gz:1.07">
+                  <span style="position:absolute;inset:0;background:{{ g.bgCss }};background-size:cover;background-position:center;transform:scale(var(--gz));transition:transform .6s cubic-bezier(.2,1,.3,1)"></span>
+                  <span style="position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.06) 0 2px,transparent 2px 16px)"></span>
+                  <span style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,18,30,0) 40%,rgba(6,18,30,.66) 100%)"></span>
+                  <span style="position:absolute;top:12px;left:12px;display:inline-flex;padding:5px 11px;border-radius:99px;background:rgba(255,255,255,.92);color:#1b2a41;font-size:11px;font-weight:700;letter-spacing:.03em">{{ g.category }}</span>
+                  <span style="position:absolute;left:16px;right:16px;bottom:15px;font-size:16px;font-weight:700;color:#fff;line-height:1.3">{{ g.topic }}</span>
+                  <span style="position:absolute;right:13px;bottom:13px;font-family:ui-monospace,Menlo,monospace;font-size:9.5px;color:rgba(255,255,255,.6)">[ photo ]</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isAbout }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <section style="padding:clamp(48px,7vw,92px) clamp(18px,4vw,40px) clamp(40px,5vw,64px);background:var(--bg)">
+          <div style="max-width:1240px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:clamp(28px,4vw,56px);align-items:center">
+            <div data-reveal>
+              <span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--primary-deep)"><span style="width:26px;height:1px;background:var(--primary)"></span>About Travels Point</span>
+              <h1 style="margin:16px 0 0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(38px,5.4vw,66px);line-height:1.04;letter-spacing:-.012em;color:var(--text)">Sixteen years of turning maps into memories</h1>
+              <p style="margin:20px 0 0;font-size:clamp(15px,1.5vw,18px);line-height:1.75;color:var(--text-soft)">Travels Point began in 2010 with a simple belief: a great trip should feel effortless for you and obsessive for us. What started as three planners at a single desk is now a team of specialists who have designed journeys across 120+ destinations on six continents.</p>
+              <p style="margin:16px 0 0;font-size:clamp(15px,1.5vw,18px);line-height:1.75;color:var(--text-soft)">We are not a booking website. We are the people who answer the phone at 2am, remember that you like a high floor, and know which café has the view worth the detour.</p>
+              <div style="display:flex;flex-wrap:wrap;gap:26px;margin-top:28px">
+                <div><div style="font-size:30px;font-weight:800;color:var(--text);letter-spacing:-.02em">24k+</div><div style="font-size:13px;font-weight:600;color:var(--text-faint)">Happy travelers</div></div>
+                <div style="width:1px;align-self:stretch;background:var(--border)"></div>
+                <div><div style="font-size:30px;font-weight:800;color:var(--text);letter-spacing:-.02em">120+</div><div style="font-size:13px;font-weight:600;color:var(--text-faint)">Destinations</div></div>
+                <div style="width:1px;align-self:stretch;background:var(--border)"></div>
+                <div><div style="font-size:30px;font-weight:800;color:var(--text);letter-spacing:-.02em">4.9/5</div><div style="font-size:13px;font-weight:600;color:var(--text-faint)">Avg. rating</div></div>
+              </div>
+            </div>
+            <div data-reveal style="position:relative">
+              <div style="position:relative;height:clamp(320px,42vw,460px);border-radius:26px;overflow:hidden;background:linear-gradient(150deg,#083b7c,#1565c5);box-shadow:var(--shadow-lg)">
+                <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.06) 0 2px,transparent 2px 18px)"></div>
+                <div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(6,18,30,.45))"></div>
+                <span style="position:absolute;bottom:16px;left:18px;font-family:ui-monospace,Menlo,monospace;font-size:11px;color:rgba(255,255,255,.7)">[ team / office photo ]</span>
+              </div>
+              <div style="position:absolute;left:-14px;bottom:-14px;display:flex;align-items:center;gap:11px;padding:15px 18px;border-radius:16px;background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow-md)">
+                <span style="width:42px;height:42px;border-radius:12px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center"><span class="ms" style="font-size:23px;color:var(--accent)">workspace_premium</span></span>
+                <div><div style="font-size:14px;font-weight:800;color:var(--text)">T+L A-List</div><div style="font-size:12px;color:var(--text-faint)">2024 · 2025</div></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section style="padding:clamp(56px,8vw,110px) clamp(18px,4vw,40px);background:var(--bg-2)">
+          <div style="max-width:1240px;margin:0 auto">
+            <div data-stagger style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px;margin-bottom:24px">
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:clamp(28px,3.5vw,40px);box-shadow:var(--shadow-sm)">
+                <span style="width:54px;height:54px;border-radius:15px;background:var(--primary-soft);display:flex;align-items:center;justify-content:center;margin-bottom:20px"><span class="ms" style="font-size:27px;color:var(--primary-deep)">rocket_launch</span></span>
+                <h2 style="margin:0 0 10px;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:30px;color:var(--text)">Our Mission</h2>
+                <p style="margin:0;font-size:16px;line-height:1.7;color:var(--text-soft)">To turn the world&rsquo;s most beautiful places into journeys that feel effortless, personal and unforgettable &mdash; for every kind of traveler.</p>
+              </div>
+              <div style="background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:clamp(28px,3.5vw,40px);box-shadow:var(--shadow-sm)">
+                <span style="width:54px;height:54px;border-radius:15px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;margin-bottom:20px"><span class="ms" style="font-size:27px;color:var(--accent)">visibility</span></span>
+                <h2 style="margin:0 0 10px;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:30px;color:var(--text)">Our Vision</h2>
+                <p style="margin:0;font-size:16px;line-height:1.7;color:var(--text-soft)">To be the most trusted name in tailor-made travel &mdash; the first call for anyone who wants to explore better, further and deeper.</p>
+              </div>
+            </div>
+            <div data-stagger style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
+              <sc-for list="{{ missionValues }}" as="v" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;gap:13px;padding:18px 20px;background:var(--surface);border:1px solid var(--border);border-radius:15px">
+                  <span style="width:40px;height:40px;border-radius:11px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><span class="ms" style="font-size:21px;color:var(--primary-deep)">{{ v.icon }}</span></span>
+                  <span style="font-size:15px;font-weight:700;color:var(--text)">{{ v.label }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+
+        <section style="padding:clamp(56px,8vw,110px) clamp(18px,4vw,40px);background:var(--bg)">
+          <div style="max-width:880px;margin:0 auto">
+            <div data-reveal style="text-align:center;max-width:620px;margin:0 auto clamp(36px,5vw,56px)">
+              <span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--primary-deep)"><span style="width:26px;height:1px;background:var(--primary)"></span>Our Story</span>
+              <h2 style="margin:16px 0 0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(32px,4.6vw,54px);line-height:1.06;letter-spacing:-.01em;color:var(--text)">How we got here</h2>
+            </div>
+            <div data-stagger style="position:relative">
+              <div style="position:absolute;left:21px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--primary),var(--accent));opacity:.4"></div>
+              <sc-for list="{{ timeline }}" as="ev" hint-placeholder-count="5">
+                <div style="position:relative;display:flex;gap:24px;padding-bottom:30px">
+                  <div style="position:relative;z-index:1;flex-shrink:0;width:44px;height:44px;border-radius:50%;background:var(--surface);border:2px solid var(--primary);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm)"><span class="ms" style="font-size:20px;color:var(--primary-deep)">flag</span></div>
+                  <div style="flex:1;padding-top:2px">
+                    <span style="display:inline-block;font-size:13px;font-weight:800;letter-spacing:.06em;color:var(--accent);margin-bottom:4px">{{ ev.year }}</span>
+                    <h3 style="margin:0 0 6px;font-size:19px;font-weight:700;color:var(--text)">{{ ev.title }}</h3>
+                    <p style="margin:0;font-size:15px;line-height:1.65;color:var(--text-soft)">{{ ev.desc }}</p>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+
+        <section style="padding:clamp(56px,8vw,110px) clamp(18px,4vw,40px);background:var(--bg-2)">
+          <div style="max-width:1240px;margin:0 auto">
+            <div data-reveal style="text-align:center;max-width:640px;margin:0 auto clamp(34px,4vw,52px)">
+              <span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--primary-deep)"><span style="width:26px;height:1px;background:var(--primary)"></span>Why Travelers Trust Us</span>
+              <h2 style="margin:16px 0 0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(32px,4.6vw,54px);line-height:1.06;letter-spacing:-.01em;color:var(--text)">Confidence, built in from day one</h2>
+            </div>
+            <div data-stagger style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px">
+              <sc-for list="{{ trustCards }}" as="c" hint-placeholder-count="4">
+                <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px 24px;box-shadow:var(--shadow-sm);transition:transform .4s cubic-bezier(.2,1,.3,1),box-shadow .4s" style-hover="transform:translateY(-6px);box-shadow:var(--shadow-md)">
+                  <span style="width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,var(--primary-soft),var(--accent-soft));display:flex;align-items:center;justify-content:center;margin-bottom:18px"><span class="ms" style="font-size:25px;color:var(--primary-deep)">{{ c.icon }}</span></span>
+                  <h3 style="margin:0 0 8px;font-size:17px;font-weight:700;color:var(--text);letter-spacing:-.01em">{{ c.title }}</h3>
+                  <p style="margin:0;font-size:14px;line-height:1.6;color:var(--text-soft)">{{ c.desc }}</p>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+
+        <section style="padding:clamp(56px,8vw,110px) clamp(18px,4vw,40px);background:var(--bg)">
+          <div style="max-width:1240px;margin:0 auto">
+            <div data-reveal style="text-align:center;max-width:640px;margin:0 auto clamp(34px,4vw,52px)">
+              <span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--primary-deep)"><span style="width:26px;height:1px;background:var(--primary)"></span>Meet Our Team</span>
+              <h2 style="margin:16px 0 0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(32px,4.6vw,54px);line-height:1.06;letter-spacing:-.01em;color:var(--text)">The people behind your itinerary</h2>
+            </div>
+            <div data-stagger style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:20px">
+              <sc-for list="{{ team }}" as="m" hint-placeholder-count="4">
+                <div style="--tp-y:0px;--tp-o:0;background:var(--surface);border:1px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:var(--shadow-sm);transition:transform .4s cubic-bezier(.2,1,.3,1),box-shadow .4s" style-hover="--tp-y:-8px;--tp-o:1;transform:translateY(-8px);box-shadow:var(--shadow-lg)">
+                  <div style="position:relative;height:230px;background:{{ m.bgCss }};background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center">
+                    <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.06) 0 2px,transparent 2px 16px)"></div>
+                    <span style="position:relative;font-size:44px;font-weight:800;color:rgba(255,255,255,.92);font-family:'Cormorant Garamond',serif">{{ m.initials }}</span>
+                    <div style="position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:9px;padding:14px;background:linear-gradient(180deg,transparent,rgba(6,18,30,.55));transform:translateY(var(--tp-y));opacity:var(--tp-o);transition:opacity .4s,transform .4s">
+                      <sc-for list="{{ m.socials }}" as="s" hint-placeholder-count="3"><a href="{{ s.url }}" aria-label="social" style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;color:#1b2a41"><span class="ms" style="font-size:18px">{{ s.icon }}</span></a></sc-for>
+                    </div>
+                  </div>
+                  <div style="padding:18px 20px 22px;text-align:center">
+                    <h3 style="margin:0 0 3px;font-size:17px;font-weight:800;color:var(--text)">{{ m.name }}</h3>
+                    <p style="margin:0;font-size:13.5px;font-weight:600;color:var(--primary-deep)">{{ m.role }}</p>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+
+        <section style="padding:clamp(56px,8vw,100px) clamp(18px,4vw,40px);background:linear-gradient(165deg,#062a52,#083b7c)">
+          <div style="max-width:1240px;margin:0 auto">
+            <div data-reveal style="text-align:center;max-width:640px;margin:0 auto clamp(32px,4vw,48px)">
+              <span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)"><span class="ms" style="font-size:16px">military_tech</span>Certifications &amp; Achievements</span>
+              <h2 style="margin:14px 0 0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(30px,4.4vw,50px);line-height:1.07;color:#fff">Accredited, awarded, accountable</h2>
+            </div>
+            <div data-stagger style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+              <sc-for list="{{ certs }}" as="c" hint-placeholder-count="5">
+                <div style="text-align:center;padding:28px 18px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:18px;backdrop-filter:blur(8px)">
+                  <span style="width:52px;height:52px;border-radius:14px;margin:0 auto 14px;background:rgba(245,124,0,.16);display:flex;align-items:center;justify-content:center"><span class="ms" style="font-size:26px;color:var(--accent)">{{ c.icon }}</span></span>
+                  <div style="font-size:15.5px;font-weight:800;color:#fff;margin-bottom:3px">{{ c.name }}</div>
+                  <div style="font-size:12.5px;color:rgba(255,255,255,.6)">{{ c.sub }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isContact }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <section style="padding:clamp(48px,7vw,86px) clamp(18px,4vw,40px) clamp(24px,3vw,36px);background:var(--bg)">
+          <div data-reveal style="max-width:760px;margin:0 auto;text-align:center">
+            <span style="display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--primary-deep)"><span style="width:26px;height:1px;background:var(--primary)"></span>Get In Touch</span>
+            <h1 style="margin:16px 0 0;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(38px,5.4vw,64px);line-height:1.04;letter-spacing:-.012em;color:var(--text)">Let&rsquo;s plan something unforgettable</h1>
+            <p style="margin:18px auto 0;max-width:560px;font-size:clamp(15px,1.5vw,18px);line-height:1.7;color:var(--text-soft)">Tell us a little about your trip and a travel specialist will get back to you within one business day — usually much sooner.</p>
+          </div>
+        </section>
+
+        <section style="padding:clamp(20px,3vw,40px) clamp(18px,4vw,40px) clamp(56px,8vw,90px);background:var(--bg)">
+          <div style="max-width:1180px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;align-items:start">
+            <div data-stagger style="display:flex;flex-direction:column;gap:14px">
+              <div style="display:flex;gap:15px;padding:22px;background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow-sm)">
+                <span style="width:48px;height:48px;border-radius:13px;flex-shrink:0;background:var(--primary-soft);display:flex;align-items:center;justify-content:center"><span class="ms" style="font-size:24px;color:var(--primary-deep)">location_on</span></span>
+                <div><div style="font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px">Office</div><div style="font-size:15.5px;font-weight:600;color:var(--text);line-height:1.5">Office 1204, Marina Plaza<br>Dubai Marina, United Arab Emirates</div></div>
+              </div>
+              <div style="display:flex;gap:15px;padding:22px;background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow-sm)">
+                <span style="width:48px;height:48px;border-radius:13px;flex-shrink:0;background:var(--primary-soft);display:flex;align-items:center;justify-content:center"><span class="ms" style="font-size:24px;color:var(--primary-deep)">call</span></span>
+                <div><div style="font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px">Phone</div><a href="tel:+97145550192" style="font-size:15.5px;font-weight:600;color:var(--text)">+971 4 555 0192</a></div>
+              </div>
+              <div style="display:flex;gap:15px;padding:22px;background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow-sm)">
+                <span style="width:48px;height:48px;border-radius:13px;flex-shrink:0;background:var(--primary-soft);display:flex;align-items:center;justify-content:center"><span class="ms" style="font-size:24px;color:var(--primary-deep)">mail</span></span>
+                <div><div style="font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px">Email</div><a href="mailto:hello@travelspoint.com" style="font-size:15.5px;font-weight:600;color:var(--text)">hello@travelspoint.com</a></div>
+              </div>
+              <div style="display:flex;gap:15px;padding:22px;background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow-sm)">
+                <span style="width:48px;height:48px;border-radius:13px;flex-shrink:0;background:var(--primary-soft);display:flex;align-items:center;justify-content:center"><span class="ms" style="font-size:24px;color:var(--primary-deep)">schedule</span></span>
+                <div><div style="font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px">Business Hours</div><div style="font-size:15.5px;font-weight:600;color:var(--text);line-height:1.5">Sun–Thu · 9:00am – 7:00pm<br>Sat · 10:00am – 4:00pm</div></div>
+              </div>
+              <div style="position:relative;overflow:hidden;display:flex;gap:15px;align-items:center;padding:22px;border-radius:18px;background:linear-gradient(135deg,#1faf5a,#11833f);box-shadow:var(--shadow-md)">
+                <span style="width:48px;height:48px;border-radius:13px;flex-shrink:0;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center"><span class="ms" style="font-size:26px;color:#fff">chat</span></span>
+                <div style="flex:1"><div style="font-size:15.5px;font-weight:800;color:#fff">Prefer WhatsApp?</div><div style="font-size:13px;color:rgba(255,255,255,.85)">Chat with a specialist right now.</div></div>
+                <button type="button" onClick="{{ openWhatsApp }}" style="background:#fff;color:#11833f;border:none;cursor:pointer;font-size:13.5px;font-weight:800;padding:11px 16px;border-radius:11px">Open chat</button>
+              </div>
+            </div>
+
+            <div data-reveal style="grid-column:span 1;background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:clamp(24px,3.5vw,40px);box-shadow:var(--shadow-md)">
+              <sc-if value="{{ contactNotDone }}" hint-placeholder-val="{{ true }}">
+                <form onSubmit="{{ submitContact }}" novalidate="novalidate">
+                  <h2 style="margin:0 0 6px;font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.01em">Send us a message</h2>
+                  <p style="margin:0 0 22px;font-size:14px;color:var(--text-faint)">Fields marked with care — we read every one.</p>
+                  <input type="text" value="{{ contact.hp }}" onChange="{{ setContactHp }}" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+                  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+                    <sc-for list="{{ contactFields }}" as="f" hint-placeholder-count="6">
+                      <label style="display:flex;flex-direction:column;gap:7px;grid-column:{{ f.gridCol }}">
+                        <span style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:var(--text-soft)"><span class="ms" style="font-size:16px;color:var(--primary-deep)">{{ f.icon }}</span>{{ f.label }}</span>
+                        <sc-if value="{{ f.notTextarea }}" hint-placeholder-val="{{ true }}">
+                          <input type="{{ f.type }}" list="{{ f.list }}" value="{{ f.val }}" onChange="{{ f.onChange }}" placeholder="{{ f.ph }}" style="width:100%;padding:13px 15px;border:1px solid {{ f.bdr }};border-radius:12px;background:var(--surface-2);font-size:15px;color:var(--text);outline:none;transition:border-color .25s,box-shadow .25s" style-focus="border-color:var(--primary);box-shadow:0 0 0 3px var(--ring)">
+                        </sc-if>
+                        <sc-if value="{{ f.isTextarea }}" hint-placeholder-val="{{ false }}">
+                          <textarea value="{{ f.val }}" onChange="{{ f.onChange }}" placeholder="{{ f.ph }}" rows="4" style="width:100%;padding:13px 15px;border:1px solid {{ f.bdr }};border-radius:12px;background:var(--surface-2);font-size:15px;color:var(--text);outline:none;resize:vertical;font-family:inherit;line-height:1.6;transition:border-color .25s,box-shadow .25s" style-focus="border-color:var(--primary);box-shadow:0 0 0 3px var(--ring)"></textarea>
+                        </sc-if>
+                        <sc-if value="{{ f.err }}" hint-placeholder-val="{{ false }}"><span style="display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:#e5484d"><span class="ms" style="font-size:14px">error</span>{{ f.err }}</span></sc-if>
+                      </label>
+                    </sc-for>
+                  </div>
+                  <datalist id="tp-cform-dests"><sc-for list="{{ searchDestinations }}" as="d" hint-placeholder-count="6"><option value="{{ d }}"></option></sc-for></datalist>
+                  <button type="submit" style="margin-top:22px;width:100%;display:inline-flex;align-items:center;justify-content:center;gap:9px;background:linear-gradient(135deg,var(--primary),var(--primary-deep));color:#fff;border:none;cursor:pointer;font-size:16px;font-weight:700;padding:16px;border-radius:13px;box-shadow:0 14px 30px -14px var(--ring);transition:transform .2s cubic-bezier(.2,1,.3,1),box-shadow .2s,filter .2s,gap .2s" style-hover="transform:translateY(-2px);filter:brightness(1.07);gap:13px;box-shadow:0 20px 40px -14px var(--ring)" style-active="transform:translateY(0) scale(.98)">Send Message <span class="ms" style="font-size:20px">send</span></button>
+                  <div style="display:flex;align-items:center;justify-content:center;gap:7px;margin-top:14px;font-size:12.5px;color:var(--text-faint)"><span class="ms" style="font-size:15px;color:var(--primary-deep)">verified_user</span>Protected by spam filtering. We never share your details.</div>
+                </form>
+              </sc-if>
+              <sc-if value="{{ contactDone }}" hint-placeholder-val="{{ false }}">
+                <div style="text-align:center;padding:clamp(20px,4vw,48px) 8px">
+                  <span style="width:72px;height:72px;border-radius:50%;margin:0 auto 22px;background:linear-gradient(135deg,#1faf5a,#11833f);display:flex;align-items:center;justify-content:center;box-shadow:0 16px 34px -14px rgba(17,131,63,.6)"><span class="ms" style="font-size:40px;color:#fff;font-variation-settings:'wght' 500">check</span></span>
+                  <h2 style="margin:0 0 10px;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:34px;color:var(--text)">Message on its way!</h2>
+                  <p style="margin:0 auto 26px;max-width:380px;font-size:15.5px;line-height:1.65;color:var(--text-soft)">Thanks for reaching out. A Travels Point specialist will be in touch within one business day. Your inquiry has been logged.</p>
+                  <button type="button" onClick="{{ resetContact }}" style="display:inline-flex;align-items:center;gap:8px;background:var(--surface-2);color:var(--text);border:1px solid var(--border-strong);cursor:pointer;font-size:14.5px;font-weight:700;padding:13px 22px;border-radius:12px"><span class="ms" style="font-size:18px">add</span>Send another message</button>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+        </section>
+
+        <section style="padding:0 0 clamp(56px,8vw,90px)">
+          <div style="max-width:1180px;margin:0 auto;padding:0 clamp(18px,4vw,40px)">
+            <div data-reveal style="display:flex;align-items:center;gap:10px;margin-bottom:18px"><span class="ms" style="font-size:22px;color:var(--primary-deep)">map</span><h2 style="margin:0;font-size:20px;font-weight:800;color:var(--text)">Find us in Dubai Marina</h2></div>
+            <div data-reveal style="position:relative;height:clamp(280px,38vw,420px);border-radius:22px;overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow-md);background:linear-gradient(135deg,#083b7c,#1565c5)">
+              <iframe title="Travels Point office location" src="{{ mapSrc }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>
+            </div>
+          </div>
+        </section>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <sc-if value="{{ adminNotAuthed }}" hint-placeholder-val="{{ true }}">
+          <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(120% 90% at 80% 10%,rgba(11,78,162,.12),transparent 55%),var(--bg);position:relative">
+            <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,color-mix(in oklab,var(--primary) 4%,transparent) 0 2px,transparent 2px 24px);pointer-events:none"></div>
+            <div style="position:relative;width:100%;max-width:430px;background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:clamp(28px,4vw,42px);box-shadow:var(--shadow-lg)">
+              <div style="display:flex;align-items:center;gap:11px;margin-bottom:26px">
+                <img src="assets/logo-mark.png" alt="" style="height:44px;width:auto;display:block">
+                <span style="font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--text)">Travels Point</span>
+              </div>
+              <h1 style="margin:0 0 6px;font-size:25px;font-weight:800;color:var(--text);letter-spacing:-.01em">Admin sign in</h1>
+              <p style="margin:0 0 26px;font-size:14.5px;color:var(--text-faint)">Manage offers, destinations, packages and more.</p>
+              <form onSubmit="{{ doLogin }}" novalidate="novalidate">
+                <label style="display:flex;flex-direction:column;gap:7px;margin-bottom:16px">
+                  <span style="font-size:13px;font-weight:700;color:var(--text-soft)">Email</span>
+                  <input type="email" value="{{ adminLogin.email }}" onChange="{{ setLoginEmail }}" placeholder="you@travelspoint.com" style="width:100%;padding:14px 15px;border:1px solid var(--border-strong);border-radius:12px;background:var(--surface-2);font-size:15px;color:var(--text);outline:none;transition:border-color .25s,box-shadow .25s" style-focus="border-color:var(--primary);box-shadow:0 0 0 3px var(--ring)">
+                </label>
+                <label style="display:flex;flex-direction:column;gap:7px;margin-bottom:18px">
+                  <span style="font-size:13px;font-weight:700;color:var(--text-soft)">Password</span>
+                  <input type="password" value="{{ adminLogin.password }}" onChange="{{ setLoginPassword }}" placeholder="••••••••" style="width:100%;padding:14px 15px;border:1px solid var(--border-strong);border-radius:12px;background:var(--surface-2);font-size:15px;color:var(--text);outline:none;transition:border-color .25s,box-shadow .25s" style-focus="border-color:var(--primary);box-shadow:0 0 0 3px var(--ring)">
+                </label>
+                <sc-if value="{{ adminError }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;gap:7px;margin-bottom:16px;padding:11px 14px;border-radius:11px;background:rgba(229,72,77,.1);color:#e5484d;font-size:13.5px;font-weight:600"><span class="ms" style="font-size:17px">error</span>{{ adminError }}</div></sc-if>
+                <button type="submit" style="width:100%;display:inline-flex;align-items:center;justify-content:center;gap:9px;background:linear-gradient(135deg,var(--primary),var(--primary-deep));color:#fff;border:none;cursor:pointer;font-size:15.5px;font-weight:700;padding:15px;border-radius:13px;box-shadow:0 14px 30px -14px var(--ring);transition:transform .2s cubic-bezier(.2,1,.3,1),box-shadow .2s,filter .2s" style-hover="transform:translateY(-2px);filter:brightness(1.07);box-shadow:0 20px 40px -14px var(--ring)" style-active="transform:translateY(0) scale(.98)"><span class="ms" style="font-size:19px">lock_open</span>Sign in to dashboard</button>
+              </form>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:18px;padding:12px 14px;border-radius:11px;background:var(--surface-2);border:1px dashed var(--border-strong);font-size:12.5px;color:var(--text-faint)"><span class="ms" style="font-size:16px;color:var(--primary-deep)">info</span>Demo mode — enter any email &amp; password to continue.</div>
+              <button type="button" onClick="{{ goHome }}" style="display:flex;align-items:center;gap:7px;margin:18px auto 0;background:none;border:none;cursor:pointer;color:var(--text-soft);font-size:13.5px;font-weight:600"><span class="ms" style="font-size:17px">arrow_back</span>Back to website</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ adminAuthed }}" hint-placeholder-val="{{ false }}">
+          <div style="min-height:100vh;background:var(--bg-2);display:flex;flex-direction:column">
+            <header style="position:sticky;top:0;z-index:40;background:var(--surface);border-bottom:1px solid var(--border);padding:0 clamp(16px,3vw,28px);height:66px;display:flex;align-items:center;justify-content:space-between;gap:16px">
+              <div style="display:flex;align-items:center;gap:11px">
+                <img src="assets/logo-mark.png" alt="" style="height:40px;width:auto;display:block">
+                <div style="display:flex;flex-direction:column;line-height:1.1"><span style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--text)">Travels Point</span><span style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--primary-deep)">Admin Console</span></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px">
+                <button type="button" onClick="{{ goHome }}" style="display:inline-flex;align-items:center;gap:7px;background:var(--surface-2);color:var(--text);border:1px solid var(--border-strong);cursor:pointer;font-size:13.5px;font-weight:700;padding:9px 15px;border-radius:11px"><span class="ms" style="font-size:17px">open_in_new</span>View site</button>
+                <button type="button" onClick="{{ toggleTheme }}" aria-label="Toggle theme" style="width:40px;height:40px;border-radius:11px;border:1px solid var(--border-strong);background:var(--surface-2);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-soft)"><span class="ms" style="font-size:20px">{{ themeIcon }}</span></button>
+                <div style="display:flex;align-items:center;gap:9px;padding-left:6px">
+                  <span style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#0b4ea2,#5b9bff);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px">{{ adminUserInitials }}</span>
+                  <button type="button" onClick="{{ logout }}" aria-label="Log out" style="width:40px;height:40px;border-radius:11px;border:1px solid var(--border-strong);background:var(--surface-2);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-soft)"><span class="ms" style="font-size:20px">logout</span></button>
+                </div>
+              </div>
+            </header>
+
+            <div style="flex:1;display:flex;align-items:stretch">
+              <sc-if value="{{ showDesktopNav }}" hint-placeholder-val="{{ true }}">
+                <aside style="width:248px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:20px 14px;display:flex;flex-direction:column;gap:4px">
+                  <span style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);padding:6px 12px 10px">Manage</span>
+                  <sc-for list="{{ adminSections }}" as="s" hint-placeholder-count="6">
+                    <button type="button" onClick="{{ s.onClick }}" style="display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:none;cursor:pointer;font-size:14.5px;font-weight:600;padding:12px 13px;border-radius:12px;background:{{ s.navBg }};color:{{ s.navFg }};transition:background .2s,color .2s,transform .2s" style-hover="background:var(--primary-soft);color:var(--primary);transform:translateX(3px)">
+                      <span class="ms" style="font-size:21px">{{ s.icon }}</span>
+                      <span style="flex:1">{{ s.label }}</span>
+                      <span style="font-size:12px;font-weight:700;padding:2px 9px;border-radius:99px;background:{{ s.countBg }};color:{{ s.countFg }}">{{ s.count }}</span>
+                    </button>
+                  </sc-for>
+                </aside>
+              </sc-if>
+
+              <main style="flex:1;min-width:0;padding:clamp(18px,3vw,32px)">
+                <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:14px;margin-bottom:6px">
+                    <sc-for list="{{ adminSections }}" as="s" hint-placeholder-count="6"><button type="button" onClick="{{ s.onClick }}" style="display:inline-flex;align-items:center;gap:7px;white-space:nowrap;border:1px solid var(--border);cursor:pointer;font-size:13px;font-weight:700;padding:9px 14px;border-radius:99px;background:{{ s.navBg }};color:{{ s.navFg }};transition:background .2s,color .2s,border-color .2s" style-hover="background:var(--primary-soft);color:var(--primary);border-color:var(--primary)"><span class="ms" style="font-size:17px">{{ s.icon }}</span>{{ s.label }}</button></sc-for>
+                  </div>
+                </sc-if>
+
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px">
+                  <sc-for list="{{ adminStats }}" as="s" hint-placeholder-count="4">
+                    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px 20px;display:flex;align-items:center;gap:14px;transition:transform .25s cubic-bezier(.2,1,.3,1),box-shadow .25s,border-color .25s" style-hover="transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:color-mix(in oklab,var(--primary) 25%,var(--border))">
+                      <span style="width:46px;height:46px;border-radius:13px;background:{{ s.bg }};display:flex;align-items:center;justify-content:center;flex-shrink:0"><span class="ms" style="font-size:24px;color:{{ s.fg }}">{{ s.icon }}</span></span>
+                      <div><div style="font-size:26px;font-weight:800;color:var(--text);letter-spacing:-.02em;line-height:1">{{ s.value }}</div><div style="font-size:12.5px;font-weight:600;color:var(--text-faint);margin-top:3px">{{ s.label }}</div></div>
+                    </div>
+                  </sc-for>
+                </div>
+
+                <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;margin-bottom:18px">
+                  <div><h1 style="margin:0;font-size:24px;font-weight:800;color:var(--text);letter-spacing:-.01em">{{ adminSectionLabel }}</h1><p style="margin:4px 0 0;font-size:13.5px;color:var(--text-faint)">{{ rangeLabel }}</p></div>
+                  <sc-if value="{{ adminCanAdd }}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{ openAdd }}" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--primary),var(--primary-deep));color:#fff;border:none;cursor:pointer;font-size:14px;font-weight:700;padding:12px 20px;border-radius:12px;box-shadow:0 12px 26px -14px var(--ring);transition:transform .2s cubic-bezier(.2,1,.3,1),box-shadow .2s,filter .2s,gap .2s" style-hover="transform:translateY(-2px);filter:brightness(1.07);gap:11px;box-shadow:0 18px 34px -14px var(--ring)" style-active="transform:translateY(0) scale(.97)"><span class="ms" style="font-size:19px">add</span>Add {{ adminSingular }}</button></sc-if>
+                </div>
+
+                <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:18px">
+                  <div style="flex:1;min-width:220px;display:flex;align-items:center;gap:9px;padding:11px 15px;background:var(--surface);border:1px solid var(--border-strong);border-radius:12px">
+                    <span class="ms" style="font-size:20px;color:var(--text-faint)">search</span>
+                    <input value="{{ adminSearch }}" onChange="{{ setAdminSearch }}" placeholder="Search {{ adminSectionLabel }}…" style="flex:1;border:none;background:none;outline:none;font-size:14.5px;color:var(--text)">
+                  </div>
+                  <sc-if value="{{ adminFilterShow }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;gap:7px;flex-wrap:wrap">
+                      <sc-for list="{{ adminFilters }}" as="f" hint-placeholder-count="4"><button type="button" onClick="{{ f.onClick }}" style="border:1px solid {{ f.bd }};cursor:pointer;font-size:13px;font-weight:700;padding:9px 15px;border-radius:99px;background:{{ f.bg }};color:{{ f.fg }};transition:all .2s" style-hover="transform:translateY(-1px);border-color:var(--primary);color:var(--primary)">{{ f.label }}</button></sc-for>
+                    </div>
+                  </sc-if>
+                </div>
+
+                <div style="background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:var(--shadow-sm)">
+                  <div style="display:grid;grid-template-columns:{{ adminGridCols }};gap:12px;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--surface-2)">
+                    <sc-for list="{{ adminColumns }}" as="col" hint-placeholder-count="5"><span style="font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint)">{{ col.label }}</span></sc-for>
+                    <span style="font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);text-align:right">Actions</span>
+                  </div>
+
+                  <sc-if value="{{ adminLoading }}" hint-placeholder-val="{{ false }}">
+                    <div style="padding:8px 0">
+                      <sc-for list="{{ adminColumns }}" as="col" hint-placeholder-count="5"><div style="height:52px;margin:8px 20px;border-radius:10px;background:linear-gradient(90deg,var(--surface-2) 25%,var(--border) 37%,var(--surface-2) 63%);background-size:400px 100%;animation:tpShimmer 1.3s infinite linear"></div></sc-for>
+                    </div>
+                  </sc-if>
+
+                  <sc-if value="{{ adminNotLoading }}" hint-placeholder-val="{{ true }}">
+                    <div>
+                      <sc-if value="{{ adminEmpty }}" hint-placeholder-val="{{ false }}">
+                        <div style="text-align:center;padding:56px 20px;color:var(--text-faint)"><span class="ms" style="font-size:40px;opacity:.5">inbox</span><p style="margin:10px 0 0;font-size:15px;font-weight:600">No records found</p><p style="margin:4px 0 0;font-size:13.5px">Try a different search or filter.</p></div>
+                      </sc-if>
+                      <sc-for list="{{ adminRows }}" as="row" hint-placeholder-count="5">
+                        <div style="display:grid;grid-template-columns:{{ adminGridCols }};gap:12px;align-items:center;padding:13px 20px;border-bottom:1px solid var(--border);transition:background .18s" style-hover="background:var(--surface-2)">
+                          <sc-for list="{{ row.cells }}" as="cell" hint-placeholder-count="5">
+                            <div style="min-width:0">
+                              <sc-if value="{{ cell.isThumb }}" hint-placeholder-val="{{ false }}"><span style="display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:10px;background:{{ cell.bg }};background-size:cover;color:rgba(255,255,255,.9);font-size:12px;font-weight:800;box-shadow:inset 0 0 0 1px rgba(0,0,0,.05)">{{ cell.label }}</span></sc-if>
+                              <sc-if value="{{ cell.isTitle }}" hint-placeholder-val="{{ false }}"><span style="font-size:14px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block">{{ cell.val }}</span></sc-if>
+                              <sc-if value="{{ cell.isText }}" hint-placeholder-val="{{ false }}"><span style="font-size:13.5px;color:var(--text-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block">{{ cell.val }}</span></sc-if>
+                              <sc-if value="{{ cell.isMoney }}" hint-placeholder-val="{{ false }}"><span style="font-size:14px;font-weight:800;color:var(--text)">{{ cell.val }}</span></sc-if>
+                              <sc-if value="{{ cell.isRating }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:3px;font-size:13.5px;font-weight:700;color:var(--text)"><span class="ms" style="font-size:15px;color:var(--accent)">star</span>{{ cell.val }}</span></sc-if>
+                              <sc-if value="{{ cell.isBadge }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;font-size:11.5px;font-weight:700;padding:4px 11px;border-radius:99px;background:{{ cell.bg }};color:{{ cell.fg }}">{{ cell.val }}</span></sc-if>
+                              <sc-if value="{{ cell.isBool }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;color:{{ cell.boolFg }}"><span class="ms" style="font-size:18px">{{ cell.boolIcon }}</span>{{ cell.boolLabel }}</span></sc-if>
+                            </div>
+                          </sc-for>
+                          <div style="display:flex;gap:6px;justify-content:flex-end">
+                            <sc-if value="{{ adminIsInquiries }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ row.onView }}" aria-label="View" style="width:34px;height:34px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface-2);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--primary-deep);transition:background .2s,border-color .2s,transform .2s" style-hover="background:var(--primary-soft);border-color:var(--primary);color:var(--primary);transform:translateY(-1px)"><span class="ms" style="font-size:18px">visibility</span></button></sc-if>
+                            <sc-if value="{{ adminCanAdd }}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{ row.onEdit }}" aria-label="Edit" style="width:34px;height:34px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface-2);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--primary-deep);transition:background .2s,border-color .2s,transform .2s" style-hover="background:var(--primary-soft);border-color:var(--primary);color:var(--primary);transform:translateY(-1px)"><span class="ms" style="font-size:18px">edit</span></button></sc-if>
+                            <button type="button" onClick="{{ row.onDelete }}" aria-label="Delete" style="width:34px;height:34px;border-radius:9px;border:1px solid var(--border-strong);background:var(--surface-2);cursor:pointer;display:flex;align-items:center;justify-content:center;color:#e5484d;transition:background .2s,border-color .2s,transform .2s" style-hover="background:rgba(229,72,77,.12);border-color:#e5484d;transform:translateY(-1px)"><span class="ms" style="font-size:18px">delete</span></button>
+                          </div>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                </div>
+
+                <sc-if value="{{ adminMultiPage }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;justify-content:center;gap:7px;margin-top:20px">
+                    <sc-for list="{{ adminPages }}" as="pg" hint-placeholder-count="3"><button type="button" onClick="{{ pg.onClick }}" style="min-width:38px;height:38px;border-radius:10px;border:1px solid {{ pg.bd }};cursor:pointer;font-size:14px;font-weight:700;background:{{ pg.bg }};color:{{ pg.fg }};transition:background .2s,border-color .2s,color .2s,transform .2s" style-hover="border-color:var(--primary);color:var(--primary);transform:translateY(-1px)">{{ pg.n }}</button></sc-for>
+                  </div>
+                </sc-if>
+              </main>
+            </div>
+          </div>
+
+          <sc-if value="{{ editorOpen }}" hint-placeholder-val="{{ false }}">
+            <div onClick="{{ closeEditor }}" style="position:fixed;inset:0;z-index:80;background:rgba(6,16,28,.55);backdrop-filter:blur(4px);display:flex;align-items:flex-start;justify-content:center;padding:max(24px,5vh) 18px;overflow-y:auto">
+              <div onClick="{{ stop }}" style="width:100%;max-width:560px;background:var(--surface);border:1px solid var(--border);border-radius:22px;box-shadow:var(--shadow-lg);overflow:hidden">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--border)">
+                  <h2 style="margin:0;font-size:19px;font-weight:800;color:var(--text)">{{ editorTitle }}</h2>
+                  <button type="button" onClick="{{ closeEditor }}" aria-label="Close" style="width:36px;height:36px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface-2);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-soft)"><span class="ms" style="font-size:20px">close</span></button>
+                </div>
+                <div style="padding:22px 24px;max-height:64vh;overflow-y:auto;display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                  <sc-for list="{{ editorFields }}" as="f" hint-placeholder-count="6">
+                    <label style="display:flex;flex-direction:column;gap:7px;grid-column:{{ f.gridCol }}">
+                      <span style="font-size:13px;font-weight:700;color:var(--text-soft)">{{ f.label }}</span>
+                      <sc-if value="{{ f.isInput }}" hint-placeholder-val="{{ true }}"><input type="{{ f.inputType }}" value="{{ f.value }}" onChange="{{ f.onChange }}" readOnly="{{ f.readOnly }}" style="width:100%;padding:12px 14px;border:1px solid var(--border-strong);border-radius:11px;background:var(--surface-2);font-size:14.5px;color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s" style-focus="border-color:var(--primary);box-shadow:0 0 0 3px var(--ring)"></sc-if>
+                      <sc-if value="{{ f.isTextarea }}" hint-placeholder-val="{{ false }}"><textarea value="{{ f.value }}" onChange="{{ f.onChange }}" readOnly="{{ f.readOnly }}" rows="3" style="width:100%;padding:12px 14px;border:1px solid var(--border-strong);border-radius:11px;background:var(--surface-2);font-size:14.5px;color:var(--text);outline:none;resize:vertical;font-family:inherit;line-height:1.6" style-focus="border-color:var(--primary);box-shadow:0 0 0 3px var(--ring)"></textarea></sc-if>
+                      <sc-if value="{{ f.isSelect }}" hint-placeholder-val="{{ false }}"><select value="{{ f.value }}" onChange="{{ f.onChange }}" style="width:100%;padding:12px 14px;border:1px solid var(--border-strong);border-radius:11px;background:var(--surface-2);font-size:14.5px;color:var(--text);outline:none;cursor:pointer"><sc-for list="{{ f.options }}" as="o" hint-placeholder-count="3"><option value="{{ o.value }}">{{ o.label }}</option></sc-for></select></sc-if>
+                      <sc-if value="{{ f.isToggle }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ f.onToggle }}" style="align-self:flex-start;display:inline-flex;align-items:center;gap:9px;border:1px solid var(--border-strong);background:var(--surface-2);cursor:pointer;font-size:14px;font-weight:700;color:var(--text);padding:9px 14px;border-radius:11px"><span class="ms" style="font-size:22px;color:{{ f.toggleFg }}">{{ f.toggleIcon }}</span>{{ f.toggleLabel }}</button></sc-if>
+                      <sc-if value="{{ f.isImage }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex;align-items:center;gap:14px">
+                          <span style="width:64px;height:64px;border-radius:12px;flex-shrink:0;background:{{ editorImgBg }};background-size:cover;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)"></span>
+                          <label style="cursor:pointer;display:inline-flex;align-items:center;gap:8px;border:1px dashed var(--border-strong);background:var(--surface-2);font-size:13.5px;font-weight:700;color:var(--primary-deep);padding:11px 16px;border-radius:11px"><span class="ms" style="font-size:18px">upload</span>Upload image<input type="file" accept="image/*" onChange="{{ f.onPick }}" style="display:none"></label>
+                        </div>
+                      </sc-if>
+                    </label>
+                  </sc-for>
+                </div>
+                <div style="display:flex;gap:12px;justify-content:flex-end;padding:18px 24px;border-top:1px solid var(--border);background:var(--surface-2)">
+                  <button type="button" onClick="{{ closeEditor }}" style="background:var(--surface);color:var(--text);border:1px solid var(--border-strong);cursor:pointer;font-size:14.5px;font-weight:700;padding:12px 22px;border-radius:12px">Cancel</button>
+                  <button type="button" onClick="{{ saveEditor }}" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--primary),var(--primary-deep));color:#fff;border:none;cursor:pointer;font-size:14.5px;font-weight:700;padding:12px 24px;border-radius:12px;box-shadow:0 12px 26px -14px var(--ring)"><span class="ms" style="font-size:18px">check</span>{{ editorSaveLabel }}</button>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+        </sc-if>
+      </div>
+    </sc-if>
+  </main>
+
+  <sc-if value="{{ showFooter }}" hint-placeholder-val="{{ true }}">
+    <footer style="background:var(--bg-2);border-top:1px solid var(--border);margin-top:0">
+      <div style="max-width:1240px;margin:0 auto;padding:clamp(48px,7vw,84px) clamp(18px,4vw,40px) 0">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:40px">
+          <div style="max-width:340px">
+            <div style="display:flex;align-items:center;gap:11px;margin-bottom:18px">
+              <img src="assets/logo-mark.png" alt="" style="height:42px;width:auto;display:block">
+              <span style="font-family:'Cormorant Garamond',serif;font-size:25px;font-weight:600">Travels Point</span>
+            </div>
+            <p style="margin:0 0 20px;color:var(--text-soft);line-height:1.7;font-size:15px">Tailor-made journeys across 120+ destinations — honeymoons, family escapes, group tours and corporate travel, handled end to end.</p>
+            <div style="display:flex;gap:10px">
+              <sc-for list="{{ socials }}" as="s" hint-placeholder-count="4"><a href="{{ s.url }}" aria-label="{{ s.label }}" style="width:40px;height:40px;border-radius:11px;border:1px solid var(--border-strong);background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--text-soft);transition:color .2s,border-color .2s,transform .2s,box-shadow .2s" style-hover="color:var(--primary);border-color:var(--primary);transform:translateY(-3px);box-shadow:var(--shadow-sm)"><span class="ms" style="font-size:19px">{{ s.icon }}</span></a></sc-for>
+            </div>
+          </div>
+          <div>
+            <h4 style="margin:0 0 16px;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint)">Explore</h4>
+            <div style="display:flex;flex-direction:column;gap:11px">
+              <sc-for list="{{ footerLinks }}" as="f" hint-placeholder-count="5"><button type="button" onClick="{{ f.onClick }}" style="text-align:left;background:none;border:none;cursor:pointer;color:var(--text-soft);font-size:15px;font-weight:500;padding:0;width:fit-content;transition:color .2s,transform .2s" style-hover="color:var(--primary);transform:translateX(3px)">{{ f.label }}</button></sc-for>
+            </div>
+          </div>
+          <div>
+            <h4 style="margin:0 0 16px;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint)">Get in touch</h4>
+            <div style="display:flex;flex-direction:column;gap:13px;color:var(--text-soft);font-size:15px">
+              <span style="display:flex;gap:10px"><span class="ms" style="font-size:19px;color:var(--primary)">location_on</span>Office 1204, Marina Plaza,<br>Dubai Marina, UAE</span>
+              <a href="tel:+97145550192" style="display:flex;gap:10px;transition:color .2s;width:fit-content" style-hover="color:var(--primary)"><span class="ms" style="font-size:19px;color:var(--primary)">call</span>+971 4 555 0192</a>
+              <a href="mailto:hello@travelspoint.com" style="display:flex;gap:10px;transition:color .2s;width:fit-content" style-hover="color:var(--primary)"><span class="ms" style="font-size:19px;color:var(--primary)">mail</span>hello@travelspoint.com</a>
+            </div>
+          </div>
+          <div style="max-width:300px">
+            <h4 style="margin:0 0 16px;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint)">Travel inspiration, monthly</h4>
+            <p style="margin:0 0 14px;color:var(--text-soft);font-size:15px;line-height:1.6">Hand-picked deals and new destinations. No spam.</p>
+            <div style="display:flex;gap:8px;background:var(--surface);border:1px solid var(--border-strong);border-radius:13px;padding:6px">
+              <input value="{{ newsletter }}" onChange="{{ onNewsletter }}" placeholder="Your email" style="flex:1;border:none;background:none;outline:none;padding:10px 12px;font-size:14.5px;color:var(--text)">
+              <button type="button" onClick="{{ subscribe }}" style="background:linear-gradient(135deg,var(--primary),var(--primary-deep));color:#fff;border:none;cursor:pointer;font-weight:700;font-size:14px;padding:11px 18px;border-radius:9px;transition:transform .2s,filter .2s,box-shadow .2s" style-hover="transform:translateY(-1px);filter:brightness(1.08);box-shadow:0 10px 22px -10px var(--ring)" style-active="transform:translateY(0) scale(.97)">Join</button>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:48px;padding:24px 0;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between">
+          <span style="color:var(--text-faint);font-size:14px">© {{ year }} Travels Point. All rights reserved.</span>
+          <div style="display:flex;align-items:center;gap:20px">
+            <span style="color:var(--text-faint);font-size:14px">IATA · ASTA · ATOL Protected</span>
+            <button type="button" onClick="{{ goAdmin }}" style="display:flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;color:var(--text-faint);font-size:13.5px;font-weight:600;transition:color .2s" style-hover="color:var(--primary)"><span class="ms" style="font-size:16px">lock</span>Admin</button>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </sc-if>
+
+  <sc-if value="{{ showBottomNav }}" hint-placeholder-val="{{ false }}"><div style="height:94px;background:var(--bg)"></div></sc-if>
+
+  <sc-if value="{{ showBottomNav }}" hint-placeholder-val="{{ false }}">
+    <nav style="position:fixed;left:0;right:0;bottom:0;z-index:150;display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 14px calc(14px + env(safe-area-inset-bottom,0px));pointer-events:none">
+      <div style="pointer-events:auto;display:flex;align-items:center;gap:3px;padding:7px;border-radius:32px;background:var(--glass-strong);backdrop-filter:blur(30px) saturate(1.9);-webkit-backdrop-filter:blur(30px) saturate(1.9);border:1px solid var(--glass-border);box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 16px 38px -10px rgba(11,28,44,.42)">
+        <sc-for list="{{ bottomNavLinks }}" as="b" hint-placeholder-count="4">
+          <button type="button" onClick="{{ b.onClick }}" aria-label="{{ b.label }}" style="display:flex;flex-direction:column;align-items:center;gap:3px;min-width:60px;padding:9px 6px 7px;border:none;cursor:pointer;border-radius:24px;background:{{ b.pillBg }};color:{{ b.fg }};transition:background .35s cubic-bezier(.2,1,.3,1),color .3s">
+            <span class="ms" style="font-size:23px">{{ b.icon }}</span>
+            <span style="font-size:10.5px;font-weight:700;letter-spacing:.005em">{{ b.label }}</span>
+          </button>
+        </sc-for>
+      </div>
+      <button type="button" onClick="{{ planTrip }}" aria-label="Plan my trip" style="pointer-events:auto;flex-shrink:0;width:58px;height:58px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:linear-gradient(135deg,var(--accent),#d96b00);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 16px 32px -10px rgba(245,124,0,.7),inset 0 1px 0 rgba(255,255,255,.45);transition:transform .25s cubic-bezier(.2,1,.3,1),box-shadow .25s,filter .2s" style-hover="transform:translateY(-3px) scale(1.05);filter:brightness(1.06);box-shadow:0 22px 40px -10px rgba(245,124,0,.85),inset 0 1px 0 rgba(255,255,255,.45)" style-active="transform:translateY(0) scale(.97)"><span class="ms" style="font-size:25px">flight_takeoff</span></button>
+    </nav>
+  </sc-if>
+
+  <sc-if value="{{ showWhatsApp }}" hint-placeholder-val="{{ true }}">
+    <button type="button" onClick="{{ openWhatsApp }}" aria-label="Chat on WhatsApp" style="position:fixed;right:22px;bottom:{{ waBottom }};z-index:140;display:flex;align-items:center;gap:11px;height:60px;padding:0 20px 0 16px;border-radius:30px;background:#25D366;color:#fff;border:none;cursor:pointer;box-shadow:0 16px 34px -12px rgba(37,211,102,.7);animation:tpPulse 2.6s infinite">
+      <span class="ms" style="font-size:30px">chat</span>
+      <sc-if value="{{ showWaLabel }}" hint-placeholder-val="{{ true }}"><span style="font-size:14.5px;font-weight:700">Chat with us</span></sc-if>
+    </button>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;defaultDark&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#f57c00&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#f57c00&quot;,&quot;#0b4ea2&quot;,&quot;#4caf50&quot;]},&quot;heroVideo&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;reduceMotion&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;showWhatsApp&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = {
+    loading:true, screen:'home', dark:false, menuOpen:false,
+    vw:(typeof window!=='undefined'? window.innerWidth : 1280),
+    testiIndex:0, offerView:'carousel', offerIndex:0, toast:'', newsletter:'', pkgRegion:'all', galCategory:'all',
+    search:{ destination:'', dates:'', travelers:'2 Adults', type:'Honeymoon', budget:'$2k – $5k' },
+    contact:{ name:'', email:'', phone:'', destination:'', date:'', message:'', hp:'' },
+    contactErrors:{}, contactDone:false,
+    adminAuthed:false, adminLogin:{ email:'', password:'' }, adminError:'',
+    adminSection:'offers', adminSearch:'', adminFilter:'all', adminPage:1, adminLoading:false,
+    editorOpen:false, editorMode:'add', editorItem:null,
+    destinations:[
+      { id:'d1', name:'Santorini', country:'Greece', price:1290, tag:'Island', blurb:'Whitewashed cliffs, caldera sunsets and the bluest Aegean.', tint0:'#1769a8', tint1:'#7cc4ea', img:'' },
+      { id:'d2', name:'Bali', country:'Indonesia', price:980, tag:'Tropical', blurb:'Emerald rice terraces, temple mornings and surf at dusk.', tint0:'#1f7a55', tint1:'#86c9a0', img:'' },
+      { id:'d3', name:'Dubai', country:'UAE', price:1450, tag:'City', blurb:'Desert dunes, sky-high views and gold-souk evenings.', tint0:'#b07d2e', tint1:'#f0c987', img:'' },
+      { id:'d4', name:'Maldives', country:'Indian Ocean', price:2190, tag:'Luxury', blurb:'Overwater villas above a warm, glass-clear lagoon.', tint0:'#1690a8', tint1:'#9fe0e8', img:'' },
+      { id:'d5', name:'Swiss Alps', country:'Switzerland', price:1680, tag:'Mountain', blurb:'Glacier railways, alpine lakes and storybook villages.', tint0:'#46587a', tint1:'#aebfd6', img:'' },
+      { id:'d6', name:'Kyoto', country:'Japan', price:1390, tag:'Culture', blurb:'Lantern lanes, bamboo groves and centuries-old shrines.', tint0:'#8f4a60', tint1:'#e3a9b6', img:'' }
+    ],
+    offers:[
+      { id:'o1', title:'Santorini Summer Escape', discount:30, desc:'5 nights cliffside in a caldera-view suite with a private sunset cruise.', expiry:'Aug 31, 2026', cta:'Book Now', ctaUrl:'#', status:'Active', featured:true, tint0:'#1769a8', tint1:'#7cc4ea', img:'' },
+      { id:'o2', title:'Bali Wellness Retreat', discount:25, desc:'7 nights with daily spa, sunrise yoga and private villa breakfasts.', expiry:'Jul 15, 2026', cta:'Book Now', ctaUrl:'#', status:'Active', featured:true, tint0:'#1f7a55', tint1:'#86c9a0', img:'' },
+      { id:'o3', title:'Maldives Honeymoon', discount:20, desc:'Overwater villa, candlelit beach dinner and seaplane transfers included.', expiry:'Sep 30, 2026', cta:'Book Now', ctaUrl:'#', status:'Active', featured:false, tint0:'#1690a8', tint1:'#9fe0e8', img:'' },
+      { id:'o4', title:'Dubai City & Desert', discount:15, desc:'4 nights, dune safari, Burj Khalifa access and a marina dinner cruise.', expiry:'Jun 30, 2026', cta:'Book Now', ctaUrl:'#', status:'Scheduled', featured:false, tint0:'#b07d2e', tint1:'#f0c987', img:'' }
+    ],
+    packages:[
+      { id:'p1', title:'Aegean Island Hopper', location:'Greece', region:'International', duration:'8 Days · 3 Islands', price:2390, rating:4.9, services:['Flights','4★ Hotels','Daily breakfast','Ferry passes'], tint0:'#1769a8', tint1:'#7cc4ea', img:'' },
+      { id:'p2', title:'Bali Beyond the Beaches', location:'Indonesia', region:'International', duration:'6 Days · 5 Nights', price:1290, rating:4.8, services:['Villa stay','Private driver','Temple tours','Spa day'], tint0:'#1f7a55', tint1:'#86c9a0', img:'' },
+      { id:'p3', title:'Swiss Scenic Rail', location:'Switzerland', region:'International', duration:'7 Days · 6 Nights', price:2790, rating:4.9, services:['Glacier Express','Lake cruises','Mountain passes','Breakfast'], tint0:'#46587a', tint1:'#aebfd6', img:'' },
+      { id:'p4', title:'Dubai Luxe Weekend', location:'UAE', region:'International', duration:'4 Days · 3 Nights', price:1180, rating:4.7, services:['5★ Hotel','Desert safari','City tour','Transfers'], tint0:'#b07d2e', tint1:'#f0c987', img:'' },
+      { id:'p5', title:'Maldives Overwater', location:'Maldives', region:'International', duration:'5 Days · 4 Nights', price:3290, rating:5.0, services:['Overwater villa','All-inclusive','Seaplane','Snorkel trip'], tint0:'#1690a8', tint1:'#9fe0e8', img:'' },
+      { id:'p6', title:'Kyoto & Tokyo Culture', location:'Japan', region:'International', duration:'9 Days · 8 Nights', price:2980, rating:4.8, services:['Bullet train','Ryokan night','Guided shrines','JR Pass'], tint0:'#8f4a60', tint1:'#e3a9b6', img:'' },
+      { id:'pi1', title:'Kashmir Paradise', location:'Srinagar · Gulmarg', region:'India', duration:'6 Days · 5 Nights', price:890, rating:4.9, services:['Houseboat stay','Shikara ride','Gondola ride','Daily breakfast'], tint0:'#1f5fa6', tint1:'#8fd0e6', img:'' },
+      { id:'pi2', title:'Kerala Backwaters', location:'Alleppey · Munnar', region:'India', duration:'7 Days · 6 Nights', price:760, rating:4.8, services:['Houseboat cruise','Tea estate stay','Ayurveda spa','Transfers'], tint0:'#1f7a55', tint1:'#86c9a0', img:'' },
+      { id:'pi3', title:'Golden Triangle', location:'Delhi · Agra · Jaipur', region:'India', duration:'6 Days · 5 Nights', price:640, rating:4.7, services:['Taj Mahal tour','Amber Fort','Private guide','4★ Hotels'], tint0:'#b0512e', tint1:'#f0b187', img:'' },
+      { id:'pi4', title:'Goa Beach Escape', location:'North & South Goa', region:'India', duration:'4 Days · 3 Nights', price:420, rating:4.6, services:['Beach resort','Sunset cruise','Water sports','Breakfast'], tint0:'#1690a8', tint1:'#9fe0e8', img:'' },
+      { id:'pi5', title:'Himalayan Himachal', location:'Shimla · Manali', region:'India', duration:'7 Days · 6 Nights', price:710, rating:4.8, services:['Volvo coach','Solang Valley','Rohtang Pass','Hotels'], tint0:'#46587a', tint1:'#aebfd6', img:'' },
+      { id:'pi6', title:'Rajasthan Royale', location:'Udaipur · Jodhpur', region:'India', duration:'8 Days · 7 Nights', price:1180, rating:4.9, services:['Palace hotel','City tours','Desert camp','Private guide'], tint0:'#8f4a60', tint1:'#e3a9b6', img:'' }
+    ],
+    gallery:[
+      { id:'g1', topic:'Santorini Blue Hour', category:'Islands', tint0:'#1769a8', tint1:'#7cc4ea', img:'' },
+      { id:'g2', topic:'Kashmir in Snow', category:'Mountains', tint0:'#3f5e8c', tint1:'#a2c6e8', img:'' },
+      { id:'g3', topic:'Kerala Backwaters', category:'Beaches', tint0:'#1f7a55', tint1:'#86c9a0', img:'' },
+      { id:'g4', topic:'Kyoto Lantern Nights', category:'Culture', tint0:'#8f4a60', tint1:'#e3a9b6', img:'' },
+      { id:'g5', topic:'Dubai Skyline', category:'Cities', tint0:'#b07d2e', tint1:'#f0c987', img:'' },
+      { id:'g6', topic:'Maldives Lagoon', category:'Islands', tint0:'#1690a8', tint1:'#9fe0e8', img:'' },
+      { id:'g7', topic:'Swiss Alps Express', category:'Mountains', tint0:'#46587a', tint1:'#aebfd6', img:'' },
+      { id:'g8', topic:'Rajasthan Palaces', category:'Culture', tint0:'#a8492e', tint1:'#efb087', img:'' },
+      { id:'g9', topic:'Bali Rice Terraces', category:'Beaches', tint0:'#1f8a55', tint1:'#9ad6b0', img:'' },
+      { id:'g10', topic:'Goa Sunset Sail', category:'Beaches', tint0:'#1574a0', tint1:'#8fd6e6', img:'' },
+      { id:'g11', topic:'Serengeti Safari', category:'Wildlife', tint0:'#7a5a1e', tint1:'#e0c187', img:'' },
+      { id:'g12', topic:'Tokyo Neon', category:'Cities', tint0:'#5b3f7a', tint1:'#b9a6e0', img:'' }
+    ],
+    testimonials:[
+      { id:'t1', name:'Aarav & Meera S.', location:'Honeymoon · Maldives', rating:5, review:'From the seaplane to the overwater villa, every detail was handled. The most effortless trip we have ever taken.', tint0:'#1690a8', tint1:'#9fe0e8', img:'' },
+      { id:'t2', name:'Priya N.', location:'Family · Switzerland', rating:5, review:'Three generations, zero stress. The kids still talk about the glacier train. Travels Point thought of everything.', tint0:'#46587a', tint1:'#aebfd6', img:'' },
+      { id:'t3', name:'Daniel R.', location:'Group · Bali', rating:5, review:'Booked for twelve friends and it ran like clockwork — villas, drivers, dinners, all perfect.', tint0:'#1f7a55', tint1:'#86c9a0', img:'' },
+      { id:'t4', name:'Sofia & James', location:'Anniversary · Santorini', rating:5, review:'Our caldera suite at sunset was unreal. They upgraded us and remembered every little preference.', tint0:'#1769a8', tint1:'#7cc4ea', img:'' },
+      { id:'t5', name:'Hiroshi T.', location:'Solo · Kyoto', rating:5, review:'A beautifully paced cultural itinerary with just the right amount of freedom. Impeccable service throughout.', tint0:'#8f4a60', tint1:'#e3a9b6', img:'' }
+    ],
+    team:[
+      { id:'tm1', name:'Elena Marchetti', role:'Founder & Travel Director', tint0:'#1769a8', tint1:'#7cc4ea', img:'' },
+      { id:'tm2', name:'Marcus Reed', role:'Head of Luxury Itineraries', tint0:'#46587a', tint1:'#aebfd6', img:'' },
+      { id:'tm3', name:'Aisha Khan', role:'Destinations Specialist', tint0:'#b07d2e', tint1:'#f0c987', img:'' },
+      { id:'tm4', name:'Tomás Rivera', role:'Client Experience Lead', tint0:'#1f7a55', tint1:'#86c9a0', img:'' }
+    ],
+    banners:[
+      { id:'b1', title:'Summer in the Cyclades', subtitle:'Greece · save up to 30%', placement:'Hero', active:true, tint0:'#1769a8', tint1:'#7cc4ea', img:'' },
+      { id:'b2', title:'Monsoon Bali Deals', subtitle:'Indonesia · villas from $140/nt', placement:'Hero', active:false, tint0:'#1f7a55', tint1:'#86c9a0', img:'' },
+      { id:'b3', title:'Festive Dubai', subtitle:'Strip banner · Dec campaign', placement:'Strip', active:true, tint0:'#b07d2e', tint1:'#f0c987', img:'' }
+    ],
+    inquiries:[
+      { id:'i1', name:'Rohan Mehta', email:'rohan@example.com', phone:'+91 98200 11223', destination:'Maldives', date:'2026-10-12', message:'Looking for an overwater villa for our anniversary in October. Around 6 nights, all-inclusive.', status:'New', when:'2h ago' },
+      { id:'i2', name:'Lisa Wong', email:'lisa.w@example.com', phone:'+65 8123 4455', destination:'Swiss Alps', date:'2026-12-20', message:'Family of 5, would love the glacier rail trip over the winter holidays.', status:'Replied', when:'1d ago' },
+      { id:'i3', name:'Carlos Diaz', email:'carlos@example.com', phone:'+34 612 998 221', destination:'Bali', date:'2026-09-05', message:'Group of 10 for a 30th birthday, mid budget, want villas close together.', status:'New', when:'2d ago' },
+      { id:'i4', name:'Fatima Noor', email:'fatima@example.com', phone:'+971 50 222 7788', destination:'Dubai', date:'2026-11-02', message:'Corporate offsite for 25 people, need flights, hotel and an evening event.', status:'Closed', when:'4d ago' }
+    ]
+  };
+
+  features = [
+    { icon:'sell', title:'Best Price Guarantee', desc:'Found it cheaper elsewhere? We match it and add a perk.' },
+    { icon:'verified', title:'Trusted Travel Experts', desc:'16 years, 24,000 travelers and IATA-accredited planners.' },
+    { icon:'support_agent', title:'24/7 Customer Support', desc:'Real humans on call before, during and after your trip.' },
+    { icon:'tune', title:'Customized Packages', desc:'Every itinerary tailored to your pace, taste and budget.' },
+    { icon:'lock', title:'Secure Booking Process', desc:'Encrypted payments with full financial protection.' },
+    { icon:'public', title:'Worldwide Destinations', desc:'120+ countries across six continents, one trusted partner.' }
+  ];
+  stats = [
+    { label:'Happy Travelers', value:24000, suffix:'+', icon:'sentiment_very_satisfied' },
+    { label:'Tours Completed', value:3200, suffix:'+', icon:'luggage' },
+    { label:'Destinations Covered', value:120, suffix:'+', icon:'public' },
+    { label:'Years of Experience', value:16, suffix:'+', icon:'workspace_premium' }
+  ];
+  timeline = [
+    { year:'2010', title:'A single desk, a big idea', desc:'Travels Point opens with three planners and a love of the well-made journey.' },
+    { year:'2015', title:'5,000 travelers & counting', desc:'We open our international desk and launch bespoke honeymoons.' },
+    { year:'2019', title:'IATA accreditation', desc:'Our luxury division and round-the-clock concierge are born.' },
+    { year:'2023', title:'Awarded T+L A-List', desc:'Recognized among the world’s top boutique travel advisors.' },
+    { year:'2026', title:'120+ destinations', desc:'24,000 happy travelers across six continents — and growing.' }
+  ];
+  values = [
+    { icon:'handshake', label:'Integrity first' },
+    { icon:'diamond', label:'Personal service' },
+    { icon:'route', label:'Seamless logistics' },
+    { icon:'eco', label:'Responsible travel' }
+  ];
+  trustCards = [
+    { icon:'verified_user', title:'Financially Protected', desc:'Every booking is bonded and refundable to international standards.' },
+    { icon:'handshake', title:'Real Local Partners', desc:'Vetted guides and hotels in every destination we sell.' },
+    { icon:'auto_awesome', title:'Tailor-Made, Always', desc:'No copy-paste itineraries — each trip is designed around you.' },
+    { icon:'reviews', title:'4.9/5 from 6,000 reviews', desc:'Consistently rated among the top boutique agencies worldwide.' }
+  ];
+  certs = [
+    { name:'IATA Accredited', sub:'Agency #4827193', icon:'verified' },
+    { name:'ASTA Member', sub:'Since 2014', icon:'workspace_premium' },
+    { name:'Travel + Leisure A-List', sub:'2024 · 2025', icon:'military_tech' },
+    { name:'Virtuoso Network', sub:'Preferred Partner', icon:'stars' },
+    { name:'ATOL Protected', sub:'Licence 11923', icon:'shield' }
+  ];
+  office = { phone:'+971 4 555 0192', whatsapp:'+971 50 555 0192', email:'hello@travelspoint.com' };
+  travelersOptions = ['1 Traveler','2 Adults','2 Adults · 1 Child','Family (4)','Group (6+)'];
+  typeOptions = ['Honeymoon','Family','Group','Beach','Adventure','Cultural','Luxury','Corporate'];
+  budgetOptions = ['Under $1k','$1k – $2k','$2k – $5k','$5k – $10k','$10k+'];
+  tagOptions = ['Island','Tropical','City','Luxury','Mountain','Culture','Beach','Adventure'];
+
+  componentDidMount(){
+    if(this.props && this.props.defaultDark){ this.setState({ dark:true }); }
+    this.applyTheme();
+    this._t = setTimeout(()=>this.setState({ loading:false }), 620);
+    this._onResize = ()=>{ if(this._raf) return; this._raf = requestAnimationFrame(()=>{ this._raf=0; if(window.innerWidth!==this.state.vw) this.setState({ vw:window.innerWidth }); }); };
+    window.addEventListener('resize', this._onResize);
+    this.setupReveal(); this.setupCounters();
+    this._slide = setInterval(()=>{ if(this.state.screen==='home' && !this.props.reduceMotion && !document.hidden){ this.setState(s=>({ testiIndex:(s.testiIndex+1)%s.testimonials.length })); } }, 5500);
+  }
+  componentDidUpdate(prevProps, prevState){
+    this.applyTheme();
+    this.setupReveal(); this.setupCounters();
+    if(prevState && prevState.screen!==this.state.screen){ try{ window.scrollTo({ top:0, behavior:'auto' }); }catch(e){} }
+  }
+  componentWillUnmount(){ clearTimeout(this._t); clearInterval(this._slide); clearTimeout(this._toast); clearTimeout(this._al); if(this._io)this._io.disconnect(); if(this._cio)this._cio.disconnect(); if(this._onResize)window.removeEventListener('resize', this._onResize); }
+
+  applyTheme(){ try{ document.documentElement.setAttribute('data-theme', this.state.dark?'dark':'light'); var ac=this.props&&this.props.accent; if(ac){ document.documentElement.style.setProperty('--accent', ac); } }catch(e){} }
+
+  setupReveal(){
+    var sel='[data-reveal]:not([data-rv]),[data-stagger]:not([data-rv])';
+    if(typeof IntersectionObserver==='undefined'){ document.querySelectorAll(sel).forEach(el=>el.setAttribute('data-rv','in')); return; }
+    if(!this._io){ this._io=new IntersectionObserver((ents)=>{ ents.forEach(e=>{ if(e.isIntersecting){ e.target.setAttribute('data-rv','in'); this._io.unobserve(e.target); } }); }, { threshold:0.12, rootMargin:'0px 0px -6% 0px' }); }
+    var vh=window.innerHeight||800;
+    document.querySelectorAll(sel).forEach(el=>{ var r=el.getBoundingClientRect(); if(r.top < vh*0.94){ el.setAttribute('data-rv','in'); } else { this._io.observe(el); } });
+    clearTimeout(this._revFb); this._revFb=setTimeout(()=>{ document.querySelectorAll(sel).forEach(el=>el.setAttribute('data-rv','in')); }, 1400);
+  }
+  setupCounters(){
+    if(typeof IntersectionObserver==='undefined') return;
+    if(!this._cseen) this._cseen=new WeakSet();
+    if(!this._cio){ this._cio=new IntersectionObserver((ents)=>{ ents.forEach(e=>{ if(e.isIntersecting){ this.runCount(e.target); this._cio.unobserve(e.target); } }); }, { threshold:0.4 }); }
+    document.querySelectorAll('[data-count]').forEach(el=>{ if(this._cseen.has(el)) return; this._cseen.add(el); this._cio.observe(el); });
+  }
+  runCount(el){ var target=parseFloat(el.getAttribute('data-count')||'0'); var dur=1500; var start=performance.now(); var step=(now)=>{ var p=Math.min(1,(now-start)/dur); var eased=1-Math.pow(1-p,3); el.textContent=Math.round(target*eased).toLocaleString(); if(p<1) requestAnimationFrame(step); else el.textContent=Math.round(target).toLocaleString(); }; requestAnimationFrame(step); }
+
+  go=(screen)=>{ this.setState({ screen, menuOpen:false }); };
+  goHome=()=>this.go('home');
+  goAbout=()=>this.go('about');
+  goContact=()=>this.go('contact');
+  goAdmin=()=>this.go('admin');
+  goPackages=()=>this.go('packages');
+  goGallery=()=>this.go('gallery');
+  setPkgRegion=(r)=>this.setState({ pkgRegion:r });
+  setGalCategory=(c)=>this.setState({ galCategory:c });
+  planTrip=()=>this.go('contact');
+  toggleTheme=()=>this.setState(s=>({ dark:!s.dark }));
+  toggleMenu=()=>this.setState(s=>({ menuOpen:!s.menuOpen }));
+  smoothTo=(id)=>{ var el=document.getElementById(id); if(el){ var y=el.getBoundingClientRect().top+window.pageYOffset-74; window.scrollTo({ top:y, behavior:'smooth' }); } };
+  scrollToPackages=()=>{ this.go('home'); setTimeout(()=>this.smoothTo('packages'),60); };
+  scrollToDestinations=()=>{ this.go('home'); setTimeout(()=>this.smoothTo('destinations'),60); };
+  scrollToOffers=()=>{ this.go('home'); setTimeout(()=>this.smoothTo('offers'),60); };
+  showToast=(msg)=>{ this.setState({ toast:msg }); clearTimeout(this._toast); this._toast=setTimeout(()=>this.setState({ toast:'' }), 2800); };
+
+  onSearchDestination=(e)=>this.setState(s=>({ search:{ ...s.search, destination:e.target.value } }));
+  onSearchDates=(e)=>this.setState(s=>({ search:{ ...s.search, dates:e.target.value } }));
+  onSearchTravelers=(e)=>this.setState(s=>({ search:{ ...s.search, travelers:e.target.value } }));
+  onSearchType=(e)=>this.setState(s=>({ search:{ ...s.search, type:e.target.value } }));
+  onSearchBudget=(e)=>this.setState(s=>({ search:{ ...s.search, budget:e.target.value } }));
+  runSearch=()=>{ var d=this.state.search.destination; this.go('home'); setTimeout(()=>this.smoothTo('destinations'),60); this.showToast('Curating '+(this.state.search.type||'')+' escapes'+(d?(' to '+d):'')+'…'); };
+
+  exploreDest=(d)=>{ this.showToast('Great choice — let’s plan '+d.name+'!'); setTimeout(()=>this.smoothTo('packages'),60); };
+  viewPackage=(p)=>this.showToast('Sending the '+p.title+' itinerary to your inbox…');
+  bookOffer=(o)=>this.showToast('Reserved! We’ll confirm '+o.title+' shortly.');
+  goTesti=(i)=>this.setState(s=>({ testiIndex:(i+s.testimonials.length)%s.testimonials.length }));
+  nextTesti=()=>this.goTesti(this.state.testiIndex+1);
+  prevTesti=()=>this.goTesti(this.state.testiIndex-1);
+  setOfferView=(v)=>this.setState({ offerView:v });
+  goOffer=(i)=>this.setState(s=>({ offerIndex:(i+s.offers.length)%s.offers.length }));
+  nextOffer=()=>this.goOffer(this.state.offerIndex+1);
+  prevOffer=()=>this.goOffer(this.state.offerIndex-1);
+  onNewsletter=(e)=>this.setState({ newsletter:e.target.value });
+  subscribe=()=>{ this.setState({ newsletter:'' }); this.showToast('You’re on the list — welcome aboard!'); };
+  openWhatsApp=()=>{ var msg=encodeURIComponent('Hi Travels Point! I’d love some help planning a trip.'); try{ window.open('https://wa.me/971505550192?text='+msg,'_blank'); }catch(e){} };
+
+  setContact=(k,v)=>this.setState(s=>({ contact:{ ...s.contact, [k]:v }, contactErrors:{ ...s.contactErrors, [k]:'' } }));
+  submitContact=(e)=>{ if(e&&e.preventDefault)e.preventDefault(); var c=this.state.contact; if(c.hp){ return; } var er={}; if(!c.name.trim())er.name='Please enter your name'; if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(c.email))er.email='Enter a valid email'; if(!c.phone.trim())er.phone='Enter a phone number'; if(!c.message.trim())er.message='Tell us a little about your trip'; if(Object.keys(er).length){ this.setState({ contactErrors:er }); return; } var inq={ id:'i'+Date.now(), name:c.name, email:c.email, phone:c.phone, destination:c.destination||'—', date:c.date||'—', message:c.message, status:'New', when:'Just now' }; this.setState(s=>({ inquiries:[inq, ...s.inquiries], contactDone:true, contact:{ name:'', email:'', phone:'', destination:'', date:'', message:'', hp:'' } })); };
+  resetContact=()=>this.setState({ contactDone:false });
+
+  setLogin=(k,v)=>this.setState(s=>({ adminLogin:{ ...s.adminLogin, [k]:v }, adminError:'' }));
+  doLogin=(e)=>{ if(e&&e.preventDefault)e.preventDefault(); var l=this.state.adminLogin; if(l.email && l.password){ this.setState({ adminAuthed:true, adminError:'' }); } else { this.setState({ adminError:'Enter an email and password to continue.' }); } };
+  logout=()=>this.setState({ adminAuthed:false, adminLogin:{ email:'', password:'' } });
+  setAdminSection=(sec)=>{ this.setState({ adminSection:sec, adminSearch:'', adminFilter:'all', adminPage:1, adminLoading:true }); clearTimeout(this._al); this._al=setTimeout(()=>this.setState({ adminLoading:false }), 340); };
+  setAdminSearch=(e)=>this.setState({ adminSearch:e.target.value, adminPage:1 });
+  setAdminPage=(p)=>this.setState({ adminPage:p });
+  openEditor=(mode,item)=>{ var sec=this.state.adminSection; this.setState({ editorOpen:true, editorMode:mode, editorItem: item? JSON.parse(JSON.stringify(item)) : this.blankItem(sec) }); };
+  closeEditor=()=>this.setState({ editorOpen:false, editorItem:null });
+  setEditorField=(k,v)=>this.setState(s=>({ editorItem:{ ...s.editorItem, [k]:v } }));
+  onPickFile=(k,file)=>{ var r=new FileReader(); r.onload=()=>this.setEditorField(k, r.result); r.readAsDataURL(file); };
+  saveEditor=()=>{ var sec=this.state.adminSection; var coll=this.collFor(sec); var it=this.state.editorItem; if(this.state.editorMode==='add'){ var ni={ ...it, id: sec+Date.now() }; this.setState(s=>({ [coll]:[ni, ...s[coll]], editorOpen:false, editorItem:null })); this.showToast('Added successfully.'); } else { this.setState(s=>({ [coll]: s[coll].map(x=> x.id===it.id? it : x), editorOpen:false, editorItem:null })); this.showToast('Changes saved.'); } };
+  deleteAdminItem=(id)=>{ var coll=this.collFor(this.state.adminSection); this.setState(s=>({ [coll]: s[coll].filter(x=>x.id!==id) })); this.showToast('Deleted.'); };
+
+  collFor(sec){ return { offers:'offers', destinations:'destinations', packages:'packages', gallery:'gallery', testimonials:'testimonials', banners:'banners', inquiries:'inquiries' }[sec]; }
+  blankItem(sec){ var b={ img:'' }; if(sec==='offers') return { ...b, title:'', discount:10, desc:'', expiry:'Dec 31, 2026', cta:'Book Now', ctaUrl:'#', status:'Active', featured:false, tint0:'#1769a8', tint1:'#7cc4ea' }; if(sec==='destinations') return { ...b, name:'', country:'', price:990, blurb:'', tag:'Island', tint0:'#1769a8', tint1:'#7cc4ea' }; if(sec==='packages') return { ...b, title:'', location:'', region:'International', duration:'5 Days · 4 Nights', price:1290, rating:4.8, services:['Flights','Hotels','Transfers'], tint0:'#1f7a55', tint1:'#86c9a0' }; if(sec==='testimonials') return { ...b, name:'', location:'', review:'', rating:5, tint0:'#46587a', tint1:'#aebfd6' }; if(sec==='banners') return { ...b, title:'', subtitle:'', placement:'Hero', active:true, tint0:'#b07d2e', tint1:'#f0c987' }; if(sec==='gallery') return { ...b, topic:'', category:'Beaches', tint0:'#1769a8', tint1:'#7cc4ea' }; return { ...b }; }
+  statusTone(s){ var g={ bg:'var(--green-soft)', fg:'var(--green-deep)' }, a={ bg:'rgba(245,124,0,.18)', fg:'#c2420a' }, k={ bg:'rgba(11,78,162,.16)', fg:'#0b4ea2' }, m={ bg:'rgba(148,163,184,.2)', fg:'var(--text-faint)' }; return { 'Active':g,'Replied':g,'Scheduled':a,'New':k,'Closed':m,'Expired':m,'Inactive':m }[s]||m; }
+  schemaFor(sec){
+    var S={
+      offers:{ label:'Offers', singular:'Offer', canAdd:true, filters:['all','Active','Scheduled','Expired'],
+        columns:[{key:'img',label:'',type:'thumb'},{key:'title',label:'Offer',type:'title'},{key:'discount',label:'Discount',type:'pct'},{key:'expiry',label:'Valid till',type:'text'},{key:'featured',label:'Featured',type:'bool'},{key:'status',label:'Status',type:'status'}],
+        fields:[{key:'title',label:'Offer title',type:'text'},{key:'img',label:'Offer image',type:'image'},{key:'discount',label:'Discount %',type:'number'},{key:'desc',label:'Description',type:'textarea'},{key:'expiry',label:'Valid till',type:'text'},{key:'cta',label:'Button text',type:'text'},{key:'ctaUrl',label:'Button URL',type:'text'},{key:'status',label:'Status',type:'select',options:['Active','Scheduled','Expired']},{key:'featured',label:'Feature on homepage',type:'toggle'}] },
+      destinations:{ label:'Featured Destinations', singular:'Destination', canAdd:true, filters:[],
+        columns:[{key:'img',label:'',type:'thumb'},{key:'name',label:'Destination',type:'title'},{key:'country',label:'Country',type:'text'},{key:'price',label:'From',type:'money'},{key:'tag',label:'Type',type:'tag'}],
+        fields:[{key:'name',label:'Name',type:'text'},{key:'img',label:'Image',type:'image'},{key:'country',label:'Country',type:'text'},{key:'price',label:'Starting price ($)',type:'number'},{key:'blurb',label:'Short description',type:'textarea'},{key:'tag',label:'Type',type:'select',options:this.tagOptions}] },
+      packages:{ label:'Tour Packages', singular:'Package', canAdd:true, filters:['all','India','International'],
+        columns:[{key:'img',label:'',type:'thumb'},{key:'title',label:'Package',type:'title'},{key:'region',label:'Region',type:'tag'},{key:'duration',label:'Duration',type:'text'},{key:'price',label:'Price',type:'money'},{key:'rating',label:'Rating',type:'rating'}],
+        fields:[{key:'title',label:'Package title',type:'text'},{key:'img',label:'Image',type:'image'},{key:'region',label:'Region',type:'select',options:['India','International']},{key:'location',label:'Location',type:'text'},{key:'duration',label:'Duration',type:'text'},{key:'price',label:'Price ($)',type:'number'},{key:'rating',label:'Rating (0–5)',type:'number'},{key:'services',label:'Included services (comma separated)',type:'csv'}] },
+      gallery:{ label:'Gallery', singular:'Photo', canAdd:true, filters:[],
+        columns:[{key:'img',label:'',type:'thumb'},{key:'topic',label:'Topic',type:'title'},{key:'category',label:'Category',type:'tag'}],
+        fields:[{key:'topic',label:'Topic / caption',type:'text'},{key:'img',label:'Image',type:'image'},{key:'category',label:'Category',type:'select',options:['Beaches','Mountains','Cities','Culture','Islands','Wildlife']}] },
+      testimonials:{ label:'Testimonials', singular:'Testimonial', canAdd:true, filters:[],
+        columns:[{key:'img',label:'',type:'thumb'},{key:'name',label:'Guest',type:'title'},{key:'location',label:'Trip',type:'text'},{key:'rating',label:'Rating',type:'rating'}],
+        fields:[{key:'name',label:'Guest name',type:'text'},{key:'img',label:'Photo',type:'image'},{key:'location',label:'Trip / route',type:'text'},{key:'review',label:'Review',type:'textarea'},{key:'rating',label:'Rating (0–5)',type:'number'}] },
+      banners:{ label:'Homepage Banners', singular:'Banner', canAdd:true, filters:['all','Active','Inactive'],
+        columns:[{key:'img',label:'',type:'thumb'},{key:'title',label:'Banner',type:'title'},{key:'placement',label:'Placement',type:'text'},{key:'active',label:'Active',type:'bool'}],
+        fields:[{key:'title',label:'Banner title',type:'text'},{key:'img',label:'Image',type:'image'},{key:'subtitle',label:'Subtitle',type:'text'},{key:'placement',label:'Placement',type:'select',options:['Hero','Strip']},{key:'active',label:'Active',type:'toggle'}] },
+      inquiries:{ label:'Contact Inquiries', singular:'Inquiry', canAdd:false, filters:['all','New','Replied','Closed'],
+        columns:[{key:'name',label:'Name',type:'title'},{key:'destination',label:'Interest',type:'text'},{key:'date',label:'Travel date',type:'text'},{key:'status',label:'Status',type:'status'},{key:'when',label:'Received',type:'text'}],
+        fields:[{key:'name',label:'Name',type:'text',readOnly:true},{key:'email',label:'Email',type:'text',readOnly:true},{key:'phone',label:'Phone',type:'text',readOnly:true},{key:'destination',label:'Destination interest',type:'text',readOnly:true},{key:'date',label:'Travel date',type:'text',readOnly:true},{key:'message',label:'Message',type:'textarea',readOnly:true},{key:'status',label:'Status',type:'select',options:['New','Replied','Closed']}] }
+    };
+    return S[sec];
+  }
+  cellFor(r,c){
+    var k=c.key, t=c.type;
+    var b={ isThumb:false, isTitle:false, isText:false, isBadge:false, isBool:false, isMoney:false, isRating:false };
+    if(t==='thumb') return { ...b, type:'thumb', isThumb:true, bg:(r.img?('center/cover no-repeat url("'+r.img+'")'):('linear-gradient(135deg,'+(r.tint0||'#1769a8')+','+(r.tint1||'#7cc4ea')+')')), label:String(r.title||r.name||'IMG').slice(0,2).toUpperCase() };
+    if(t==='title') return { ...b, type:'title', isTitle:true, val:String(r[k]==null?'—':r[k]) };
+    if(t==='pct') return { ...b, type:'badge', isBadge:true, val:r[k]+'% OFF', bg:'rgba(245,124,0,.18)', fg:'#c2420a' };
+    if(t==='money') return { ...b, type:'money', isMoney:true, val:'$'+Number(r[k]||0).toLocaleString() };
+    if(t==='rating') return { ...b, type:'rating', isRating:true, val:Number(r.rating||0).toFixed(1) };
+    if(t==='bool') return { ...b, type:'bool', isBool:true, on:!!r[k], boolIcon:(r[k]?'check_circle':'cancel'), boolFg:(r[k]?'var(--green-deep)':'var(--text-faint)'), boolLabel:(r[k]?'Yes':'No') };
+    if(t==='tag') return { ...b, type:'badge', isBadge:true, val:String(r[k]||'—'), bg:'rgba(148,163,184,.18)', fg:'var(--text-soft)' };
+    if(t==='status'){ var v=r.status||(r.active?'Active':'Inactive'); var tn=this.statusTone(v); return { ...b, type:'badge', isBadge:true, val:v, bg:tn.bg, fg:tn.fg }; }
+    return { ...b, type:'text', isText:true, val:String(r[k]==null?'—':r[k]) };
+  }
+
+  renderVals(){
+    var st=this.state, scr=st.screen;
+    var isHome=scr==='home', isAbout=scr==='about', isContact=scr==='contact', isAdmin=scr==='admin';
+    var isPackages=scr==='packages', isGallery=scr==='gallery';
+    var isMobile=st.vw>0 && st.vw<880;
+    var fmt=function(n){ return '$'+Number(n||0).toLocaleString(); };
+    var bgOf=function(o){ return o.img ? ('center/cover no-repeat url("'+o.img+'")') : ('linear-gradient(140deg,'+o.tint0+','+o.tint1+')'); };
+    var tagIcons={ Island:'beach_access', Tropical:'forest', City:'location_city', Luxury:'diamond', Mountain:'landscape', Culture:'temple_buddhist', Beach:'beach_access', Adventure:'hiking' };
+    var destinationsView=st.destinations.map(d=>({ ...d, priceFmt:fmt(d.price), tagIcon:tagIcons[d.tag]||'place', bgCss:bgOf(d), onExplore:()=>this.exploreDest(d) }));
+    var offersView=st.offers.map(o=>({ ...o, discountLabel:o.discount+'% OFF', bgCss:bgOf(o), onBook:()=>this.bookOffer(o), st:this.statusTone(o.status) }));
+    var packagesView=st.packages.map(p=>({ ...p, priceFmt:fmt(p.price), ratingFmt:Number(p.rating||0).toFixed(1), bgCss:bgOf(p), onView:()=>this.viewPackage(p) }));
+    var pkgIndia=packagesView.filter(p=>p.region==='India');
+    var pkgIntl=packagesView.filter(p=>p.region!=='India');
+    var packagesHome=pkgIndia.slice(0,3).concat(pkgIntl.slice(0,3));
+    var pr=st.pkgRegion;
+    var showIndia=pr!=='International', showIntl=pr!=='India';
+    var pkgTabs=[{ k:'all', label:'All Packages' },{ k:'India', label:'India' },{ k:'International', label:'International' }].map(t=>({ ...t, active:pr===t.k, onClick:()=>this.setPkgRegion(t.k), bd:(pr===t.k?'var(--primary)':'var(--border-strong)'), bg:(pr===t.k?'linear-gradient(135deg,var(--primary),var(--primary-deep))':'var(--surface)'), fg:(pr===t.k?'#fff':'var(--text-soft)') }));
+    var galAll=st.gallery.map(g=>({ ...g, bgCss:bgOf(g) }));
+    var galCats=['all'].concat(Array.from(new Set(st.gallery.map(g=>g.category))));
+    var gc=st.galCategory;
+    var galleryView=(gc==='all')?galAll:galAll.filter(g=>g.category===gc);
+    var galleryHome=galAll.slice(0,8);
+    var galTabs=galCats.map(c=>({ k:c, label:(c==='all'?'All':c), active:gc===c, onClick:()=>this.setGalCategory(c), bd:(gc===c?'var(--primary)':'var(--border-strong)'), bg:(gc===c?'var(--primary-soft)':'var(--surface)'), fg:(gc===c?'var(--primary-deep)':'var(--text-soft)') }));
+    var bottomNavLinks=[{ key:'home', label:'Home', icon:'home' },{ key:'packages', label:'Packages', icon:'luggage' },{ key:'gallery', label:'Gallery', icon:'image' },{ key:'about', label:'About', icon:'info' }].map(l=>{ var ac=scr===l.key; return { ...l, active:ac, onClick:()=>this.go(l.key), pillBg:(ac?'linear-gradient(135deg,var(--primary),var(--primary-deep))':'transparent'), fg:(ac?'#fff':'var(--text-soft)') }; });
+    var showBottomNav=isMobile && !isAdmin;
+    var waBottom=(showBottomNav?'104px':'22px');
+    var testimonialsView=st.testimonials.map(t=>{ var ini=(t.name||'').split(/\s+/).filter(w=>w && /[A-Za-z]/.test(w[0])).slice(0,2).map(w=>w[0]).join('').toUpperCase(); return { ...t, initials:ini, initialsShown:(t.img?'':ini), bgCss:bgOf(t) }; });
+    var teamView=st.team.map(t=>{ var ini=(t.name||'').split(/\s+/).filter(w=>w && /[A-Za-z]/.test(w[0])).slice(0,2).map(w=>w[0]).join('').toUpperCase(); return { ...t, initials:ini, bgCss:bgOf(t), socials:[{icon:'tag',url:'#'},{icon:'photo_camera',url:'#'},{icon:'mail',url:'#'}] }; });
+    var statsView=this.stats.map(s=>({ ...s, display:Number(s.value).toLocaleString() }));
+    var navLinks=[{ key:'home', label:'Home' },{ key:'packages', label:'Packages' },{ key:'gallery', label:'Gallery' },{ key:'about', label:'About' },{ key:'contact', label:'Contact' }].map(l=>({ ...l, active:scr===l.key, onClick:()=>this.go(l.key) }));
+    var footerLinks=[{ label:'Home', onClick:this.goHome },{ label:'Featured Destinations', onClick:this.scrollToDestinations },{ label:'Tour Packages', onClick:this.goPackages },{ label:'Gallery', onClick:this.goGallery },{ label:'About Us', onClick:this.goAbout },{ label:'Contact', onClick:this.goContact }];
+    var socials=[{ label:'Instagram', icon:'photo_camera', url:'#' },{ label:'Facebook', icon:'thumb_up', url:'#' },{ label:'Twitter', icon:'tag', url:'#' },{ label:'YouTube', icon:'play_circle', url:'#' }];
+
+    // testimonials slider
+    var testiTransform='translateX(-'+(st.testiIndex*100)+'%)';
+    var testiDots=st.testimonials.map((t,i)=>({ active:i===st.testiIndex, onClick:()=>this.goTesti(i), w:i===st.testiIndex?'26px':'9px', bg:i===st.testiIndex?'var(--accent)':'rgba(255,255,255,.3)' }));
+    var activeTesti=testimonialsView[st.testiIndex]||testimonialsView[0];
+    // offers carousel
+    var offerTransform='translateX(-'+(st.offerIndex*100)+'%)';
+    var offerDots=st.offers.map((o,i)=>({ active:i===st.offerIndex, onClick:()=>this.goOffer(i), w:i===st.offerIndex?'26px':'9px', bg:i===st.offerIndex?'var(--primary)':'var(--border-strong)' }));
+    var ocOn=st.offerView==='carousel';
+    var offerCarouselBg=ocOn?'var(--surface)':'transparent', offerCarouselFg=ocOn?'var(--text)':'var(--text-faint)', offerCarouselShadow=ocOn?'var(--shadow-sm)':'none';
+    var offerGridBg=!ocOn?'var(--surface)':'transparent', offerGridFg=!ocOn?'var(--text)':'var(--text-faint)', offerGridShadow=!ocOn?'var(--shadow-sm)':'none';
+
+    // admin computations
+    var sec=st.adminSection, schema=this.schemaFor(sec), coll=this.collFor(sec);
+    var adminGridCols=schema.columns.map(c=>{ if(c.type==='thumb') return '54px'; if(c.type==='title') return 'minmax(130px,1.6fr)'; return 'minmax(78px,1fr)'; }).join(' ')+' 96px';
+    var rowsAll=st[coll]||[];
+    var q=st.adminSearch.trim().toLowerCase();
+    var rows=rowsAll;
+    if(q){ rows=rows.filter(r=>JSON.stringify(r).toLowerCase().indexOf(q)>-1); }
+    if(st.adminFilter!=='all'){ rows=rows.filter(r=>{ var v=r.status||r.region||(r.active?'Active':'Inactive'); return v===st.adminFilter; }); }
+    var perPage=5, total=rows.length, totalPages=Math.max(1,Math.ceil(total/perPage));
+    var page=Math.min(st.adminPage,totalPages); var start=(page-1)*perPage; var paged=rows.slice(start,start+perPage);
+    var isInq=sec==='inquiries';
+    var adminRows=paged.map(r=>({ id:r.id, featured:!!r.featured, cells:schema.columns.map(c=>this.cellFor(r,c)), onEdit:()=>this.openEditor('edit',r), onView:()=>this.openEditor('edit',r), onDelete:()=>this.deleteAdminItem(r.id) }));
+    var adminPages=Array.from({ length:totalPages }, (_,i)=>{ var ac=(i+1)===page; return { n:i+1, active:ac, onClick:()=>this.setAdminPage(i+1), bd:(ac?'var(--primary)':'var(--border-strong)'), bg:(ac?'var(--primary)':'var(--surface)'), fg:(ac?'#fff':'var(--text-soft)') }; });
+    var adminFilters=(schema.filters||[]).map(f=>{ var ac=st.adminFilter===f; return { value:f, label:f==='all'?'All':f, active:ac, onClick:()=>this.setState({ adminFilter:f, adminPage:1 }), bd:(ac?'var(--primary)':'var(--border-strong)'), bg:(ac?'var(--primary-soft)':'var(--surface)'), fg:(ac?'var(--primary-deep)':'var(--text-soft)') }; });
+    var rangeLabel = total===0? 'No records' : ('Showing '+(start+1)+'–'+Math.min(start+perPage,total)+' of '+total);
+    var adminSections=[{ key:'offers', label:'Offers', icon:'local_offer' },{ key:'destinations', label:'Destinations', icon:'travel_explore' },{ key:'packages', label:'Tour Packages', icon:'luggage' },{ key:'gallery', label:'Gallery', icon:'photo_library' },{ key:'testimonials', label:'Testimonials', icon:'reviews' },{ key:'banners', label:'Homepage Banners', icon:'view_carousel' },{ key:'inquiries', label:'Contact Inquiries', icon:'mail' }].map(s=>{ var cc=this.collFor(s.key); var n=(st[cc]||[]).length; if(s.key==='inquiries'){ n=(st.inquiries||[]).filter(i=>i.status==='New').length; } var ac=sec===s.key; return { ...s, active:ac, onClick:()=>this.setAdminSection(s.key), count:n, navBg:ac?'var(--primary-soft)':'transparent', navFg:ac?'var(--primary-deep)':'var(--text-soft)', countBg:ac?'var(--primary)':'var(--surface-2)', countFg:ac?'#fff':'var(--text-faint)' }; });
+    var adminStats=[
+      { label:'Active Offers', value:st.offers.filter(o=>o.status==='Active').length, icon:'local_offer', bg:'rgba(11,78,162,.14)', fg:'#0b4ea2' },
+      { label:'Destinations', value:st.destinations.length, icon:'public', bg:'rgba(245,124,0,.16)', fg:'#c2420a' },
+      { label:'New Inquiries', value:st.inquiries.filter(i=>i.status==='New').length, icon:'mark_email_unread', bg:'var(--green-soft)', fg:'var(--green-deep)' },
+      { label:'Tour Packages', value:st.packages.length, icon:'luggage', bg:'rgba(8,59,124,.12)', fg:'var(--primary-deep)' }
+    ];
+    var cf=st.contact, ce=st.contactErrors;
+    var mkCf=(key,label,type,icon,ph,extra)=>{ extra=extra||{}; return { key,label,type,icon,ph:ph||'', val:cf[key]||'', err:ce[key]||'', hasErr:!!ce[key], bdr:(ce[key]?'#e5484d':'var(--border-strong)'), isTextarea:type==='textarea', notTextarea:type!=='textarea', gridCol:extra.full?'1 / -1':'auto', list:extra.list||'', onChange:(e)=>this.setContact(key,e.target.value) }; };
+    var contactFields=[ mkCf('name','Full Name','text','person','Your full name'), mkCf('email','Email Address','email','mail','you@email.com'), mkCf('phone','Phone Number','tel','call','+971 50 000 0000'), mkCf('destination','Destination Interest','text','place','Where would you like to go?',{ list:'tp-cform-dests' }), mkCf('date','Travel Date','date','calendar_month',''), mkCf('message','Your Message','textarea','forum','Tell us about your dream trip — who is travelling, rough dates and what matters most.',{ full:true }) ];
+    var ei=st.editorItem;
+    var editorFields=ei? schema.fields.map(f=>{
+      var val = ei[f.key]; if(f.type==='csv'){ val=Array.isArray(ei[f.key])? ei[f.key].join(', '):(ei[f.key]||''); } if(val==null) val='';
+      var ty=f.type;
+      return { key:f.key, label:f.label, type:ty, readOnly:!!f.readOnly,
+        value:val, checked:!!ei[f.key],
+        isInput:(ty==='text'||ty==='email'||ty==='tel'||ty==='number'||ty==='csv'), inputType:(ty==='number'?'number':'text'),
+        isTextarea:ty==='textarea', isSelect:ty==='select', isToggle:ty==='toggle', isImage:ty==='image',
+        gridCol:((ty==='textarea'||ty==='image')?'1 / -1':'auto'),
+        toggleIcon:(ei[f.key]?'toggle_on':'toggle_off'), toggleFg:(ei[f.key]?'var(--green-deep)':'var(--text-faint)'), toggleLabel:(ei[f.key]?'On':'Off'),
+        options:(f.options||[]).map(o=>({ value:o, label:o })),
+        onChange:(e)=>{ var v=e.target.value; if(f.type==='number') v=(v===''?'':Number(v)); if(f.type==='csv') v=v.split(',').map(x=>x.trim()).filter(Boolean); this.setEditorField(f.key, v); },
+        onToggle:()=>this.setEditorField(f.key, !ei[f.key]),
+        onPick:(e)=>{ var file=e.target.files && e.target.files[0]; if(file) this.onPickFile(f.key,file); } };
+    }):[];
+    var editorImgBg=(ei&&ei.img)?('center/cover no-repeat url("'+ei.img+'")'):('linear-gradient(135deg,'+((ei&&ei.tint0)||'#1769a8')+','+((ei&&ei.tint1)||'#7cc4ea')+')');
+
+    return {
+      splashOpacity: st.loading?1:0, splashPe: st.loading?'auto':'none',
+      toast: st.toast, toastOpacity: st.toast?1:0,
+      isHome, isAbout, isContact, isAdmin, isPackages, isGallery,
+      heroVideo:(this.props.heroVideo || ''),
+      hasHeroVideo:!!(this.props.heroVideo && String(this.props.heroVideo).trim()),
+      showFooter: !isAdmin, showWhatsApp: (this.props.showWhatsApp!==false) && !isAdmin, showChrome: !isAdmin,
+      showDesktopNav: !isMobile, showMobileNav: isMobile, isMobile,
+      menuOpen: st.menuOpen, menuIcon: st.menuOpen?'close':'menu',
+      themeIcon: st.dark?'light_mode':'dark_mode',
+      navLinks, footerLinks, socials, year:new Date().getFullYear(),
+      newsletter:st.newsletter, onNewsletter:this.onNewsletter, subscribe:this.subscribe,
+      goHome:this.goHome, goAbout:this.goAbout, goContact:this.goContact, goAdmin:this.goAdmin, goPackages:this.goPackages, goGallery:this.goGallery, planTrip:this.planTrip,
+      bottomNavLinks, showBottomNav, waBottom, showWaLabel:!isMobile,
+      toggleTheme:this.toggleTheme, toggleMenu:this.toggleMenu,
+      scrollToPackages:this.scrollToPackages, scrollToDestinations:this.scrollToDestinations, openWhatsApp:this.openWhatsApp,
+      // search
+      search:st.search, searchDestinations:st.destinations.map(d=>d.name+', '+d.country),
+      travelersOptions:this.travelersOptions, typeOptions:this.typeOptions, budgetOptions:this.budgetOptions,
+      onSearchDestination:this.onSearchDestination, onSearchDates:this.onSearchDates, onSearchTravelers:this.onSearchTravelers, onSearchType:this.onSearchType, onSearchBudget:this.onSearchBudget, runSearch:this.runSearch,
+      // data
+      features:this.features, destinations:destinationsView, exploreDest:this.exploreDest,
+      offers:offersView, offerView:st.offerView, offerIsCarousel:ocOn, offerIsGrid:!ocOn, setOfferCarousel:()=>this.setOfferView('carousel'), setOfferGrid:()=>this.setOfferView('grid'), offerTransform, offerDots, nextOffer:this.nextOffer, prevOffer:this.prevOffer, bookOffer:this.bookOffer,
+      offerCarouselBg, offerCarouselFg, offerCarouselShadow, offerGridBg, offerGridFg, offerGridShadow,
+      packages:packagesView, viewPackage:this.viewPackage,
+      packagesHome, packagesIndia:pkgIndia, packagesIntl:pkgIntl, pkgIndiaCount:pkgIndia.length, pkgIntlCount:pkgIntl.length, showIndia, showIntl, pkgTabs, setPkgRegion:this.setPkgRegion,
+      galleryView, galleryHome, galTabs, galleryCount:galleryView.length, galleryTotal:st.gallery.length, setGalCategory:this.setGalCategory,
+      testimonials:testimonialsView, testiTransform, testiDots, activeTesti, nextTesti:this.nextTesti, prevTesti:this.prevTesti,
+      stats:statsView,
+      // about
+      timeline:this.timeline, missionValues:this.values, trustCards:this.trustCards, team:teamView, certs:this.certs,
+      // contact
+      contact:st.contact, contactErrors:st.contactErrors, contactFields, contactDone:st.contactDone, contactNotDone:!st.contactDone, submitContact:this.submitContact, resetContact:this.resetContact,
+      setContactName:(e)=>this.setContact('name',e.target.value), setContactEmail:(e)=>this.setContact('email',e.target.value), setContactPhone:(e)=>this.setContact('phone',e.target.value), setContactDest:(e)=>this.setContact('destination',e.target.value), setContactDate:(e)=>this.setContact('date',e.target.value), setContactMessage:(e)=>this.setContact('message',e.target.value), setContactHp:(e)=>this.setContact('hp',e.target.value),
+      office:this.office, mapSrc:'https://maps.google.com/maps?q=Dubai%20Marina%2C%20Dubai&t=&z=13&ie=UTF8&iwloc=&output=embed',
+      // admin
+      adminAuthed:st.adminAuthed, adminNotAuthed:!st.adminAuthed, adminUser:'Elena Marchetti', adminUserInitials:'EM', adminLogin:st.adminLogin, adminError:st.adminError, doLogin:this.doLogin, logout:this.logout,
+      setLoginEmail:(e)=>this.setLogin('email',e.target.value), setLoginPassword:(e)=>this.setLogin('password',e.target.value),
+      adminSections, adminStats, adminSectionLabel:schema.label, adminSingular:schema.singular, adminCanAdd:schema.canAdd, adminIsInquiries:isInq,
+      adminColumns:schema.columns, adminRows, adminEmpty:adminRows.length===0, adminLoading:st.adminLoading, adminNotLoading:!st.adminLoading, adminGridCols,
+      adminSearch:st.adminSearch, setAdminSearch:this.setAdminSearch, adminFilters, adminFilterShow:adminFilters.length>0,
+      adminPages, rangeLabel, adminMultiPage:totalPages>1,
+      openAdd:()=>this.openEditor('add',null),
+      editorOpen:st.editorOpen, editorMode:st.editorMode, editorTitle:(st.editorMode==='add'?'Add ':'Edit ')+schema.singular, editorSaveLabel:(isInq?'Update status':(st.editorMode==='add'?'Create':'Save changes')), editorFields, saveEditor:this.saveEditor, closeEditor:this.closeEditor, stop:(e)=>{ if(e&&e.stopPropagation)e.stopPropagation(); },
+      editorImg:ei&&ei.img, editorHasImg:!!(ei&&ei.img), editorImgBg, editorT0:(ei&&ei.tint0)||'#1769a8', editorT1:(ei&&ei.tint1)||'#7cc4ea'
+    };
+  }
+}
+</script>
+</body>
+</html>

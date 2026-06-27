@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php --version)",
+      "Bash(composer --version)",
+      "Bash(npm --version)",
+      "Bash(grep -oE '\\(Bali|Santorini|Maldives|Paris|Tokyo|Dubai|Swiss|Iceland|Phuket|Kyoto\\)[^<\"]{0,40}' \"Travels Point.html\")",
+      "Bash(grep -oE \"Tailor-made[^<']{0,120}\" \"Travels Point.html\")",
+      "Bash(grep -oE \"\\(120\\\\+|destinations|honeymoons\\)[^<']{0,80}\" \"Travels Point.html\")",
+      "Bash(grep -oE \"\\\\-\\\\-[a-z-]+: *#[0-9a-fA-F]{3,8}\" \"Travels Point.html\")",
+      "Bash(laravel --version)",
+      "Read(//Users/ixmsanto/.composer/vendor/**)",
+      "Read(//Users/ixmsanto/.config/composer/vendor/**)",
+      "Bash(git --version)",
+      "Bash(mkdir -p design-reference)",
+      "Bash(mv .thumbnail \"Travels Point-print-1367sr2.dc.html\" \"Travels Point.dc.html\" \"Travels Point.html\" assets screenshots support.js uploads design-reference/)",
+      "Bash(rm -rf travelspoint)",
+      "Bash(laravel new *)",
+      "Bash(php artisan *)",
+      "Bash(npx tsc *)",
+      "Bash(echo \"---EXIT:$?---\")",
+      "Bash(echo \"tsc exit: $?\")",
+      "Bash(pkill -f \"artisan serve --port=8801\")",
+      "Bash(npm run *)",
+      "Bash(npm install *)"
+    ]
+  }
+}
