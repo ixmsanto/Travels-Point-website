@@ -8,6 +8,7 @@ import {
     useHeroSlider,
 } from '@/components/hero-slider';
 import MaterialSymbol from '@/components/material-symbol';
+import BlogCard from '@/components/public/blog-card';
 import { CtaButton } from '@/components/public/button';
 import { Section, Container } from '@/components/public/section';
 import { Eyebrow, SectionHeading } from '@/components/public/section-heading';
@@ -17,6 +18,8 @@ import { formatINR } from '@/lib/currency';
 import { cn } from '@/lib/utils';
 import type {
     Banner,
+    BlogPost,
+    ContactDetails,
     Destination,
     GalleryItem,
     Offer,
@@ -31,6 +34,8 @@ type Props = {
     offers: Offer[];
     testimonials: Testimonial[];
     gallery?: GalleryItem[];
+    posts?: BlogPost[];
+    contact: ContactDetails;
 };
 
 // How many packages to preview on the home page before "View all".
@@ -106,7 +111,10 @@ export default function Home({
     offers,
     testimonials,
     gallery = [],
+    posts = [],
+    contact,
 }: Props) {
+    const whatsappUrl = contact.whatsapp_url ?? `tel:${contact.phone}`;
     const [destination, setDestination] = useState('');
     const [offerIndex, setOfferIndex] = useState(0);
     const [tIndex, setTIndex] = useState(0);
@@ -687,6 +695,41 @@ export default function Home({
                     </Section>
                 )}
 
+                {/* ===== FROM THE BLOG ===== */}
+                {posts.length > 0 && (
+                    <Section bg="surface">
+                        <div
+                            data-reveal
+                            className="flex flex-wrap items-end justify-between gap-5"
+                        >
+                            <div>
+                                <Eyebrow icon="article">From the blog</Eyebrow>
+                                <h2 className="mt-4 font-serif text-[clamp(32px,4.6vw,54px)] leading-[1.05] font-semibold tracking-tight text-foreground">
+                                    Travel stories & guides
+                                </h2>
+                            </div>
+                            <CtaButton asChild variant="outline" size="md">
+                                <Link href="/blog">
+                                    View all stories
+                                    <MaterialSymbol
+                                        name="arrow_forward"
+                                        size={18}
+                                    />
+                                </Link>
+                            </CtaButton>
+                        </div>
+
+                        <div
+                            data-stagger
+                            className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+                        >
+                            {posts.map((post) => (
+                                <BlogCard key={post.id} post={post} />
+                            ))}
+                        </div>
+                    </Section>
+                )}
+
                 {/* ===== TESTIMONIALS ===== */}
                 {tCount > 0 && (
                     <section className="relative overflow-hidden brand-gradient-deep px-5 py-[clamp(64px,9vw,120px)] sm:px-8">
@@ -867,7 +910,7 @@ export default function Home({
                                 </CtaButton>
                                 <CtaButton asChild variant="ghost" size="lg">
                                     <a
-                                        href={WHATSAPP}
+                                        href={whatsappUrl}
                                         target="_blank"
                                         rel="noopener"
                                     >
@@ -883,8 +926,6 @@ export default function Home({
         </>
     );
 }
-
-const WHATSAPP = 'https://wa.me/97145550192';
 
 function Field({
     icon,

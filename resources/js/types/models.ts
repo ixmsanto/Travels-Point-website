@@ -113,8 +113,68 @@ export type GalleryItem = Tinted & {
     updated_at?: string;
 };
 
+export type SocialPlatform =
+    | 'facebook'
+    | 'instagram'
+    | 'youtube'
+    | 'twitter'
+    | 'linkedin'
+    | 'tiktok';
+
+export type TeamMember = {
+    id: number;
+    name: string;
+    role: string;
+    tint: string;
+    img: string | null;
+    is_published: boolean;
+    sort_order: number;
+    created_at?: string;
+    updated_at?: string;
+};
+
+export type BlogPost = {
+    id: number;
+    title: string;
+    slug: string;
+    category: string;
+    author: string;
+    read_time: string | null;
+    excerpt: string;
+    body: string;
+    img: string | null;
+    published_at: string | null;
+    is_published: boolean;
+    sort_order: number;
+    created_at?: string;
+    updated_at?: string;
+};
+
 export type ContactDetails = {
     address: string;
     phone: string;
+    whatsapp: string;
+    whatsapp_url: string | null;
     email: string;
+    socials: Partial<Record<SocialPlatform, string>>;
+};
+
+/** The editable key/value settings managed in the admin console. */
+export type SiteSettings = {
+    phone: string;
+    whatsapp: string;
+    email: string;
+    address: string;
+    facebook: string;
+    instagram: string;
+    youtube: string;
+    twitter: string;
+    linkedin: string;
+    tiktok: string;
+    facebook_active: boolean;
+    instagram_active: boolean;
+    youtube_active: boolean;
+    twitter_active: boolean;
+    linkedin_active: boolean;
+    tiktok_active: boolean;
 };

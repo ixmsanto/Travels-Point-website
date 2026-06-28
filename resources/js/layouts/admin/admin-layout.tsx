@@ -13,6 +13,8 @@ type AdminCounts = {
     testimonials?: number;
     banners?: number;
     gallery?: number;
+    blog?: number;
+    team?: number;
     inquiries?: number;
 };
 
@@ -78,10 +80,27 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             count: counts.gallery,
         },
         {
+            label: 'Blog',
+            href: '/admin/blog',
+            icon: 'article',
+            count: counts.blog,
+        },
+        {
+            label: 'Team',
+            href: '/admin/team',
+            icon: 'groups',
+            count: counts.team,
+        },
+        {
             label: 'Contact Inquiries',
             href: '/admin/inquiries',
             icon: 'mail',
             count: counts.inquiries,
+        },
+        {
+            label: 'Site Settings',
+            href: '/admin/settings',
+            icon: 'settings',
         },
     ];
 
@@ -96,7 +115,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                     className="flex items-center gap-3"
                     aria-label="Admin dashboard"
                 >
-                    <span className="flex size-10 items-center justify-center rounded-[13px] bg-gradient-to-br from-[#1f8fd4] to-primary-deep text-white">
+                    <span className="flex size-10 items-center justify-center rounded-[13px] bg-gradient-to-br from-[#fb923c] to-primary-deep text-white">
                         <MaterialSymbol name="explore" size={22} weight={500} />
                     </span>
                     <span className="leading-tight">
@@ -119,7 +138,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                     </Link>
                     <ThemeToggle />
                     {user?.name && (
-                        <span className="flex size-[38px] items-center justify-center rounded-full bg-gradient-to-br from-primary to-[#5b9bff] text-[14px] font-extrabold text-white">
+                        <span className="flex size-[38px] items-center justify-center rounded-full bg-gradient-to-br from-primary to-[#fb923c] text-[14px] font-extrabold text-white">
                             {initialsOf(user.name)}
                         </span>
                     )}

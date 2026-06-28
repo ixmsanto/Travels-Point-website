@@ -128,7 +128,10 @@ export function FilterTabs<T extends string>({
     return (
         <div
             className={cn(
-                'inline-flex gap-1.5 rounded-button border border-border bg-surface-2 p-1.5',
+                // `max-w-full` + horizontal scroll keeps every tab reachable on
+                // narrow screens instead of overflowing the viewport. The
+                // scrollbar itself is hidden — users swipe the row.
+                'flex max-w-full gap-1.5 overflow-x-auto rounded-button border border-border bg-surface-2 p-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
                 className,
             )}
         >
@@ -138,7 +141,7 @@ export function FilterTabs<T extends string>({
                     type="button"
                     onClick={() => onChange(tab)}
                     className={cn(
-                        'inline-flex items-center gap-1.5 rounded-control px-5 py-2.5 text-[14px] font-bold capitalize transition',
+                        'inline-flex shrink-0 items-center gap-1.5 rounded-control px-4 py-2.5 text-[14px] font-bold whitespace-nowrap capitalize transition sm:px-5',
                         value === tab
                             ? 'bg-primary text-white shadow-[0_10px_22px_-14px_var(--ring-glow)]'
                             : 'text-soft hover:text-primary',

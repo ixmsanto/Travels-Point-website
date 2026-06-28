@@ -4,9 +4,11 @@ import { CtaButton } from '@/components/public/button';
 import { Section } from '@/components/public/section';
 import { Eyebrow, SectionHeading } from '@/components/public/section-heading';
 import { IconTile } from '@/components/public/ui';
+import type { TeamMember } from '@/types';
 
 type Props = {
     destinationCount: number;
+    team: TeamMember[];
 };
 
 const values = [
@@ -69,17 +71,6 @@ const trust = [
     },
 ];
 
-const team = [
-    { name: 'Elena Marlow', role: 'Founder & Lead Designer', tint: '#0b4ea2' },
-    { name: 'Rohan Mehta', role: 'Head of Asia & Honeymoons', tint: '#f57c00' },
-    {
-        name: 'Sofia Castellano',
-        role: 'Europe & Luxury Stays',
-        tint: '#3c9440',
-    },
-    { name: 'Daniel Okonkwo', role: 'Africa & Expeditions', tint: '#2f6fe0' },
-];
-
 const certs = [
     { icon: 'workspace_premium', name: 'T+L A-List', sub: '2024 · 2025' },
     { icon: 'verified', name: 'Virtuoso', sub: 'Member agency' },
@@ -88,7 +79,7 @@ const certs = [
     { icon: 'travel_explore', name: 'ASTA', sub: 'Verified' },
 ];
 
-export default function About({ destinationCount }: Props) {
+export default function About({ destinationCount, team }: Props) {
     const heroStats = [
         { value: '24k+', label: 'Happy travelers' },
         { value: `${destinationCount || 120}+`, label: 'Destinations' },
@@ -152,7 +143,7 @@ export default function About({ destinationCount }: Props) {
                             className="relative h-[clamp(320px,42vw,460px)] overflow-hidden rounded-panel shadow-[var(--shadow-lg)]"
                             style={{
                                 background:
-                                    'linear-gradient(150deg,#083b7c,#1565c5)',
+                                    'linear-gradient(150deg,#9a3412,#ea580c)',
                             }}
                         >
                             <div className="pointer-events-none absolute inset-0 brand-hatch" />
@@ -314,47 +305,59 @@ export default function About({ destinationCount }: Props) {
             </Section>
 
             {/* ===== TEAM ===== */}
-            <Section bg="surface">
-                <SectionHeading
-                    eyebrow="Meet our team"
-                    title="The people behind your itinerary"
-                    reveal
-                />
-                <div
-                    data-stagger
-                    className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4"
-                >
-                    {team.map((m) => (
-                        <article
-                            key={m.name}
-                            className="overflow-hidden rounded-card border border-border bg-surface shadow-[var(--shadow-sm)] transition hover:-translate-y-2 hover:shadow-[var(--shadow-lg)]"
-                        >
-                            <div
-                                className="relative flex h-[230px] items-center justify-center"
-                                style={{
-                                    background: `linear-gradient(150deg, ${m.tint}, ${m.tint}cc)`,
-                                }}
+            {team.length > 0 && (
+                <Section bg="surface">
+                    <SectionHeading
+                        eyebrow="Meet our team"
+                        title="The people behind your itinerary"
+                        reveal
+                    />
+                    <div
+                        data-stagger
+                        className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4"
+                    >
+                        {team.map((m) => (
+                            <article
+                                key={m.id}
+                                className="overflow-hidden rounded-card border border-border bg-surface shadow-[var(--shadow-sm)] transition hover:-translate-y-2 hover:shadow-[var(--shadow-lg)]"
                             >
-                                <div className="pointer-events-none absolute inset-0 brand-hatch" />
-                                <span className="font-serif text-[44px] font-extrabold text-white/90">
-                                    {m.name
-                                        .split(' ')
-                                        .map((w) => w[0])
-                                        .join('')}
-                                </span>
-                            </div>
-                            <div className="p-5 text-center">
-                                <p className="text-[17px] font-extrabold text-foreground">
-                                    {m.name}
-                                </p>
-                                <p className="mt-0.5 text-[13.5px] font-semibold text-primary-deep">
-                                    {m.role}
-                                </p>
-                            </div>
-                        </article>
-                    ))}
-                </div>
-            </Section>
+                                <div
+                                    className="relative flex h-[230px] items-center justify-center"
+                                    style={{
+                                        background: `linear-gradient(150deg, ${m.tint}, ${m.tint}cc)`,
+                                    }}
+                                >
+                                    {m.img ? (
+                                        <img
+                                            src={m.img}
+                                            alt={m.name}
+                                            className="absolute inset-0 size-full object-cover"
+                                        />
+                                    ) : (
+                                        <>
+                                            <div className="pointer-events-none absolute inset-0 brand-hatch" />
+                                            <span className="font-serif text-[44px] font-extrabold text-white/90">
+                                                {m.name
+                                                    .split(' ')
+                                                    .map((w) => w[0])
+                                                    .join('')}
+                                            </span>
+                                        </>
+                                    )}
+                                </div>
+                                <div className="p-5 text-center">
+                                    <p className="text-[17px] font-extrabold text-foreground">
+                                        {m.name}
+                                    </p>
+                                    <p className="mt-0.5 text-[13.5px] font-semibold text-primary-deep">
+                                        {m.role}
+                                    </p>
+                                </div>
+                            </article>
+                        ))}
+                    </div>
+                </Section>
+            )}
 
             {/* ===== CERTIFICATIONS ===== */}
             <Section bg="brand-deep">

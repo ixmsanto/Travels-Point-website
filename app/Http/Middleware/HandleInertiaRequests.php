@@ -3,11 +3,14 @@
 namespace App\Http\Middleware;
 
 use App\Models\Banner;
+use App\Models\BlogPost;
 use App\Models\Destination;
 use App\Models\GalleryItem;
 use App\Models\Inquiry;
 use App\Models\Offer;
 use App\Models\Region;
+use App\Models\SiteSetting;
+use App\Models\TeamMember;
 use App\Models\Testimonial;
 use App\Models\TourPackage;
 use Illuminate\Http\Request;
@@ -53,6 +56,7 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
             ],
+            'contact' => fn () => SiteSetting::contact(),
             'adminCounts' => $request->user()
                 ? fn () => [
                     'offers' => Offer::count(),
@@ -62,6 +66,8 @@ class HandleInertiaRequests extends Middleware
                     'testimonials' => Testimonial::count(),
                     'banners' => Banner::count(),
                     'gallery' => GalleryItem::count(),
+                    'blog' => BlogPost::count(),
+                    'team' => TeamMember::count(),
                     'inquiries' => Inquiry::where('status', 'New')->count(),
                 ]
                 : null,

@@ -1,69 +1,118 @@
-import { Link, usePage } from '@inertiajs/react';
-import { Facebook, Instagram, Youtube } from 'lucide-react';
+import { Link, router, usePage } from '@inertiajs/react';
+import {
+    Facebook,
+    Instagram,
+    Linkedin,
+    Music2,
+    Twitter,
+    Youtube,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { toast } from 'sonner';
 import MaterialSymbol from '@/components/material-symbol';
+import MobileBottomBar from '@/components/mobile-bottom-bar';
+import ContactPopup from '@/components/public/contact-popup';
 import ScrollToTop from '@/components/scroll-to-top';
 import ThemeToggle from '@/components/theme-toggle';
 import TravelLogo from '@/components/travel-logo';
+import {
+    Sheet,
+    SheetClose,
+    SheetContent,
+    SheetTitle,
+    SheetTrigger,
+} from '@/components/ui/sheet';
 import { useFlashMessages } from '@/hooks/use-flash-messages';
 import { useReveal } from '@/hooks/use-reveal';
 import { cn } from '@/lib/utils';
-import type { ContactDetails } from '@/types';
+import { logout } from '@/routes';
+import type { ContactDetails, SocialPlatform } from '@/types';
 
 const navLinks = [
-    { label: 'Home', href: '/' },
-    { label: 'Packages', href: '/packages' },
-    { label: 'Gallery', href: '/gallery' },
-    { label: 'About', href: '/about' },
-    { label: 'Contact', href: '/contact' },
-];
-
-// iOS-style floating bottom tab bar shown only on mobile.
-const mobileTabs = [
     { label: 'Home', href: '/', icon: 'home' },
     { label: 'Packages', href: '/packages', icon: 'luggage' },
     { label: 'Gallery', href: '/gallery', icon: 'image' },
+    { label: 'Blog', href: '/blog', icon: 'article' },
     { label: 'About', href: '/about', icon: 'info' },
+    { label: 'Contact', href: '/contact', icon: 'mail' },
 ];
 
-const socials = [
-    { label: 'Instagram', Icon: Instagram },
-    { label: 'Facebook', Icon: Facebook },
-    { label: 'YouTube', Icon: Youtube },
+// Icon + display label for each supported social platform. The actual URLs
+// come from admin Site Settings (shared as `contact.socials`).
+const socialMeta: Record<SocialPlatform, { label: string; Icon: LucideIcon }> = {
+    instagram: { label: 'Instagram', Icon: Instagram },
+    facebook: { label: 'Facebook', Icon: Facebook },
+    youtube: { label: 'YouTube', Icon: Youtube },
+    twitter: { label: 'X (Twitter)', Icon: Twitter },
+    linkedin: { label: 'LinkedIn', Icon: Linkedin },
+    tiktok: { label: 'TikTok', Icon: Music2 },
+};
+
+// Render order for the social icons.
+const socialOrder: SocialPlatform[] = [
+    'instagram',
+    'facebook',
+    'youtube',
+    'twitter',
+    'linkedin',
+    'tiktok',
 ];
 
 const exploreLinks = [
     { label: 'Home', href: '/' },
     { label: 'Tour Packages', href: '/packages' },
     { label: 'Gallery', href: '/gallery' },
+    { label: 'Blog', href: '/blog' },
     { label: 'Featured Destinations', href: '/#destinations' },
     { label: 'Offers & Promotions', href: '/#offers' },
     { label: 'About Us', href: '/about' },
     { label: 'Contact', href: '/contact' },
 ];
 
-const WHATSAPP_URL = 'https://wa.me/97145550192';
+// Compact round icon button used in the header's top utility bar. White glyph
+// on a translucent fill so it reads on the brand bar in both light and dark.
+const iconBarButton =
+    'flex size-8 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25';
+
+const FALLBACK_CONTACT: ContactDetails = {
+    address: 'Office 1204, Marina Plaza, Dubai Marina, UAE',
+    phone: '+971 4 555 0192',
+    whatsapp: '+971 4 555 0192',
+    whatsapp_url: 'https://wa.me/97145550192',
+    email: 'hello@travelspoint.com',
+    socials: {},
+};
 
 export default function PublicLayout({ children }: { children: ReactNode }) {
     useFlashMessages();
     const page = usePage();
     useReveal(page.url);
     const currentPath = new URL(page.url, 'http://x').pathname;
-    const contact = (page.props.contact as ContactDetails | undefined) ?? {
-        address: 'Office 1204, Marina Plaza, Dubai Marina, UAE',
-        phone: '+971 4 555 0192',
-        email: 'hello@travelspoint.com',
-    };
-    const [email, setEmail] = useState('');
+    const contact =
+        (page.props.contact as ContactDetails | undefined) ?? FALLBACK_CONTACT;
+    // Null for guests — drives the footer Admin/Logout swap.
+    const authUser = page.props.auth?.user;
 
-    const isTabActive = (href: string) => {
+    // Configured social links, in display order (empty ones are omitted).
+    const socialLinks = socialOrder
+        .filter((key) => contact.socials?.[key])
+        .map((key) => ({
+            key,
+            href: contact.socials[key] as string,
+            ...socialMeta[key],
+        }));
+
+    const whatsappUrl = contact.whatsapp_url ?? FALLBACK_CONTACT.whatsapp_url;
+    const [email, setEmail] = useState('');
+    const [menuOpen, setMenuOpen] = useState(false);
+
+    const isLinkActive = (href: string) => {
         const path = new URL(href, 'http://x').pathname;
 
-        // Section links (e.g. /#packages) shouldn't steal Home's active state.
         if (path === '/') {
-            return currentPath === '/' && !href.includes('#');
+            return currentPath === '/';
         }
 
         return currentPath === path || currentPath.startsWith(`${path}/`);
@@ -80,37 +129,24 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
                         </span>
                     </span>
 
-                    <div className="flex items-center gap-4">
-                        <a
-                            href={`tel:${contact.phone}`}
-                            className="flex items-center gap-1.5 transition-opacity hover:opacity-80"
-                        >
-                            <MaterialSymbol name="call" size={17} />
-                            <span className="hidden sm:inline">
-                                {contact.phone}
-                            </span>
-                        </a>
-                        <a
-                            href={`mailto:${contact.email}`}
-                            className="hidden items-center gap-1.5 transition-opacity hover:opacity-80 sm:flex"
-                        >
-                            <MaterialSymbol name="mail" size={17} />
-                            <span>{contact.email}</span>
-                        </a>
-                        <span className="hidden h-4 w-px bg-white/30 sm:block" />
-                        <div className="flex items-center gap-2.5">
-                            {socials.map(({ label, Icon }) => (
-                                <button
-                                    key={label}
-                                    type="button"
+                    {/* Compact, theme-adaptive social bar — driven by the
+                        admin Site Settings (one icon per saved social link). */}
+                    {socialLinks.length > 0 && (
+                        <div className="flex items-center gap-1.5">
+                            {socialLinks.map(({ key, href, label, Icon }) => (
+                                <a
+                                    key={key}
+                                    href={href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     aria-label={label}
-                                    className="transition-opacity hover:opacity-80"
+                                    className={iconBarButton}
                                 >
-                                    <Icon size={17} />
-                                </button>
+                                    <Icon size={16} />
+                                </a>
                             ))}
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
 
@@ -150,16 +186,94 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
 
                     <div className="flex items-center gap-2.5">
                         <ThemeToggle />
+
+                        {/* Mobile navigation drawer */}
+                        <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+                            <SheetTrigger asChild>
+                                <button
+                                    type="button"
+                                    aria-label="Open menu"
+                                    className="flex size-10 items-center justify-center rounded-control border border-border-strong bg-surface text-foreground transition hover:border-primary hover:text-primary md:hidden"
+                                >
+                                    <MaterialSymbol name="menu" size={24} />
+                                </button>
+                            </SheetTrigger>
+                            <SheetContent
+                                side="right"
+                                className="w-[80%] max-w-[320px] gap-0 p-0"
+                            >
+                                <SheetTitle className="sr-only">
+                                    Navigation
+                                </SheetTitle>
+
+                                <div className="flex h-[74px] items-center border-b border-border px-5">
+                                    <TravelLogo />
+                                </div>
+
+                                <nav className="flex flex-col gap-1 p-4">
+                                    {navLinks.map((link) => {
+                                        const active = isLinkActive(link.href);
+
+                                        return (
+                                            <SheetClose asChild key={link.href}>
+                                                <Link
+                                                    href={link.href}
+                                                    className={cn(
+                                                        'flex items-center gap-3 rounded-control px-4 py-3 text-[15.5px] font-semibold transition-colors',
+                                                        active
+                                                            ? 'bg-primary-soft text-primary'
+                                                            : 'text-foreground/85 hover:bg-primary-soft hover:text-primary',
+                                                    )}
+                                                >
+                                                    <MaterialSymbol
+                                                        name={link.icon}
+                                                        size={22}
+                                                        fill={active}
+                                                    />
+                                                    {link.label}
+                                                </Link>
+                                            </SheetClose>
+                                        );
+                                    })}
+                                </nav>
+
+                                <div className="mt-auto border-t border-border p-4">
+                                    <a
+                                        href={`tel:${contact.phone}`}
+                                        className="flex items-center gap-3 rounded-control px-4 py-3 text-[14.5px] font-semibold text-soft transition-colors hover:text-primary"
+                                    >
+                                        <MaterialSymbol name="call" size={20} />
+                                        {contact.phone}
+                                    </a>
+                                    {socialLinks.length > 0 && (
+                                        <div className="mt-3 flex items-center gap-2.5 px-4">
+                                            {socialLinks.map(
+                                                ({ key, href, label, Icon }) => (
+                                                    <a
+                                                        key={key}
+                                                        href={href}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        aria-label={label}
+                                                        className="flex size-10 items-center justify-center rounded-control border border-border-strong bg-surface text-soft transition hover:border-primary hover:text-primary"
+                                                    >
+                                                        <Icon size={18} />
+                                                    </a>
+                                                ),
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </SheetContent>
+                        </Sheet>
                     </div>
                 </div>
             </header>
 
-            <main className="flex-1 pb-[calc(96px+env(safe-area-inset-bottom))] md:pb-0">
-                {children}
-            </main>
+            <main className="flex-1">{children}</main>
 
-            <footer className="relative z-20 border-t border-border bg-bg-2">
-                <div className="mx-auto grid w-full max-w-[1240px] gap-10 px-5 pt-14 pb-0 sm:px-8 lg:grid-cols-[1.4fr_1fr_1fr_1.1fr]">
+            <footer className="relative z-20 border-t border-border bg-bg-2 pb-[76px] md:pb-0">
+                <div className="mx-auto grid w-full max-w-[1240px] gap-10 px-5 pt-14 pb-0 sm:grid-cols-2 sm:px-8 lg:grid-cols-[1.4fr_1fr_1fr_1.1fr]">
                     <div>
                         <TravelLogo />
                         <p className="mt-4.5 max-w-sm text-[15px] leading-relaxed text-soft">
@@ -167,18 +281,22 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
                             honeymoons, family escapes, group tours and
                             corporate travel, handled end to end.
                         </p>
-                        <div className="mt-6 flex gap-2.5">
-                            {socials.map(({ label, Icon }) => (
-                                <button
-                                    key={label}
-                                    type="button"
-                                    aria-label={label}
-                                    className="flex size-10 items-center justify-center rounded-control border border-border-strong bg-surface text-soft transition hover:-translate-y-0.5 hover:border-primary hover:text-primary"
-                                >
-                                    <Icon size={19} />
-                                </button>
-                            ))}
-                        </div>
+                        {socialLinks.length > 0 && (
+                            <div className="mt-6 flex gap-2.5">
+                                {socialLinks.map(({ key, href, label, Icon }) => (
+                                    <a
+                                        key={key}
+                                        href={href}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        aria-label={label}
+                                        className="flex size-10 items-center justify-center rounded-control border border-border-strong bg-surface text-soft transition hover:-translate-y-0.5 hover:border-primary hover:text-primary"
+                                    >
+                                        <Icon size={19} />
+                                    </a>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     <div>
@@ -300,13 +418,30 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
                 </div>
 
                 <div className="mx-auto mt-12 w-full max-w-[1240px] px-5 sm:px-8">
-                    <div className="flex flex-wrap items-center justify-between gap-3.5 border-t border-border py-6 text-[14px] text-faint">
+                    {/* Legal / Admin kept left-grouped so the bottom-right
+                        corner stays free for the floating WhatsApp button —
+                        no overlap and no padding gap at any width. */}
+                    <div className="flex flex-col items-center gap-3 border-t border-border py-8 text-center text-[14px] text-faint sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-6 sm:gap-y-2 sm:text-left lg:justify-start">
                         <p>
                             © {new Date().getFullYear()} Travels Point. All
                             rights reserved.
                         </p>
-                        <div className="flex items-center gap-5">
-                            <span>IATA · ASTA · ATOL Protected</span>
+                        <span
+                            aria-hidden
+                            className="hidden h-3.5 w-px bg-border-strong lg:inline-block"
+                        />
+                        <span>IATA · ASTA · ATOL Protected</span>
+                        {authUser ? (
+                            <Link
+                                href={logout()}
+                                as="button"
+                                onClick={() => router.flushAll()}
+                                className="inline-flex items-center gap-1.5 font-semibold transition-colors hover:text-primary"
+                            >
+                                <MaterialSymbol name="logout" size={16} />
+                                Logout
+                            </Link>
+                        ) : (
                             <Link
                                 href="/login"
                                 className="inline-flex items-center gap-1.5 font-semibold transition-colors hover:text-primary"
@@ -314,7 +449,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
                                 <MaterialSymbol name="lock" size={16} />
                                 Admin
                             </Link>
-                        </div>
+                        )}
                     </div>
                 </div>
             </footer>
@@ -324,46 +459,21 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
             <button
                 type="button"
                 onClick={() => {
-                    window.open(WHATSAPP_URL, '_blank', 'noopener');
+                    if (whatsappUrl) {
+                        window.open(whatsappUrl, '_blank', 'noopener');
+                    }
+
                     toast('Our travel team is just a message away ✈️');
                 }}
-                className="tp-pulse fixed right-5 bottom-[calc(84px+env(safe-area-inset-bottom))] z-40 inline-flex h-[60px] items-center gap-2.5 rounded-full bg-[#25D366] pr-5 pl-4 text-[14.5px] font-bold text-white shadow-[0_16px_34px_-12px_rgba(37,211,102,0.7)] transition-transform hover:scale-105 md:bottom-5"
+                className="tp-pulse fixed right-5 bottom-[calc(20px+env(safe-area-inset-bottom))] z-40 hidden h-[60px] items-center gap-2.5 rounded-full bg-primary pr-5 pl-4 text-[14.5px] font-bold text-white shadow-[0_16px_34px_-12px_rgba(234,88,12,0.7)] transition-transform hover:scale-105 md:bottom-5 md:inline-flex"
             >
                 <MaterialSymbol name="chat" size={28} fill />
                 <span className="hidden sm:inline">Chat with us</span>
             </button>
 
-            {/* iOS-style sticky bottom tab bar — mobile only */}
-            <nav
-                aria-label="Primary"
-                className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--glass-border,rgba(255,255,255,0.6))] bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md backdrop-saturate-150 md:hidden"
-            >
-                <div className="mx-auto grid max-w-md grid-cols-4">
-                    {mobileTabs.map((tab) => {
-                        const active = isTabActive(tab.href);
+            <MobileBottomBar contact={contact} />
 
-                        return (
-                            <Link
-                                key={tab.label}
-                                href={tab.href}
-                                className={cn(
-                                    'flex flex-col items-center justify-center gap-0.5 py-2 text-[11px] font-semibold transition-colors',
-                                    active
-                                        ? 'text-primary'
-                                        : 'text-soft hover:text-primary',
-                                )}
-                            >
-                                <MaterialSymbol
-                                    name={tab.icon}
-                                    size={24}
-                                    fill={active}
-                                />
-                                {tab.label}
-                            </Link>
-                        );
-                    })}
-                </div>
-            </nav>
+            <ContactPopup />
         </div>
     );
 }
