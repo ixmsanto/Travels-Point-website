@@ -45,6 +45,7 @@ export default function ImageField({
 
     // Crop dialog state
     const [cropSrc, setCropSrc] = useState<string | null>(null);
+    const [originalFile, setOriginalFile] = useState<File | null>(null);
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
     const [areaPixels, setAreaPixels] = useState<CropArea | null>(null);
@@ -72,6 +73,8 @@ export default function ImageField({
             return;
         }
 
+        setOriginalFile(selected);
+
         const reader = new FileReader();
         reader.addEventListener('load', () => {
             setCropSrc(reader.result as string);
@@ -95,6 +98,16 @@ export default function ImageField({
 
         const cropped = await getCroppedFile(cropSrc, areaPixels);
         onFile(cropped);
+        onUrl(''); // a fresh upload supersedes any pasted URL
+        setCropSrc(null);
+    };
+
+    const useFullImage = () => {
+        if (!originalFile) {
+            return;
+        }
+
+        onFile(originalFile); // upload the original, uncropped file
         onUrl(''); // a fresh upload supersedes any pasted URL
         setCropSrc(null);
     };
@@ -170,8 +183,9 @@ export default function ImageField({
                         }
                     />
                     <p className="text-[12.5px] text-faint">
-                        Upload from your device (crop for a perfect fit), paste a
-                        URL, or leave empty to use the card gradient.
+                        Upload from your device (crop for a perfect fit, or choose
+                        “Use full image” to keep it uncropped), paste a URL, or
+                        leave empty to use the card gradient.
                     </p>
                 </div>
             </div>
@@ -223,6 +237,13 @@ export default function ImageField({
                             onClick={() => setCropSrc(null)}
                         >
                             Cancel
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            onClick={useFullImage}
+                        >
+                            Use full image
                         </Button>
                         <Button type="button" onClick={applyCrop}>
                             Apply crop

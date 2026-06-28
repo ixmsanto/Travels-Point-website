@@ -1,4 +1,5 @@
 import { Head, Link, useForm } from '@inertiajs/react';
+import { useEffect, useMemo, useState } from 'react';
 import Field from '@/components/admin/field';
 import ImageField from '@/components/admin/image-field';
 import PageHeader from '@/components/admin/page-header';
@@ -21,6 +22,12 @@ type Props = { banner: Banner | null };
 
 export default function BannerForm({ banner }: Props) {
     const editing = Boolean(banner);
+    // A banner is either an image or a looping video (which uses the image as
+    // its poster). One control picks the mode so the two fields aren't shown
+    // as unrelated options.
+    const [mediaType, setMediaType] = useState<'image' | 'video'>(
+        banner?.video ? 'video' : 'image',
+    );
     const form = useForm({
         title: banner?.title ?? '',
         subtitle: banner?.subtitle ?? '',
@@ -30,8 +37,28 @@ export default function BannerForm({ banner }: Props) {
         tint1: banner?.tint1 ?? '#7cc4ea',
         img: banner?.img ?? '',
         image_file: null as File | null,
+        video: banner?.video ?? '',
+        video_file: null as File | null,
         sort_order: banner?.sort_order ?? 0,
     });
+
+    // Preview a freshly picked file, else the saved/typed URL. Object URLs are
+    // revoked on change to avoid leaks.
+    const videoPreview = useMemo(
+        () =>
+            form.data.video_file
+                ? URL.createObjectURL(form.data.video_file)
+                : form.data.video,
+        [form.data.video_file, form.data.video],
+    );
+
+    useEffect(() => {
+        return () => {
+            if (form.data.video_file) {
+                URL.revokeObjectURL(videoPreview);
+            }
+        };
+    }, [videoPreview, form.data.video_file]);
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -43,6 +70,10 @@ export default function BannerForm({ banner }: Props) {
 
             if (!(payload.image_file instanceof File)) {
                 delete payload.image_file;
+            }
+
+            if (!(payload.video_file instanceof File)) {
+                delete payload.video_file;
             }
 
             if (editing) {
@@ -141,8 +172,102 @@ export default function BannerForm({ banner }: Props) {
                         </Field>
                     </div>
 
+                    <Field
+                        label="Banner media"
+                        htmlFor="media_type"
+                        hint="Show a still image, or a looping background video (the image below becomes its poster)."
+                    >
+                        <Select
+                            value={mediaType}
+                            onValueChange={(v) => {
+                                const next = v as 'image' | 'video';
+                                setMediaType(next);
+                                // Switching back to image clears any video so the
+                                // slide is image-only when saved.
+                                if (next === 'image') {
+                                    form.setData('video', '');
+                                    form.setData('video_file', null);
+                                }
+                            }}
+                        >
+                            <SelectTrigger id="media_type" className="w-full">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="image">Image</SelectItem>
+                                <SelectItem value="video">Video</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </Field>
+
+                    {mediaType === 'video' && (
+                        <Field
+                            label="Video"
+                            htmlFor="video"
+                            error={
+                                form.errors.video || form.errors.video_file
+                            }
+                            hint="MP4 or WebM up to 50 MB — plays muted & looping behind the hero. Keep it short and compressed for fast loading."
+                        >
+                            <div className="grid gap-3">
+                                {videoPreview && (
+                                    <video
+                                        key={videoPreview}
+                                        className="aspect-video w-full rounded-lg border border-border object-cover"
+                                        src={videoPreview}
+                                        muted
+                                        loop
+                                        playsInline
+                                        controls
+                                    />
+                                )}
+                                <Input
+                                    id="video"
+                                    placeholder="https://… .mp4  — or upload a file below"
+                                    value={form.data.video}
+                                    onChange={(e) => {
+                                        form.setData('video', e.target.value);
+                                        form.setData('video_file', null);
+                                    }}
+                                />
+                                <div className="flex items-center gap-3">
+                                    <Input
+                                        type="file"
+                                        accept="video/mp4,video/webm"
+                                        onChange={(e) =>
+                                            form.setData(
+                                                'video_file',
+                                                e.target.files?.[0] ?? null,
+                                            )
+                                        }
+                                    />
+                                    {(form.data.video ||
+                                        form.data.video_file) && (
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => {
+                                                form.setData('video', '');
+                                                form.setData(
+                                                    'video_file',
+                                                    null,
+                                                );
+                                            }}
+                                        >
+                                            Remove
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
+                        </Field>
+                    )}
+
                     <ImageField
-                        label="Banner image"
+                        label={
+                            mediaType === 'video'
+                                ? 'Poster image (optional)'
+                                : 'Banner image'
+                        }
                         img={form.data.img ?? ''}
                         file={form.data.image_file}
                         aspect={16 / 9}

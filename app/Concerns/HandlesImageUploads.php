@@ -20,11 +20,21 @@ trait HandlesImageUploads
      */
     protected function resolveImage(Request $request, string $directory, ?string $existing = null): ?string
     {
-        if ($request->hasFile('image_file')) {
-            $path = $request->file('image_file')->store($directory, 'public');
+        return $this->resolveUpload($request, 'image_file', 'img', $directory, $existing);
+    }
+
+    /**
+     * Resolve a media value (image or video) to persist. A new uploaded file
+     * under `$fileKey` wins and replaces any previously stored file; otherwise
+     * the submitted URL under `$urlKey` (or the existing value) is kept.
+     */
+    protected function resolveUpload(Request $request, string $fileKey, string $urlKey, string $directory, ?string $existing = null): ?string
+    {
+        if ($request->hasFile($fileKey)) {
+            $path = $request->file($fileKey)->store($directory, 'public');
 
             if ($path === false) {
-                return $existing; // store failed — keep the current image
+                return $existing; // store failed — keep the current value
             }
 
             $this->deleteStoredImage($existing);
@@ -33,9 +43,9 @@ trait HandlesImageUploads
         }
 
         // No new upload — keep the submitted URL, or the existing value if absent.
-        $img = $request->input('img', $existing);
+        $value = $request->input($urlKey, $existing);
 
-        return $img !== null && $img !== '' ? $img : null;
+        return $value !== null && $value !== '' ? $value : null;
     }
 
     /**

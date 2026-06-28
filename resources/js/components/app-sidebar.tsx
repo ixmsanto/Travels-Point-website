@@ -6,6 +6,7 @@ import {
     LayoutGrid,
     Mail,
     MessageSquareQuote,
+    Map,
     Tag,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -28,6 +29,7 @@ type AdminCounts = {
     offers: number;
     destinations: number;
     packages: number;
+    regions: number;
     testimonials: number;
     banners: number;
     inquiries: number;
@@ -54,6 +56,12 @@ const navItems: NavEntry[] = [
         href: '/admin/packages',
         icon: Briefcase,
         countKey: 'packages',
+    },
+    {
+        title: 'Regions',
+        href: '/admin/regions',
+        icon: Map,
+        countKey: 'regions',
     },
     {
         title: 'Testimonials',

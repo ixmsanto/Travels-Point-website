@@ -34,6 +34,7 @@ class RegistrationTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('admin.dashboard', absolute: false));
+        // New sign-ups are regular users — they land on the public site, not the console.
+        $response->assertRedirect(route('home', absolute: false));
     }
 }

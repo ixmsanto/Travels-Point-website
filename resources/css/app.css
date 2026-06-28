@@ -37,13 +37,49 @@
     --color-surface-2: var(--surface-2);
     --color-bg-2: var(--bg-2);
 
+    /* Fixed inks — NOT theme-aware. For text that always sits on a light chip
+       or on a brand-gradient band, so it stays legible in light AND dark mode.
+       --color-ink        : deep navy body ink (on white/light chips)
+       --color-ink-brand  : brand navy (on white buttons over brand gradients) */
+    --color-ink: #1b2a41;
+    --color-ink-brand: #083b7c;
+
     --shadow-tp-sm: var(--shadow-sm);
     --shadow-tp-md: var(--shadow-md);
     --shadow-tp-lg: var(--shadow-lg);
 
+    /* ── Radius scale ─────────────────────────────────────────────
+       Use these named radii everywhere instead of arbitrary rounded-[Npx].
+       control 12 · button 14 · card 20 · panel 26 (large bands/carousels) */
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
     --radius-sm: calc(var(--radius) - 4px);
+    --radius-control: 0.75rem; /* 12px — inputs, segmented pills, small chips */
+    --radius-button: 0.875rem; /* 14px — all CTA buttons */
+    --radius-card: 1.25rem; /* 20px — cards, panels, info tiles */
+    --radius-panel: 1.625rem; /* 26px — large feature bands & carousels */
+
+    /* ── Motion ───────────────────────────────────────────────────
+       One easing + duration vocabulary for the whole site. Use the
+       generated utilities (ease-fluid / ease-snappy) and the standard
+       Tailwind durations (duration-150 / 300 / 500 / 700) so transitions
+       feel consistent. Keep transitions to transform/opacity only — those
+       are GPU-composited and never trigger layout/paint. */
+    --ease-fluid: cubic-bezier(
+        0.16,
+        1,
+        0.3,
+        1
+    ); /* decelerate — reveals, slides */
+    --ease-snappy: cubic-bezier(
+        0.65,
+        0,
+        0.35,
+        1
+    ); /* in-out — toggles, hovers */
+    --animate-duration-fast: 150ms;
+    --animate-duration-base: 250ms;
+    --animate-duration-slow: 600ms;
 
     --color-background: var(--background);
     --color-foreground: var(--foreground);
@@ -104,8 +140,8 @@
     --green: #4caf50;
     --green-deep: #3c9440;
     --green-soft: #e7f4e8;
-    --shadow-sm: 0 1px 2px rgba(27, 42, 65, 0.06),
-        0 4px 14px -8px rgba(27, 42, 65, 0.12);
+    --shadow-sm:
+        0 1px 2px rgba(27, 42, 65, 0.06), 0 4px 14px -8px rgba(27, 42, 65, 0.12);
     --shadow-md: 0 12px 34px -14px rgba(27, 42, 65, 0.22);
     --shadow-lg: 0 36px 70px -28px rgba(27, 42, 65, 0.4);
     --ring-glow: rgba(11, 78, 162, 0.45);
@@ -152,6 +188,38 @@
     --gold: #f57c00;
     --gold-foreground: #ffffff;
     --gold-soft: #fdecd9;
+
+    /* ── Brand gradients & overlays ───────────────────────────────
+       Single source of truth for the marketing bands. Apply with the
+       .brand-gradient / .brand-gradient-cta / .brand-gradient-deep
+       utilities below — never re-type the raw hex stops in a page. */
+    --gradient-brand: linear-gradient(
+        150deg,
+        #083b7c 0%,
+        #0b4ea2 38%,
+        #1565c5 70%,
+        #2f8fd6 100%
+    );
+    --gradient-brand-cta: linear-gradient(
+        135deg,
+        #083b7c 0%,
+        #0b4ea2 50%,
+        #1565c5 100%
+    );
+    --gradient-brand-deep: linear-gradient(
+        165deg,
+        #062a52 0%,
+        #083b7c 55%,
+        #0b4ea2 100%
+    );
+    --gradient-gold: linear-gradient(135deg, #f57c00, #d96b00);
+    --gradient-whatsapp: linear-gradient(135deg, #1faf5a, #11833f);
+    /* Bottom-up scrim for text laid over imagery */
+    --overlay-media: linear-gradient(
+        180deg,
+        rgba(6, 18, 30, 0.05) 40%,
+        rgba(6, 18, 30, 0.55) 100%
+    );
 }
 
 .dark {
@@ -169,7 +237,8 @@
     --green: #5cc561;
     --green-deep: #4caf50;
     --green-soft: rgba(92, 197, 97, 0.16);
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35), 0 6px 20px -10px rgba(0, 0, 0, 0.5);
+    --shadow-sm:
+        0 1px 2px rgba(0, 0, 0, 0.35), 0 6px 20px -10px rgba(0, 0, 0, 0.5);
     --shadow-md: 0 16px 40px -16px rgba(0, 0, 0, 0.6);
     --shadow-lg: 0 40px 80px -30px rgba(0, 0, 0, 0.7);
     --ring-glow: rgba(91, 155, 255, 0.5);
@@ -224,10 +293,57 @@
 
     body {
         @apply bg-background text-foreground;
+        font-family: var(--font-serif);
+    }
+
+    /* Smooth in-page anchor jumps (e.g. footer → #destinations / #offers).
+       Section ids carry scroll-mt-20 so they clear the sticky header. */
+    html {
+        scroll-behavior: smooth;
     }
 }
 
-/* Material Symbols Outlined icon font */
+/* ── Brand surface utilities ──────────────────────────────────────
+   Decorative marketing surfaces. Use these instead of inline style={{
+   background: 'linear-gradient(...)' }} so the palette stays in one place. */
+@utility brand-gradient {
+    background-image: var(--gradient-brand);
+}
+@utility brand-gradient-cta {
+    background-image: var(--gradient-brand-cta);
+}
+@utility brand-gradient-deep {
+    background-image: var(--gradient-brand-deep);
+}
+@utility media-scrim {
+    background-image: var(--overlay-media);
+}
+@utility brand-gradient-gold {
+    background-image: var(--gradient-gold);
+}
+@utility brand-gradient-whatsapp {
+    background-image: var(--gradient-whatsapp);
+}
+/* The diagonal hatch sheen used on every brand band. */
+@utility brand-hatch {
+    background-image: repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.05) 0 2px,
+        transparent 2px 22px
+    );
+}
+
+/* Material Symbols Outlined icon font — self-hosted full variable font so
+   every icon ligature works and it does not depend on the Google Fonts CDN
+   being reachable. */
+@font-face {
+    font-family: 'Material Symbols Outlined';
+    font-style: normal;
+    font-weight: 100 700;
+    font-display: block;
+    src: url('../fonts/material-symbols-outlined.woff2') format('woff2');
+}
+
 .ms {
     font-family: 'Material Symbols Outlined';
     font-weight: normal;
@@ -246,7 +362,9 @@
 }
 
 .ms-fill {
-    font-variation-settings: 'FILL' 1, 'opsz' 24;
+    font-variation-settings:
+        'FILL' 1,
+        'opsz' 24;
 }
 
 /* Reference keyframes */
@@ -314,11 +432,18 @@
     }
 }
 
+/* Decorative floats. `will-change: transform` + translateZ promotes each to its
+   own compositor layer, so the (static) blur behind them is rasterized once and
+   the loop runs on the GPU instead of repainting every frame. */
 .tp-float {
     animation: tpFloat 9s ease-in-out infinite;
+    transform: translateZ(0);
+    will-change: transform;
 }
 .tp-float2 {
     animation: tpFloat2 7s ease-in-out infinite;
+    transform: translateZ(0);
+    will-change: transform;
 }
 .tp-pulse {
     animation: tpPulse 2.6s infinite;
@@ -328,6 +453,27 @@
 }
 .tp-cue {
     animation: tpCue 1.8s ease-in-out infinite;
+    will-change: transform;
+}
+
+/* Applied to the fixed hero parallax backdrop once the hero scrolls out of
+   view. It is covered by opaque page content at that point, so stop painting it
+   entirely and pause its decorative loops — they cost nothing while frozen. */
+.backdrop-frozen {
+    visibility: hidden;
+}
+.backdrop-frozen * {
+    animation-play-state: paused !important;
+}
+
+/* Standard hover lift — transform-only, GPU-composited. */
+.hover-lift {
+    transition:
+        transform var(--animate-duration-base) var(--ease-snappy),
+        box-shadow var(--animate-duration-base) var(--ease-snappy);
+}
+.hover-lift:hover {
+    transform: translateY(-4px);
 }
 .tp-shimmer {
     background: linear-gradient(
@@ -345,13 +491,13 @@
     opacity: 0;
 }
 [data-reveal][data-rv='in'] {
-    animation: tpRevealIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: tpRevealIn 0.85s var(--ease-fluid) forwards;
 }
 [data-stagger] > * {
     opacity: 0;
 }
 [data-stagger][data-rv='in'] > * {
-    animation: tpRevealIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: tpRevealIn 0.8s var(--ease-fluid) forwards;
 }
 [data-stagger][data-rv='in'] > *:nth-child(2) {
     animation-delay: 0.06s;
@@ -386,5 +532,16 @@
     .tp-pulse,
     .tp-cue {
         animation: none !important;
+        will-change: auto !important;
+    }
+    .hover-lift {
+        transition: none !important;
+    }
+    .hover-lift:hover {
+        transform: none !important;
+    }
+    /* Honor the OS preference for in-page smooth scrolling too. */
+    html {
+        scroll-behavior: auto !important;
     }
 }

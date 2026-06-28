@@ -25,18 +25,6 @@ export default function Login({ status, canResetPassword }: Props) {
 
             <PasskeyVerify />
 
-            <div className="mb-6 flex items-start gap-2.5 rounded-[11px] border border-dashed border-border-strong bg-surface-2 px-4 py-3 text-[12.5px]">
-                <MaterialSymbol
-                    name="info"
-                    size={16}
-                    className="mt-0.5 shrink-0 text-primary-deep"
-                />
-                <p className="text-soft">
-                    <span className="font-bold text-foreground">Demo access:</span>{' '}
-                    admin@travelspoint.com · password
-                </p>
-            </div>
-
             <Form
                 {...store.form()}
                 resetOnSuccess={['password']}

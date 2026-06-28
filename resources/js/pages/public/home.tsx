@@ -1,9 +1,18 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { ReactNode } from 'react';
 import GradientThumb from '@/components/gradient-thumb';
+import {
+    HeroBackdrop,
+    HeroControls,
+    useHeroSlider,
+} from '@/components/hero-slider';
 import MaterialSymbol from '@/components/material-symbol';
+import { CtaButton } from '@/components/public/button';
+import { Section, Container } from '@/components/public/section';
 import { Eyebrow, SectionHeading } from '@/components/public/section-heading';
+import { Chip, IconTile } from '@/components/public/ui';
+import { useInView } from '@/hooks/use-in-view';
 import { formatINR } from '@/lib/currency';
 import { cn } from '@/lib/utils';
 import type {
@@ -11,7 +20,6 @@ import type {
     Destination,
     GalleryItem,
     Offer,
-    PackageRegion,
     Testimonial,
     TourPackage,
 } from '@/types';
@@ -25,15 +33,13 @@ type Props = {
     gallery?: GalleryItem[];
 };
 
-const packageRegions = ['All', 'India', 'International'] as const;
-type PackageTab = (typeof packageRegions)[number];
+// How many packages to preview on the home page before "View all".
+const HOME_PACKAGE_LIMIT = 6;
+
+// How many gallery images to preview on the home page before "View all".
+const HOME_GALLERY_LIMIT = 8;
 
 const features = [
-    {
-        icon: 'tune',
-        title: 'Tailor-made, never templated',
-        text: 'Every itinerary is built around you — your pace, your taste, your budget. No two trips are the same.',
-    },
     {
         icon: 'support_agent',
         title: '24/7 on-trip support',
@@ -48,11 +54,6 @@ const features = [
         icon: 'savings',
         title: 'Best-price promise',
         text: 'Direct partnerships with airlines and hotels mean curated trips without the curated markup.',
-    },
-    {
-        icon: 'hotel',
-        title: 'Hand-picked stays',
-        text: 'We have slept in the rooms. We know which café has the view and which floor to ask for.',
     },
     {
         icon: 'diversity_3',
@@ -71,6 +72,13 @@ const stats = [
 const tripTypes = ['Honeymoon', 'Family', 'Group tour', 'Solo', 'Corporate'];
 const budgets = ['Under $2k', '$2k – $5k', '$5k – $10k', '$10k+'];
 
+const heroStats = [
+    { value: '120+', label: 'Destinations' },
+    { value: '24K+', label: 'Happy travelers' },
+    { value: '4.9★', label: 'Average rating' },
+    { value: '15 yrs', label: 'Crafting trips' },
+];
+
 function Stars({ rating, size = 16 }: { rating: number; size?: number }) {
     return (
         <span className="inline-flex items-center gap-0.5">
@@ -81,7 +89,9 @@ function Stars({ rating, size = 16 }: { rating: number; size?: number }) {
                     size={size}
                     fill={i < Math.round(rating)}
                     className={
-                        i < Math.round(rating) ? 'text-gold' : 'text-border-strong'
+                        i < Math.round(rating)
+                            ? 'text-gold'
+                            : 'text-border-strong'
                     }
                 />
             ))}
@@ -98,63 +108,45 @@ export default function Home({
     gallery = [],
 }: Props) {
     const [destination, setDestination] = useState('');
-    const [offerView, setOfferView] = useState<'carousel' | 'grid'>('carousel');
     const [offerIndex, setOfferIndex] = useState(0);
     const [tIndex, setTIndex] = useState(0);
-    const [pkgTab, setPkgTab] = useState<PackageTab>('All');
-    const [heroIndex, setHeroIndex] = useState(0);
+
+    // Freeze the fixed parallax backdrop once the hero scrolls away — it is
+    // covered by opaque content past that point, so painting it (and looping its
+    // blurred decorations) is wasted work and a scroll-jank source.
+    const [heroRef, heroInView] = useInView<HTMLElement>('0px', 0);
 
     const offerCount = offers.length;
     const tCount = testimonials.length;
 
-    // Active Hero-placement banners with an image drive the hero background.
+    // Active Hero-placement banners with image or video drive the hero slider.
     const heroBanners = banners.filter(
-        (b) => b.placement === 'Hero' && b.active && b.img,
+        (b) => b.placement === 'Hero' && b.active && (b.img || b.video),
     );
+    const heroSlider = useHeroSlider(heroBanners);
 
-    // Cross-fade through the hero banners every 6s when more than one exists.
-    useEffect(() => {
-        if (heroBanners.length < 2) {
-            return;
-        }
-
-        const id = setInterval(() => {
-            setHeroIndex((i) => (i + 1) % heroBanners.length);
-        }, 6000);
-
-        return () => clearInterval(id);
-    }, [heroBanners.length]);
-
-    const visiblePackages =
-        pkgTab === 'All'
-            ? packages
-            : packages.filter((p) => p.region === (pkgTab as PackageRegion));
+    // The home page only previews a handful of featured packages; the full,
+    // filterable list lives on /packages.
+    const previewPackages = packages.slice(0, HOME_PACKAGE_LIMIT);
 
     return (
         <>
             <Head title="Travels Point — Explore the world, tailor-made" />
 
             {/* ===== HERO ===== */}
-            <section
-                className="relative overflow-hidden"
-                style={{
-                    background:
-                        'linear-gradient(150deg,#083b7c 0%,#0b4ea2 38%,#1565c5 70%,#2f8fd6 100%)',
-                }}
+            {/* Fixed parallax backdrop — stays put while the page scrolls over it. */}
+            <div
+                aria-hidden
+                className={cn(
+                    'fixed inset-0 z-0 overflow-hidden brand-gradient',
+                    !heroInView && 'backdrop-frozen',
+                )}
+                onMouseEnter={() => heroSlider.setPaused(true)}
+                onMouseLeave={() => heroSlider.setPaused(false)}
             >
-                {/* Admin-managed Hero banner images, cross-fading over the gradient. */}
-                {heroBanners.map((b, i) => (
-                    <div
-                        key={b.id}
-                        aria-hidden
-                        className="pointer-events-none absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out"
-                        style={{
-                            backgroundImage: `url(${b.img})`,
-                            opacity: i === heroIndex ? 1 : 0,
-                        }}
-                    />
-                ))}
-                <div className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(45deg,rgba(255,255,255,0.05)_0_2px,transparent_2px_22px)] opacity-50" />
+                {/* Admin-managed Hero banners (image or video) as a slider. */}
+                <HeroBackdrop banners={heroBanners} index={heroSlider.index} />
+                <div className="pointer-events-none absolute inset-0 brand-hatch opacity-50" />
                 <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(4,16,28,0.45)_0%,rgba(4,16,28,0.28)_32%,rgba(4,16,28,0.7)_100%)]" />
                 <div className="tp-float pointer-events-none absolute top-24 right-[8%] size-[200px] rounded-full bg-[radial-gradient(circle,rgba(245,124,0,0.55),transparent_70%)] blur-[6px]" />
                 <div className="tp-float2 pointer-events-none absolute bottom-24 left-[6%] size-[140px] rounded-full bg-[radial-gradient(circle,rgba(91,155,255,0.5),transparent_70%)] blur-[4px]" />
@@ -168,7 +160,10 @@ export default function Home({
                     size={26}
                     className="tp-float2 pointer-events-none absolute right-[12%] bottom-28 text-white/25"
                 />
+            </div>
 
+            {/* Hero foreground — scrolls up over the fixed backdrop. */}
+            <section ref={heroRef} className="relative z-10 overflow-hidden">
                 <div
                     data-stagger
                     className="relative mx-auto flex min-h-[clamp(640px,93svh,940px)] max-w-[1240px] flex-col justify-center px-5 pt-24 pb-16 sm:px-8"
@@ -185,26 +180,38 @@ export default function Home({
 
                     <p className="mt-6 max-w-[580px] text-[clamp(16px,1.6vw,20px)] leading-[1.65] text-white/90">
                         Discover unforgettable journeys, exclusive tour packages
-                        and personalized travel experiences — designed end to end
-                        by people who know the world.
+                        and personalized travel experiences — designed end to
+                        end by people who know the world.
                     </p>
 
                     <div className="mt-8.5 flex flex-wrap gap-3.5">
-                        <Link
-                            href="/#packages"
-                            className="inline-flex items-center gap-2.5 rounded-[14px] bg-gradient-to-br from-primary to-primary-deep px-[30px] py-4 text-[16px] font-bold text-white shadow-[0_18px_40px_-16px_rgba(11,78,162,0.8)] transition hover:-translate-y-0.5 hover:brightness-110"
-                        >
-                            <MaterialSymbol name="luggage" size={20} />
-                            Explore Packages
-                        </Link>
-                        <Link
-                            href="/contact"
-                            className="inline-flex items-center gap-2.5 rounded-[14px] border border-white/40 bg-white/15 px-[30px] py-4 text-[16px] font-bold text-white backdrop-blur-md transition hover:-translate-y-0.5 hover:border-white/75 hover:bg-white/25"
-                        >
-                            <MaterialSymbol name="chat_bubble" size={20} />
-                            Contact Us
-                        </Link>
+                        <CtaButton asChild variant="primary" size="lg">
+                            <Link href="/packages">
+                                <MaterialSymbol name="luggage" size={20} />
+                                Explore Packages
+                            </Link>
+                        </CtaButton>
+                        <CtaButton asChild variant="ghost" size="lg">
+                            <Link href="/contact">
+                                <MaterialSymbol name="chat_bubble" size={20} />
+                                Contact Us
+                            </Link>
+                        </CtaButton>
                     </div>
+
+                    {/* Trust / stats strip */}
+                    <dl className="mt-9 flex flex-wrap gap-x-8 gap-y-4 sm:gap-x-11">
+                        {heroStats.map((s) => (
+                            <div key={s.label}>
+                                <dt className="font-serif text-[clamp(26px,3.6vw,34px)] leading-none font-semibold text-white">
+                                    {s.value}
+                                </dt>
+                                <dd className="mt-1.5 text-[12px] font-semibold tracking-[0.12em] text-white/65 uppercase">
+                                    {s.label}
+                                </dd>
+                            </div>
+                        ))}
+                    </dl>
 
                     {/* Search bar */}
                     <form
@@ -216,14 +223,18 @@ export default function Home({
                                 destination ? { destination } : {},
                             );
                         }}
-                        className="mt-11 grid grid-cols-2 gap-2.5 rounded-[22px] border border-white/40 bg-[var(--glass-strong,rgba(255,255,255,0.82))] p-4 shadow-[0_36px_70px_-28px_rgba(0,0,0,0.5)] backdrop-blur-2xl sm:grid-cols-3 lg:grid-cols-6"
+                        className="mt-11 grid grid-cols-1 gap-2.5 rounded-card border border-white/40 bg-[var(--glass-strong,rgba(255,255,255,0.82))] p-4 shadow-[0_36px_70px_-28px_rgba(0,0,0,0.5)] backdrop-blur-lg sm:grid-cols-2 lg:grid-cols-6"
                     >
-                        <Field icon="place">
+                        <Field
+                            icon="place"
+                            className="sm:col-span-2 lg:col-span-1"
+                        >
                             <input
                                 list="dest-list"
                                 value={destination}
                                 onChange={(e) => setDestination(e.target.value)}
                                 placeholder="Where to?"
+                                aria-label="Destination"
                                 className="w-full bg-transparent text-[15px] font-semibold outline-none placeholder:text-faint"
                             />
                             <datalist id="dest-list">
@@ -237,11 +248,15 @@ export default function Home({
                                 type="text"
                                 onFocus={(e) => (e.target.type = 'date')}
                                 placeholder="Travel dates"
+                                aria-label="Travel dates"
                                 className="w-full bg-transparent text-[15px] font-semibold outline-none placeholder:text-faint"
                             />
                         </Field>
                         <Field icon="group">
-                            <select className="w-full bg-transparent text-[15px] font-semibold outline-none">
+                            <select
+                                aria-label="Travelers"
+                                className="w-full bg-transparent text-[15px] font-semibold outline-none"
+                            >
                                 <option>2 Adults</option>
                                 <option>1 Adult</option>
                                 <option>Family (3–5)</option>
@@ -249,44 +264,61 @@ export default function Home({
                             </select>
                         </Field>
                         <Field icon="tune">
-                            <select className="w-full bg-transparent text-[15px] font-semibold outline-none">
+                            <select
+                                aria-label="Trip type"
+                                className="w-full bg-transparent text-[15px] font-semibold outline-none"
+                            >
                                 {tripTypes.map((t) => (
                                     <option key={t}>{t}</option>
                                 ))}
                             </select>
                         </Field>
                         <Field icon="payments">
-                            <select className="w-full bg-transparent text-[15px] font-semibold outline-none">
+                            <select
+                                aria-label="Budget"
+                                className="w-full bg-transparent text-[15px] font-semibold outline-none"
+                            >
                                 {budgets.map((b) => (
                                     <option key={b}>{b}</option>
                                 ))}
                             </select>
                         </Field>
-                        <button
+                        <CtaButton
                             type="submit"
-                            className="flex items-center justify-center gap-2 rounded-[13px] bg-gradient-to-br from-primary to-primary-deep px-4 py-3 text-[15px] font-bold text-white transition hover:brightness-110"
+                            variant="primary"
+                            size="md"
+                            className="sm:col-span-2 lg:col-span-1"
                         >
                             <MaterialSymbol name="search" size={20} />
                             Search
-                        </button>
+                        </CtaButton>
                     </form>
 
-                    <div className="mt-10 flex flex-col items-center gap-1 self-center text-white/70">
-                        <span className="text-[11px] tracking-[0.16em] uppercase">
-                            Scroll
-                        </span>
-                        <MaterialSymbol
-                            name="keyboard_arrow_down"
-                            size={22}
-                            className="tp-cue"
-                        />
-                    </div>
+                    {/* Scroll cue — hidden when the slider shows dot indicators
+                        in the same spot to avoid overlap. */}
+                    {heroBanners.length < 2 && (
+                        <div className="mt-10 flex flex-col items-center gap-1 self-center text-white/70">
+                            <span className="text-[11px] tracking-[0.16em] uppercase">
+                                Scroll
+                            </span>
+                            <MaterialSymbol
+                                name="keyboard_arrow_down"
+                                size={22}
+                                className="tp-cue"
+                            />
+                        </div>
+                    )}
                 </div>
+
+                {/* Slider controls — in the foreground so they stay clickable. */}
+                <HeroControls state={heroSlider} />
             </section>
 
-            {/* ===== WHY TRAVELS POINT ===== */}
-            <section className="bg-background px-5 py-[clamp(64px,9vw,118px)] sm:px-8">
-                <div className="mx-auto max-w-[1240px]">
+            {/* Everything below the hero sits on an opaque layer that scrolls
+                up over the fixed parallax backdrop. */}
+            <div className="relative z-10 bg-background">
+                {/* ===== WHY TRAVELS POINT ===== */}
+                <Section bg="surface">
                     <SectionHeading
                         eyebrow="Why Travels Point"
                         title="Travel with people who sweat the details"
@@ -295,16 +327,18 @@ export default function Home({
                     />
                     <div
                         data-stagger
-                        className="mt-12 grid gap-4.5 sm:grid-cols-2 lg:grid-cols-3"
+                        className="mt-12 grid gap-4.5 sm:grid-cols-2 lg:grid-cols-4"
                     >
                         {features.map((f) => (
                             <article
                                 key={f.title}
-                                className="group rounded-[20px] border border-border bg-surface p-[26px] shadow-[var(--shadow-sm)] transition hover:-translate-y-1.5 hover:border-primary/35 hover:shadow-[var(--shadow-md)]"
+                                className="group rounded-card border border-border bg-surface p-[26px] shadow-[var(--shadow-sm)] transition hover:-translate-y-1.5 hover:border-primary/35 hover:shadow-[var(--shadow-md)]"
                             >
-                                <span className="mb-5 flex size-[54px] items-center justify-center rounded-[15px] bg-gradient-to-br from-primary-soft to-gold-soft text-primary-deep transition group-hover:-rotate-6 group-hover:scale-110">
-                                    <MaterialSymbol name={f.icon} size={27} />
-                                </span>
+                                <IconTile
+                                    icon={f.icon}
+                                    iconSize={27}
+                                    className="mb-5 transition group-hover:scale-110 group-hover:-rotate-6"
+                                />
                                 <h3 className="text-[19px] font-bold text-foreground">
                                     {f.title}
                                 </h3>
@@ -314,117 +348,14 @@ export default function Home({
                             </article>
                         ))}
                     </div>
-                </div>
-            </section>
+                </Section>
 
-            {/* ===== FEATURED DESTINATIONS ===== */}
-            <section
-                id="destinations"
-                className="scroll-mt-20 bg-bg-2 px-5 py-[clamp(64px,9vw,118px)] sm:px-8"
-            >
-                <div className="mx-auto max-w-[1240px]">
-                    <div
-                        data-reveal
-                        className="flex flex-wrap items-end justify-between gap-5"
-                    >
-                        <div className="max-w-[620px]">
-                            <Eyebrow>Featured Destinations</Eyebrow>
-                            <h2 className="mt-4 font-serif text-[clamp(32px,4.6vw,54px)] leading-[1.05] font-semibold tracking-tight text-foreground">
-                                Where will you wake up next?
-                            </h2>
-                        </div>
-                        <Link
-                            href="/#packages"
-                            className="inline-flex items-center gap-2 rounded-xl border border-border-strong bg-surface px-5 py-3 text-[14.5px] font-bold text-foreground transition hover:-translate-y-0.5 hover:border-primary hover:text-primary hover:shadow-[var(--shadow-md)]"
-                        >
-                            View all packages
-                            <MaterialSymbol
-                                name="arrow_forward"
-                                size={18}
-                                className="text-primary-deep"
-                            />
-                        </Link>
-                    </div>
-
-                    <div
-                        data-stagger
-                        className="mt-12 grid gap-5.5 sm:grid-cols-2 lg:grid-cols-3"
-                    >
-                        {destinations.map((d) => (
-                            <article
-                                key={d.id}
-                                className="group overflow-hidden rounded-[22px] border border-border bg-surface shadow-[var(--shadow-sm)] transition hover:-translate-y-2 hover:border-primary/30 hover:shadow-[var(--shadow-lg)]"
-                            >
-                                <div className="relative h-[218px] overflow-hidden">
-                                    <GradientThumb
-                                        tint0={d.tint0}
-                                        tint1={d.tint1}
-                                        img={d.img}
-                                        rounded="rounded-none"
-                                        className="h-full transition-transform duration-700 group-hover:scale-105"
-                                    />
-                                    <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(6,18,30,0.05)_40%,rgba(6,18,30,0.55)_100%)]" />
-                                    <span className="absolute top-3.5 left-3.5 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3.5 py-1.5 text-[12px] font-bold text-[#1b2a41] backdrop-blur">
-                                        <MaterialSymbol
-                                            name="place"
-                                            size={14}
-                                            className="text-primary-deep"
-                                        />
-                                        {d.tag}
-                                    </span>
-                                    <div className="absolute right-5 bottom-4 left-5 text-white">
-                                        <p className="flex items-center gap-1 text-[12.5px] font-semibold opacity-90">
-                                            <MaterialSymbol
-                                                name="location_on"
-                                                size={14}
-                                            />
-                                            {d.country}
-                                        </p>
-                                        <h3 className="font-serif text-[26px] leading-none font-semibold">
-                                            {d.name}
-                                        </h3>
-                                    </div>
-                                </div>
-                                <div className="p-[22px]">
-                                    <p className="line-clamp-2 text-[14.5px] leading-[1.6] text-soft">
-                                        {d.blurb}
-                                    </p>
-                                    <div className="mt-4 flex items-center justify-between">
-                                        <p className="text-[15px] text-soft">
-                                            from{' '}
-                                            <span className="text-[21px] font-extrabold text-foreground">
-                                                {formatINR(d.price)}
-                                            </span>{' '}
-                                            / person
-                                        </p>
-                                        <Link
-                                            href="/contact"
-                                            className="inline-flex items-center gap-1.5 text-[14.5px] font-bold text-primary-deep transition-all hover:gap-2.5"
-                                        >
-                                            Explore
-                                            <MaterialSymbol
-                                                name="arrow_forward"
-                                                size={16}
-                                            />
-                                        </Link>
-                                    </div>
-                                </div>
-                            </article>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* ===== OFFERS & PROMOTIONS ===== */}
-            {offerCount > 0 && (
-                <section
-                    id="offers"
-                    className="scroll-mt-20 bg-background px-5 py-[clamp(64px,9vw,118px)] sm:px-8"
-                >
-                    <div className="mx-auto max-w-[1240px]">
+                {/* ===== OFFERS & PROMOTIONS ===== */}
+                {offerCount > 0 && (
+                    <Section id="offers" bg="muted">
                         <div
                             data-reveal
-                            className="flex flex-wrap items-end justify-between gap-5"
+                            className="flex flex-col items-center gap-5 text-center"
                         >
                             <div className="max-w-[640px]">
                                 <Eyebrow
@@ -437,38 +368,12 @@ export default function Home({
                                     Limited-time escapes, curated for now
                                 </h2>
                             </div>
-                            <div className="flex gap-1.5 rounded-[13px] border border-border bg-surface-2 p-1.5">
-                                {(['carousel', 'grid'] as const).map((v) => (
-                                    <button
-                                        key={v}
-                                        type="button"
-                                        onClick={() => setOfferView(v)}
-                                        className={cn(
-                                            'inline-flex items-center gap-1.5 rounded-[9px] px-4 py-2.5 text-[13.5px] font-bold capitalize transition',
-                                            offerView === v
-                                                ? 'bg-primary text-white'
-                                                : 'text-soft hover:text-primary',
-                                        )}
-                                    >
-                                        <MaterialSymbol
-                                            name={
-                                                v === 'carousel'
-                                                    ? 'view_carousel'
-                                                    : 'grid_view'
-                                            }
-                                            size={18}
-                                        />
-                                        {v}
-                                    </button>
-                                ))}
-                            </div>
                         </div>
 
-                        {offerView === 'carousel' ? (
-                            <div data-reveal className="mt-10">
-                                <div className="overflow-hidden rounded-[26px] shadow-[var(--shadow-md)]">
+                        <div data-reveal className="mx-auto mt-10 max-w-4xl">
+                                <div className="overflow-hidden rounded-panel shadow-[var(--shadow-md)]">
                                     <div
-                                        className="flex transition-transform duration-700 ease-[cubic-bezier(.16,1,.3,1)]"
+                                        className="flex transition-transform duration-700 ease-fluid"
                                         style={{
                                             transform: `translateX(-${offerIndex * 100}%)`,
                                         }}
@@ -476,16 +381,23 @@ export default function Home({
                                         {offers.map((o) => (
                                             <div
                                                 key={o.id}
-                                                className="grid w-full shrink-0 grid-cols-1 md:grid-cols-2"
+                                                className="flex w-full shrink-0 flex-col overflow-hidden md:min-h-110 md:flex-row md:items-stretch"
                                             >
-                                                <div className="relative min-h-[300px]">
-                                                    <GradientThumb
-                                                        tint0={o.tint0}
-                                                        tint1={o.tint1}
-                                                        img={o.img}
-                                                        rounded="rounded-none"
-                                                        className="h-full min-h-[300px]"
-                                                    />
+                                                <div className="relative flex shrink-0 items-center justify-center bg-muted p-4 md:w-80">
+                                                    {o.img ? (
+                                                        <img
+                                                            src={o.img}
+                                                            alt={o.title}
+                                                            className="mx-auto block max-h-105 w-auto max-w-full object-contain"
+                                                        />
+                                                    ) : (
+                                                        <GradientThumb
+                                                            tint0={o.tint0}
+                                                            tint1={o.tint1}
+                                                            rounded="rounded-none"
+                                                            className="h-64 w-full md:h-full md:min-h-105"
+                                                        />
+                                                    )}
                                                     <span className="absolute top-5 left-5 flex size-[84px] flex-col items-center justify-center rounded-full bg-green text-white shadow-[0_12px_26px_-10px_rgba(76,175,80,0.7)]">
                                                         <span className="text-[24px] leading-none font-extrabold">
                                                             {o.discount}%
@@ -495,14 +407,14 @@ export default function Home({
                                                         </span>
                                                     </span>
                                                 </div>
-                                                <div className="flex flex-col justify-center bg-surface p-[clamp(26px,3.5vw,42px)]">
-                                                    <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-green-soft px-3.5 py-1.5 text-[12px] font-bold text-green-deep">
-                                                        <MaterialSymbol
-                                                            name="schedule"
-                                                            size={14}
-                                                        />
+                                                <div className="flex flex-1 flex-col justify-center bg-surface p-[clamp(26px,3.5vw,42px)]">
+                                                    <Chip
+                                                        icon="schedule"
+                                                        tone="green"
+                                                        className="w-fit"
+                                                    >
                                                         {o.status}
-                                                    </span>
+                                                    </Chip>
                                                     <h3 className="mt-4 font-serif text-[clamp(28px,3.4vw,40px)] leading-[1.08] font-semibold text-foreground">
                                                         {o.title}
                                                     </h3>
@@ -519,7 +431,7 @@ export default function Home({
                                                         {new Date(
                                                             o.expiry,
                                                         ).toLocaleDateString(
-                                                            undefined,
+                                                            'en-GB',
                                                             {
                                                                 month: 'short',
                                                                 day: 'numeric',
@@ -527,16 +439,25 @@ export default function Home({
                                                             },
                                                         )}
                                                     </p>
-                                                    <Link
-                                                        href={o.cta_url || '/contact'}
-                                                        className="mt-6 inline-flex w-fit items-center gap-2 rounded-[13px] bg-gradient-to-br from-primary to-primary-deep px-7 py-3.5 text-[15px] font-bold text-white shadow-[0_14px_30px_-14px_var(--ring-glow)] transition hover:-translate-y-0.5 hover:brightness-110"
+                                                    <CtaButton
+                                                        asChild
+                                                        variant="primary"
+                                                        size="md"
+                                                        className="mt-6 w-fit"
                                                     >
-                                                        {o.cta}
-                                                        <MaterialSymbol
-                                                            name="arrow_forward"
-                                                            size={18}
-                                                        />
-                                                    </Link>
+                                                        <Link
+                                                            href={
+                                                                o.cta_url ||
+                                                                '/contact'
+                                                            }
+                                                        >
+                                                            {o.cta}
+                                                            <MaterialSymbol
+                                                                name="arrow_forward"
+                                                                size={18}
+                                                            />
+                                                        </Link>
+                                                    </CtaButton>
                                                 </div>
                                             </div>
                                         ))}
@@ -583,97 +504,19 @@ export default function Home({
                                     </div>
                                 )}
                             </div>
-                        ) : (
-                            <div
-                                data-stagger
-                                className="mt-10 grid gap-5.5 sm:grid-cols-2 lg:grid-cols-3"
-                            >
-                                {offers.map((o) => (
-                                    <article
-                                        key={o.id}
-                                        className="flex flex-col overflow-hidden rounded-[22px] border border-border bg-surface shadow-[var(--shadow-sm)] transition hover:-translate-y-1.5 hover:shadow-[var(--shadow-md)]"
-                                    >
-                                        <div className="relative h-[170px]">
-                                            <GradientThumb
-                                                tint0={o.tint0}
-                                                tint1={o.tint1}
-                                                img={o.img}
-                                                rounded="rounded-none"
-                                                className="h-full"
-                                            />
-                                            <span className="absolute top-3.5 right-3.5 rounded-full bg-green px-3 py-1.5 text-[13px] font-extrabold text-white shadow-[0_8px_18px_-8px_rgba(76,175,80,0.7)]">
-                                                {o.discount}% OFF
-                                            </span>
-                                        </div>
-                                        <div className="flex flex-1 flex-col p-[22px]">
-                                            <h3 className="font-serif text-[20px] font-semibold text-foreground">
-                                                {o.title}
-                                            </h3>
-                                            <p className="mt-2 line-clamp-2 flex-1 text-[14.5px] leading-[1.6] text-soft">
-                                                {o.description}
-                                            </p>
-                                            <Link
-                                                href={o.cta_url || '/contact'}
-                                                className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-gold to-[#d96b00] py-3 text-[14.5px] font-bold text-white shadow-[0_10px_22px_-12px_rgba(245,124,0,0.7)] transition hover:-translate-y-0.5"
-                                            >
-                                                {o.cta}
-                                                <MaterialSymbol
-                                                    name="arrow_forward"
-                                                    size={16}
-                                                />
-                                            </Link>
-                                        </div>
-                                    </article>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </section>
-            )}
+                    </Section>
+                )}
 
-            {/* ===== POPULAR TOUR PACKAGES ===== */}
-            <section
-                id="packages"
-                className="scroll-mt-20 bg-bg-2 px-5 py-[clamp(64px,9vw,118px)] sm:px-8"
-            >
-                <div className="mx-auto max-w-[1240px]">
+                {/* ===== POPULAR TOUR PACKAGES ===== */}
+                <Section id="packages" bg="surface">
                     <SectionHeading
                         eyebrow="Popular Tour Packages"
                         title="Itineraries our travelers love most"
                         reveal
                     />
-                    <div
-                        data-reveal
-                        className="mt-9 flex justify-center"
-                    >
-                        <div className="inline-flex gap-1.5 rounded-[14px] border border-border bg-surface-2 p-1.5">
-                            {packageRegions.map((tab) => (
-                                <button
-                                    key={tab}
-                                    type="button"
-                                    onClick={() => setPkgTab(tab)}
-                                    className={cn(
-                                        'inline-flex items-center gap-1.5 rounded-[10px] px-5 py-2.5 text-[14px] font-bold transition',
-                                        pkgTab === tab
-                                            ? 'bg-primary text-white shadow-[0_10px_22px_-14px_var(--ring-glow)]'
-                                            : 'text-soft hover:text-primary',
-                                    )}
-                                >
-                                    {tab === 'India' && (
-                                        <MaterialSymbol name="place" size={17} />
-                                    )}
-                                    {tab === 'International' && (
-                                        <MaterialSymbol name="public" size={17} />
-                                    )}
-                                    {tab}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                    {visiblePackages.length === 0 ? (
+                    {previewPackages.length === 0 ? (
                         <p className="mt-12 text-center text-[15.5px] text-soft">
-                            No {pkgTab.toLowerCase()} packages just yet — check
-                            back soon or{' '}
+                            No packages just yet — check back soon or{' '}
                             <Link
                                 href="/contact"
                                 className="font-bold text-primary hover:underline"
@@ -683,103 +526,111 @@ export default function Home({
                             .
                         </p>
                     ) : (
-                    <div
-                        data-stagger
-                        className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
-                    >
-                        {visiblePackages.map((p) => (
-                            <article
-                                key={p.id}
-                                className="flex flex-col overflow-hidden rounded-[22px] border border-border bg-surface shadow-[var(--shadow-sm)] transition hover:-translate-y-2 hover:shadow-[var(--shadow-lg)]"
-                            >
-                                <div className="relative h-[200px] overflow-hidden">
-                                    <GradientThumb
-                                        tint0={p.tint0}
-                                        tint1={p.tint1}
-                                        img={p.img}
-                                        rounded="rounded-none"
-                                        className="h-full"
-                                    />
-                                    <span className="absolute top-3.5 left-3.5 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-[12px] font-bold text-[#1b2a41] backdrop-blur">
-                                        <MaterialSymbol name="schedule" size={14} />
-                                        {p.duration}
-                                    </span>
-                                    <span className="absolute top-3.5 right-3.5 inline-flex items-center gap-1 rounded-full bg-[#1b2a41]/55 px-2.5 py-1.5 text-[12px] font-bold text-white backdrop-blur">
-                                        <MaterialSymbol
-                                            name="star"
-                                            size={14}
-                                            fill
-                                            className="text-gold"
+                        <div
+                            data-stagger
+                            className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+                        >
+                            {previewPackages.map((p) => (
+                                <article
+                                    key={p.id}
+                                    className="flex flex-col overflow-hidden rounded-card border border-border bg-surface shadow-[var(--shadow-sm)] transition hover:-translate-y-2 hover:shadow-[var(--shadow-lg)]"
+                                >
+                                    <div className="relative h-[200px] overflow-hidden">
+                                        <GradientThumb
+                                            tint0={p.tint0}
+                                            tint1={p.tint1}
+                                            img={p.img}
+                                            rounded="rounded-none"
+                                            className="h-full"
                                         />
-                                        {p.rating.toFixed(1)}
-                                    </span>
-                                </div>
-                                <div className="flex flex-1 flex-col p-[22px]">
-                                    <p className="flex items-center gap-1.5 text-[13.5px] text-soft">
-                                        <MaterialSymbol
-                                            name="location_on"
-                                            size={15}
-                                            className="text-primary"
-                                        />
-                                        {p.location}
-                                    </p>
-                                    <h3 className="mt-1 text-[20px] font-bold text-foreground">
-                                        {p.title}
-                                    </h3>
-                                    <ul className="mt-3 flex flex-wrap gap-1.5">
-                                        {p.services.slice(0, 4).map((s) => (
-                                            <li
-                                                key={s}
-                                                className="inline-flex items-center gap-1 rounded-lg border border-border bg-surface-2 px-2.5 py-1 text-[12px] font-semibold text-soft"
-                                            >
-                                                <MaterialSymbol
-                                                    name="check_circle"
-                                                    size={14}
-                                                    className="text-primary-deep"
-                                                />
-                                                {s}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                    <div className="mt-auto flex items-center justify-between border-t border-border pt-4">
-                                        <p className="text-[13.5px] text-soft">
-                                            from{' '}
-                                            <span className="text-[22px] font-extrabold text-foreground">
-                                                {formatINR(p.price)}
-                                            </span>
-                                        </p>
-                                        <Link
-                                            href="/contact"
-                                            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-br from-primary to-primary-deep px-[18px] py-3 text-[14px] font-bold text-white shadow-[0_12px_24px_-14px_var(--ring-glow)] transition hover:-translate-y-0.5 hover:brightness-110"
+                                        <Chip
+                                            icon="schedule"
+                                            tone="light"
+                                            className="absolute top-3.5 left-3.5"
                                         >
-                                            View
+                                            {p.duration}
+                                        </Chip>
+                                        <span className="absolute top-3.5 right-3.5 inline-flex items-center gap-1 rounded-full bg-ink/55 px-2.5 py-1.5 text-[12px] font-bold text-white backdrop-blur">
                                             <MaterialSymbol
-                                                name="arrow_forward"
-                                                size={16}
+                                                name="star"
+                                                size={14}
+                                                fill
+                                                className="text-gold"
                                             />
-                                        </Link>
+                                            {p.rating.toFixed(1)}
+                                        </span>
                                     </div>
-                                </div>
-                            </article>
-                        ))}
-                    </div>
+                                    <div className="flex flex-1 flex-col p-[22px]">
+                                        <p className="flex items-center gap-1.5 text-[13.5px] text-soft">
+                                            <MaterialSymbol
+                                                name="location_on"
+                                                size={15}
+                                                className="text-primary"
+                                            />
+                                            {p.location}
+                                        </p>
+                                        <h3 className="mt-1 text-[20px] font-bold text-foreground">
+                                            {p.title}
+                                        </h3>
+                                        <ul className="mt-3 flex flex-wrap gap-1.5">
+                                            {p.services.slice(0, 4).map((s) => (
+                                                <li
+                                                    key={s}
+                                                    className="inline-flex items-center gap-1 rounded-lg border border-border bg-surface-2 px-2.5 py-1 text-[12px] font-semibold text-soft"
+                                                >
+                                                    <MaterialSymbol
+                                                        name="check_circle"
+                                                        size={14}
+                                                        className="text-primary-deep"
+                                                    />
+                                                    {s}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        <div className="mt-auto flex items-center justify-between border-t border-border pt-4">
+                                            <p className="text-[13.5px] text-soft">
+                                                from{' '}
+                                                <span className="text-[22px] font-extrabold text-foreground">
+                                                    {formatINR(p.price)}
+                                                </span>
+                                            </p>
+                                            <CtaButton
+                                                asChild
+                                                variant="primary"
+                                                size="sm"
+                                            >
+                                                <Link
+                                                    href={`/contact?destination=${encodeURIComponent(p.location)}`}
+                                                >
+                                                    View
+                                                    <MaterialSymbol
+                                                        name="arrow_forward"
+                                                        size={16}
+                                                    />
+                                                </Link>
+                                            </CtaButton>
+                                        </div>
+                                    </div>
+                                </article>
+                            ))}
+                        </div>
                     )}
                     <div className="mt-12 flex justify-center">
-                        <Link
-                            href="/contact"
-                            className="inline-flex items-center gap-2 rounded-[14px] bg-gradient-to-br from-primary to-primary-deep px-[30px] py-3.5 text-[15.5px] font-bold text-white shadow-[0_16px_34px_-16px_var(--ring-glow)] transition hover:-translate-y-0.5 hover:brightness-110"
-                        >
-                            View all packages
-                            <MaterialSymbol name="arrow_forward" size={18} />
-                        </Link>
+                        <CtaButton asChild variant="primary" size="md">
+                            <Link href="/packages">
+                                View all packages
+                                <MaterialSymbol
+                                    name="arrow_forward"
+                                    size={18}
+                                />
+                            </Link>
+                        </CtaButton>
                     </div>
-                </div>
-            </section>
+                </Section>
 
-            {/* ===== TRAVEL GALLERY ===== */}
-            {gallery.length > 0 && (
-                <section className="bg-background px-5 py-[clamp(64px,9vw,118px)] sm:px-8">
-                    <div className="mx-auto max-w-[1240px]">
+                {/* ===== TRAVEL GALLERY ===== */}
+                {gallery.length > 0 && (
+                    <Section bg="muted">
                         <div
                             data-reveal
                             className="flex flex-wrap items-end justify-between gap-5"
@@ -795,10 +646,10 @@ export default function Home({
                             data-stagger
                             className="mt-10 grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-4"
                         >
-                            {gallery.map((g) => (
+                            {gallery.slice(0, HOME_GALLERY_LIMIT).map((g) => (
                                 <figure
                                     key={g.id}
-                                    className="group relative aspect-square overflow-hidden rounded-[18px] shadow-[var(--shadow-sm)]"
+                                    className="group relative aspect-square overflow-hidden rounded-card shadow-[var(--shadow-sm)]"
                                 >
                                     <GradientThumb
                                         tint0={g.tint0}
@@ -808,217 +659,249 @@ export default function Home({
                                         className="h-full transition-transform duration-700 group-hover:scale-[1.09]"
                                     />
                                     <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent_38%,rgba(6,18,30,0.62)_100%)]" />
-                                    <span className="absolute top-2.5 left-2.5 rounded-full bg-white/90 px-2.5 py-1 text-[10.5px] font-bold text-[#1b2a41]">
+                                    <Chip
+                                        tone="light"
+                                        className="absolute top-2.5 left-2.5"
+                                    >
                                         {g.category}
-                                    </span>
+                                    </Chip>
                                     <figcaption className="absolute right-3.5 bottom-3.5 left-3.5 text-[14px] leading-[1.25] font-bold text-white">
                                         {g.topic}
                                     </figcaption>
                                 </figure>
                             ))}
                         </div>
-                    </div>
-                </section>
-            )}
-
-            {/* ===== TESTIMONIALS ===== */}
-            {tCount > 0 && (
-                <section
-                    className="relative overflow-hidden px-5 py-[clamp(64px,9vw,120px)] sm:px-8"
-                    style={{
-                        background:
-                            'linear-gradient(165deg,#062a52 0%,#083b7c 55%,#0b4ea2 100%)',
-                    }}
-                >
-                    <span className="pointer-events-none absolute top-0 right-6 font-serif text-[340px] leading-none text-white/5 select-none">
-                        &rdquo;
-                    </span>
-                    <div className="tp-float pointer-events-none absolute bottom-[5%] left-[5%] size-[130px] rounded-full bg-[radial-gradient(circle,rgba(245,124,0,0.45),transparent_70%)] blur-[6px]" />
-
-                    <div className="relative mx-auto max-w-[1240px]">
-                        <SectionHeading
-                            eyebrow="Loved by travelers"
-                            eyebrowIcon="favorite"
-                            eyebrowTone="gold"
-                            title="Stories worth the airfare"
-                            invert
-                            reveal
-                        />
-                        <div data-reveal className="mt-10">
-                            <div className="overflow-hidden rounded-[26px]">
-                                <div
-                                    className="flex transition-transform duration-700 ease-[cubic-bezier(.16,1,.3,1)]"
-                                    style={{
-                                        transform: `translateX(-${tIndex * 100}%)`,
-                                    }}
-                                >
-                                    {testimonials.map((t) => (
-                                        <figure
-                                            key={t.id}
-                                            className="w-full shrink-0 px-1.5"
-                                        >
-                                            <div className="rounded-[24px] border border-white/15 bg-[var(--glass-strong,rgba(255,255,255,0.82))] p-[clamp(28px,4vw,48px)] text-center shadow-[var(--shadow-lg)] backdrop-blur-2xl">
-                                                <div className="mb-4 flex justify-center">
-                                                    <Stars
-                                                        rating={t.rating}
-                                                        size={22}
-                                                    />
-                                                </div>
-                                                <blockquote className="mx-auto max-w-[640px] font-serif text-[clamp(21px,2.6vw,30px)] leading-[1.4] font-medium text-foreground italic">
-                                                    “{t.review}”
-                                                </blockquote>
-                                                <figcaption className="mt-6 flex items-center justify-center gap-3.5">
-                                                    <span
-                                                        className="flex size-[54px] items-center justify-center rounded-full font-serif text-[18px] font-extrabold text-white shadow-[var(--shadow-sm)]"
-                                                        style={{
-                                                            backgroundImage: `linear-gradient(135deg, ${t.tint0}, ${t.tint1})`,
-                                                        }}
-                                                    >
-                                                        {t.name.charAt(0)}
-                                                    </span>
-                                                    <div className="text-left">
-                                                        <p className="text-[16px] font-extrabold text-foreground">
-                                                            {t.name}
-                                                        </p>
-                                                        <p className="text-[13px] font-semibold text-faint">
-                                                            {t.location}
-                                                        </p>
-                                                    </div>
-                                                </figcaption>
-                                            </div>
-                                        </figure>
-                                    ))}
-                                </div>
+                        {gallery.length > HOME_GALLERY_LIMIT && (
+                            <div className="mt-12 flex justify-center">
+                                <CtaButton asChild variant="primary" size="md">
+                                    <Link href="/gallery">
+                                        View all photos
+                                        <MaterialSymbol
+                                            name="arrow_forward"
+                                            size={18}
+                                        />
+                                    </Link>
+                                </CtaButton>
                             </div>
-                            {tCount > 1 && (
-                                <div className="mt-6 flex items-center justify-center gap-4.5">
-                                    <CarouselArrow
-                                        dir="prev"
-                                        invert
-                                        onClick={() =>
-                                            setTIndex(
-                                                (i) => (i - 1 + tCount) % tCount,
-                                            )
-                                        }
-                                    />
-                                    <div className="flex gap-2">
-                                        {testimonials.map((t, i) => (
-                                            <button
+                        )}
+                    </Section>
+                )}
+
+                {/* ===== TESTIMONIALS ===== */}
+                {tCount > 0 && (
+                    <section className="relative overflow-hidden brand-gradient-deep px-5 py-[clamp(64px,9vw,120px)] sm:px-8">
+                        <span className="pointer-events-none absolute top-0 right-6 font-serif text-[340px] leading-none text-white/5 select-none">
+                            &rdquo;
+                        </span>
+                        <div className="tp-float pointer-events-none absolute bottom-[5%] left-[5%] size-[130px] rounded-full bg-[radial-gradient(circle,rgba(245,124,0,0.45),transparent_70%)] blur-[6px]" />
+
+                        <Container width="default" className="relative">
+                            <SectionHeading
+                                eyebrow="Loved by travelers"
+                                eyebrowIcon="favorite"
+                                eyebrowTone="gold"
+                                title="Stories worth the airfare"
+                                invert
+                                reveal
+                            />
+                            <div data-reveal className="mt-10">
+                                <div className="overflow-hidden rounded-panel">
+                                    <div
+                                        className="flex transition-transform duration-700 ease-fluid"
+                                        style={{
+                                            transform: `translateX(-${tIndex * 100}%)`,
+                                        }}
+                                    >
+                                        {testimonials.map((t) => (
+                                            <figure
                                                 key={t.id}
-                                                type="button"
-                                                aria-label={`Testimonial ${i + 1}`}
-                                                onClick={() => setTIndex(i)}
-                                                className={cn(
-                                                    'h-2.5 rounded-full transition-all',
-                                                    i === tIndex
-                                                        ? 'w-7 bg-primary'
-                                                        : 'w-2.5 bg-white/30',
-                                                )}
-                                            />
+                                                className="w-full shrink-0 px-1.5"
+                                            >
+                                                <div className="rounded-panel border border-white/15 bg-[var(--glass-strong,rgba(255,255,255,0.82))] p-[clamp(28px,4vw,48px)] text-center shadow-[var(--shadow-lg)] backdrop-blur-lg">
+                                                    <div className="mb-4 flex justify-center">
+                                                        <Stars
+                                                            rating={t.rating}
+                                                            size={22}
+                                                        />
+                                                    </div>
+                                                    <blockquote className="mx-auto max-w-[640px] font-serif text-[clamp(21px,2.6vw,30px)] leading-[1.4] font-medium text-foreground italic">
+                                                        “{t.review}”
+                                                    </blockquote>
+                                                    <figcaption className="mt-6 flex items-center justify-center gap-3.5">
+                                                        <span
+                                                            className="flex size-[54px] items-center justify-center rounded-full font-serif text-[18px] font-extrabold text-white shadow-[var(--shadow-sm)]"
+                                                            style={{
+                                                                backgroundImage: `linear-gradient(135deg, ${t.tint0}, ${t.tint1})`,
+                                                            }}
+                                                        >
+                                                            {t.name.charAt(0)}
+                                                        </span>
+                                                        <div className="text-left">
+                                                            <p className="text-[16px] font-extrabold text-foreground">
+                                                                {t.name}
+                                                            </p>
+                                                            <p className="text-[13px] font-semibold text-faint">
+                                                                {t.location}
+                                                            </p>
+                                                        </div>
+                                                    </figcaption>
+                                                </div>
+                                            </figure>
                                         ))}
                                     </div>
-                                    <CarouselArrow
-                                        dir="next"
-                                        invert
-                                        onClick={() =>
-                                            setTIndex((i) => (i + 1) % tCount)
-                                        }
-                                    />
                                 </div>
-                            )}
+                                {tCount > 1 && (
+                                    <div className="mt-6 flex items-center justify-center gap-4.5">
+                                        <CarouselArrow
+                                            dir="prev"
+                                            invert
+                                            onClick={() =>
+                                                setTIndex(
+                                                    (i) =>
+                                                        (i - 1 + tCount) %
+                                                        tCount,
+                                                )
+                                            }
+                                        />
+                                        <div className="flex gap-2">
+                                            {testimonials.map((t, i) => (
+                                                <button
+                                                    key={t.id}
+                                                    type="button"
+                                                    aria-label={`Testimonial ${i + 1}`}
+                                                    onClick={() => setTIndex(i)}
+                                                    className={cn(
+                                                        'h-2.5 rounded-full transition-all',
+                                                        i === tIndex
+                                                            ? 'w-7 bg-primary'
+                                                            : 'w-2.5 bg-white/30',
+                                                    )}
+                                                />
+                                            ))}
+                                        </div>
+                                        <CarouselArrow
+                                            dir="next"
+                                            invert
+                                            onClick={() =>
+                                                setTIndex(
+                                                    (i) => (i + 1) % tCount,
+                                                )
+                                            }
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        </Container>
+                    </section>
+                )}
+
+                {/* ===== STATS ===== */}
+                <Section bg="surface" spacing="compact">
+                    <div
+                        data-stagger
+                        className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4"
+                    >
+                        {stats.map((s) => (
+                            <div
+                                key={s.label}
+                                className="rounded-card border border-border bg-surface p-[30px] text-center shadow-[var(--shadow-sm)]"
+                            >
+                                <IconTile
+                                    icon={s.icon}
+                                    iconSize={26}
+                                    className="mx-auto mb-4"
+                                />
+                                <p className="bg-gradient-to-br from-primary-deep to-gold bg-clip-text text-[clamp(38px,5vw,58px)] leading-none font-extrabold tracking-[-0.02em] text-transparent">
+                                    {s.value}
+                                </p>
+                                <p className="mt-2.5 text-[14.5px] font-bold text-soft">
+                                    {s.label}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                </Section>
+
+                {/* ===== CTA BAND ===== */}
+                <Section
+                    bg="surface"
+                    spacing="none"
+                    className="pb-[clamp(56px,8vw,96px)]"
+                >
+                    <div
+                        data-reveal
+                        className="relative overflow-hidden rounded-panel brand-gradient-cta px-[clamp(24px,5vw,72px)] py-[clamp(44px,7vw,84px)] text-center"
+                    >
+                        <div className="pointer-events-none absolute inset-0 brand-hatch" />
+                        <div className="tp-float pointer-events-none absolute -top-8 -right-8 size-[280px] rounded-full bg-[radial-gradient(circle,rgba(245,124,0,0.4),transparent_70%)] blur-[8px]" />
+                        <MaterialSymbol
+                            name="flight_takeoff"
+                            size={34}
+                            className="tp-float2 pointer-events-none absolute bottom-6 left-[8%] text-white/20"
+                        />
+                        <div className="relative mx-auto max-w-[1000px]">
+                            <Eyebrow
+                                icon="auto_awesome"
+                                tone="gold"
+                                className="justify-center"
+                            >
+                                Your next chapter
+                            </Eyebrow>
+                            <h2 className="mt-4 font-serif text-[clamp(36px,5.6vw,68px)] leading-[1.05] font-semibold text-white">
+                                Ready For Your Next Adventure?
+                            </h2>
+                            <p className="mx-auto mt-4 max-w-[620px] text-[clamp(15px,1.5vw,18px)] leading-[1.65] text-white/85">
+                                Tell us where you have always wanted to go. We
+                                will craft the itinerary, handle every booking
+                                and have you packed in no time.
+                            </p>
+                            <div className="mt-8 flex flex-wrap justify-center gap-3.5">
+                                <CtaButton asChild variant="white" size="lg">
+                                    <Link href="/contact">
+                                        Plan My Trip
+                                        <MaterialSymbol
+                                            name="arrow_forward"
+                                            size={18}
+                                        />
+                                    </Link>
+                                </CtaButton>
+                                <CtaButton asChild variant="ghost" size="lg">
+                                    <a
+                                        href={WHATSAPP}
+                                        target="_blank"
+                                        rel="noopener"
+                                    >
+                                        <MaterialSymbol name="chat" size={20} />
+                                        Chat on WhatsApp
+                                    </a>
+                                </CtaButton>
+                            </div>
                         </div>
                     </div>
-                </section>
-            )}
-
-            {/* ===== STATS ===== */}
-            <section className="bg-background px-5 py-[clamp(56px,7vw,96px)] sm:px-8">
-                <div
-                    data-stagger
-                    className="mx-auto grid max-w-[1140px] gap-5 sm:grid-cols-2 lg:grid-cols-4"
-                >
-                    {stats.map((s) => (
-                        <div
-                            key={s.label}
-                            className="rounded-[20px] border border-border bg-surface p-[30px] text-center shadow-[var(--shadow-sm)]"
-                        >
-                            <span className="mx-auto mb-4 flex size-[52px] items-center justify-center rounded-[14px] bg-gradient-to-br from-primary-soft to-gold-soft text-primary-deep">
-                                <MaterialSymbol name={s.icon} size={26} />
-                            </span>
-                            <p className="bg-gradient-to-br from-primary-deep to-gold bg-clip-text text-[clamp(38px,5vw,58px)] leading-none font-extrabold tracking-[-0.02em] text-transparent">
-                                {s.value}
-                            </p>
-                            <p className="mt-2.5 text-[14.5px] font-bold text-soft">
-                                {s.label}
-                            </p>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* ===== CTA BAND ===== */}
-            <section className="px-5 pb-[clamp(56px,8vw,96px)] sm:px-8">
-                <div
-                    data-reveal
-                    className="relative mx-auto max-w-[1240px] overflow-hidden rounded-[30px] px-[clamp(24px,5vw,72px)] py-[clamp(44px,7vw,84px)] text-center"
-                    style={{
-                        background:
-                            'linear-gradient(135deg,#083b7c 0%,#0b4ea2 50%,#1565c5 100%)',
-                    }}
-                >
-                    <div className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(45deg,rgba(255,255,255,0.05)_0_2px,transparent_2px_22px)]" />
-                    <div className="tp-float pointer-events-none absolute -top-8 -right-8 size-[280px] rounded-full bg-[radial-gradient(circle,rgba(245,124,0,0.4),transparent_70%)] blur-[8px]" />
-                    <MaterialSymbol
-                        name="flight_takeoff"
-                        size={34}
-                        className="tp-float2 pointer-events-none absolute bottom-6 left-[8%] text-white/20"
-                    />
-                    <div className="relative mx-auto max-w-[1000px]">
-                        <Eyebrow
-                            icon="auto_awesome"
-                            tone="gold"
-                            className="justify-center"
-                        >
-                            Your next chapter
-                        </Eyebrow>
-                        <h2 className="mt-4 font-serif text-[clamp(36px,5.6vw,68px)] leading-[1.05] font-semibold text-white">
-                            Ready For Your Next Adventure?
-                        </h2>
-                        <p className="mx-auto mt-4 max-w-[620px] text-[clamp(15px,1.5vw,18px)] leading-[1.65] text-white/85">
-                            Tell us where you have always wanted to go. We will
-                            craft the itinerary, handle every booking and have you
-                            packed in no time.
-                        </p>
-                        <div className="mt-8 flex flex-wrap justify-center gap-3.5">
-                            <Link
-                                href="/contact"
-                                className="inline-flex items-center gap-2 rounded-[14px] bg-white px-8 py-4 text-[16px] font-extrabold text-[#083b7c] shadow-[0_18px_40px_-16px_rgba(0,0,0,0.4)] transition hover:-translate-y-0.5"
-                            >
-                                Plan My Trip
-                                <MaterialSymbol name="arrow_forward" size={18} />
-                            </Link>
-                            <a
-                                href={WHATSAPP}
-                                target="_blank"
-                                rel="noopener"
-                                className="inline-flex items-center gap-2 rounded-[14px] border border-white/40 bg-white/15 px-[30px] py-4 text-[16px] font-bold text-white transition hover:-translate-y-0.5 hover:bg-white/25"
-                            >
-                                <MaterialSymbol name="chat" size={20} />
-                                Chat on WhatsApp
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </section>
+                </Section>
+            </div>
         </>
     );
 }
 
 const WHATSAPP = 'https://wa.me/97145550192';
 
-function Field({ icon, children }: { icon: string; children: ReactNode }) {
+function Field({
+    icon,
+    children,
+    className,
+}: {
+    icon: string;
+    children: ReactNode;
+    className?: string;
+}) {
     return (
-        <label className="flex items-center gap-2 rounded-[13px] border border-border bg-surface-2 px-3 py-2.5">
+        <label
+            className={cn(
+                'flex items-center gap-2 rounded-control border border-border bg-surface-2 px-3 py-2.5 transition focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20',
+                className,
+            )}
+        >
             <MaterialSymbol
                 name={icon}
                 size={18}

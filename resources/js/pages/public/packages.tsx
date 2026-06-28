@@ -2,27 +2,29 @@ import { Head, Link } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 import GradientThumb from '@/components/gradient-thumb';
 import MaterialSymbol from '@/components/material-symbol';
+import { CtaButton } from '@/components/public/button';
+import { Section } from '@/components/public/section';
 import { Eyebrow } from '@/components/public/section-heading';
+import { Card, Chip, FilterTabs } from '@/components/public/ui';
 import { formatINR } from '@/lib/currency';
-import { cn } from '@/lib/utils';
-import type { Offer, PackageRegion, TourPackage } from '@/types';
+import type { Offer, Region, TourPackage } from '@/types';
 
 type Props = {
     packages: TourPackage[];
+    regions: Pick<Region, 'id' | 'name' | 'icon'>[];
     offers: Offer[];
 };
 
-const regions = ['All', 'India', 'International'] as const;
-type RegionTab = (typeof regions)[number];
+export default function Packages({ packages, regions, offers }: Props) {
+    // Build the filter tabs from the admin-managed regions, plus an "All" tab.
+    const tabs = useMemo(() => ['All', ...regions.map((r) => r.name)], [regions]);
+    const [tab, setTab] = useState('All');
 
-export default function Packages({ packages, offers }: Props) {
-    const [tab, setTab] = useState<RegionTab>('All');
+    const iconFor = (name: string) =>
+        regions.find((r) => r.name === name)?.icon ?? null;
 
     const visible = useMemo(
-        () =>
-            tab === 'All'
-                ? packages
-                : packages.filter((p) => p.region === (tab as PackageRegion)),
+        () => (tab === 'All' ? packages : packages.filter((p) => p.region === tab)),
         [packages, tab],
     );
 
@@ -33,14 +35,8 @@ export default function Packages({ packages, offers }: Props) {
             <Head title="Tour Packages — Travels Point" />
 
             {/* ===== HEADER ===== */}
-            <section
-                className="relative overflow-hidden px-5 pt-[clamp(56px,8vw,104px)] pb-[clamp(40px,6vw,72px)] sm:px-8"
-                style={{
-                    background:
-                        'linear-gradient(150deg,#083b7c 0%,#0b4ea2 45%,#1565c5 100%)',
-                }}
-            >
-                <div className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(45deg,rgba(255,255,255,0.05)_0_2px,transparent_2px_22px)] opacity-50" />
+            <section className="relative overflow-hidden brand-gradient px-5 pt-[clamp(56px,8vw,104px)] pb-[clamp(40px,6vw,72px)] sm:px-8">
+                <div className="pointer-events-none absolute inset-0 brand-hatch opacity-50" />
                 <div className="tp-float pointer-events-none absolute -top-6 right-[8%] size-[180px] rounded-full bg-[radial-gradient(circle,rgba(245,124,0,0.5),transparent_70%)] blur-[6px]" />
                 <MaterialSymbol
                     name="luggage"
@@ -67,118 +63,109 @@ export default function Packages({ packages, offers }: Props) {
             </section>
 
             {/* ===== PACKAGES GRID ===== */}
-            <section className="bg-background px-5 py-[clamp(48px,7vw,96px)] sm:px-8">
-                <div className="mx-auto max-w-[1240px]">
-                    <div data-reveal className="flex justify-center">
-                        <div className="inline-flex gap-1.5 rounded-[14px] border border-border bg-surface-2 p-1.5">
-                            {regions.map((r) => (
-                                <button
-                                    key={r}
-                                    type="button"
-                                    onClick={() => setTab(r)}
-                                    className={cn(
-                                        'inline-flex items-center gap-1.5 rounded-[10px] px-5 py-2.5 text-[14px] font-bold transition',
-                                        tab === r
-                                            ? 'bg-primary text-white shadow-[0_10px_22px_-14px_var(--ring-glow)]'
-                                            : 'text-soft hover:text-primary',
-                                    )}
-                                >
-                                    {r === 'India' && (
-                                        <MaterialSymbol name="place" size={17} />
-                                    )}
-                                    {r === 'International' && (
-                                        <MaterialSymbol name="public" size={17} />
-                                    )}
-                                    {r}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+            <Section bg="surface" spacing="compact">
+                <div data-reveal className="flex justify-center">
+                    <FilterTabs
+                        tabs={tabs}
+                        value={tab}
+                        onChange={setTab}
+                        renderIcon={(t) => {
+                            const icon = iconFor(t);
+                            return icon ? (
+                                <MaterialSymbol name={icon} size={17} />
+                            ) : null;
+                        }}
+                    />
+                </div>
 
-                    {visible.length === 0 ? (
-                        <p className="mt-12 text-center text-[15.5px] text-soft">
-                            No {tab.toLowerCase()} packages just yet — check back
-                            soon or{' '}
-                            <Link
-                                href="/contact"
-                                className="font-bold text-primary hover:underline"
-                            >
-                                ask us to craft one
-                            </Link>
-                            .
-                        </p>
-                    ) : (
-                        <div
-                            data-stagger
-                            className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+                {visible.length === 0 ? (
+                    <p className="mt-12 text-center text-[15.5px] text-soft">
+                        No {tab.toLowerCase()} packages just yet — check back
+                        soon or{' '}
+                        <Link
+                            href="/contact"
+                            className="font-bold text-primary hover:underline"
                         >
-                            {visible.map((p) => (
-                                <article
-                                    key={p.id}
-                                    className="flex flex-col overflow-hidden rounded-[22px] border border-border bg-surface shadow-[var(--shadow-sm)] transition hover:-translate-y-2 hover:shadow-[var(--shadow-lg)]"
-                                >
-                                    <div className="relative h-[200px] overflow-hidden">
-                                        <GradientThumb
-                                            tint0={p.tint0}
-                                            tint1={p.tint1}
-                                            img={p.img}
-                                            rounded="rounded-none"
-                                            className="h-full"
+                            ask us to craft one
+                        </Link>
+                        .
+                    </p>
+                ) : (
+                    <div
+                        data-stagger
+                        className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+                    >
+                        {visible.map((p) => (
+                            <Card
+                                key={p.id}
+                                interactive
+                                className="flex flex-col"
+                            >
+                                <div className="relative h-[200px] overflow-hidden">
+                                    <GradientThumb
+                                        tint0={p.tint0}
+                                        tint1={p.tint1}
+                                        img={p.img}
+                                        rounded="rounded-none"
+                                        className="h-full"
+                                    />
+                                    <Chip
+                                        icon="schedule"
+                                        className="absolute top-3.5 left-3.5"
+                                    >
+                                        {p.duration}
+                                    </Chip>
+                                    <span className="absolute top-3.5 right-3.5 inline-flex items-center gap-1 rounded-full bg-ink/55 px-2.5 py-1.5 text-[12px] font-bold text-white backdrop-blur">
+                                        <MaterialSymbol
+                                            name="star"
+                                            size={14}
+                                            fill
+                                            className="text-gold"
                                         />
-                                        <span className="absolute top-3.5 left-3.5 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-[12px] font-bold text-[#1b2a41] backdrop-blur">
-                                            <MaterialSymbol
-                                                name="schedule"
-                                                size={14}
-                                            />
-                                            {p.duration}
-                                        </span>
-                                        <span className="absolute top-3.5 right-3.5 inline-flex items-center gap-1 rounded-full bg-[#1b2a41]/55 px-2.5 py-1.5 text-[12px] font-bold text-white backdrop-blur">
-                                            <MaterialSymbol
-                                                name="star"
-                                                size={14}
-                                                fill
-                                                className="text-gold"
-                                            />
-                                            {p.rating.toFixed(1)}
-                                        </span>
-                                    </div>
-                                    <div className="flex flex-1 flex-col p-[22px]">
-                                        <p className="flex items-center gap-1.5 text-[13.5px] text-soft">
-                                            <MaterialSymbol
-                                                name="location_on"
-                                                size={15}
-                                                className="text-primary"
-                                            />
-                                            {p.location}
+                                        {p.rating.toFixed(1)}
+                                    </span>
+                                </div>
+                                <div className="flex flex-1 flex-col p-[22px]">
+                                    <p className="flex items-center gap-1.5 text-[13.5px] text-soft">
+                                        <MaterialSymbol
+                                            name="location_on"
+                                            size={15}
+                                            className="text-primary"
+                                        />
+                                        {p.location}
+                                    </p>
+                                    <h3 className="mt-1 text-[20px] font-bold text-foreground">
+                                        {p.title}
+                                    </h3>
+                                    <ul className="mt-3 flex flex-wrap gap-1.5">
+                                        {p.services.slice(0, 4).map((s) => (
+                                            <li
+                                                key={s}
+                                                className="inline-flex items-center gap-1 rounded-lg border border-border bg-surface-2 px-2.5 py-1 text-[12px] font-semibold text-soft"
+                                            >
+                                                <MaterialSymbol
+                                                    name="check_circle"
+                                                    size={14}
+                                                    className="text-primary-deep"
+                                                />
+                                                {s}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    <div className="mt-auto flex items-center justify-between border-t border-border pt-4">
+                                        <p className="text-[13.5px] text-soft">
+                                            from{' '}
+                                            <span className="text-[22px] font-extrabold text-foreground">
+                                                {formatINR(p.price)}
+                                            </span>
                                         </p>
-                                        <h3 className="mt-1 text-[20px] font-bold text-foreground">
-                                            {p.title}
-                                        </h3>
-                                        <ul className="mt-3 flex flex-wrap gap-1.5">
-                                            {p.services.slice(0, 4).map((s) => (
-                                                <li
-                                                    key={s}
-                                                    className="inline-flex items-center gap-1 rounded-lg border border-border bg-surface-2 px-2.5 py-1 text-[12px] font-semibold text-soft"
-                                                >
-                                                    <MaterialSymbol
-                                                        name="check_circle"
-                                                        size={14}
-                                                        className="text-primary-deep"
-                                                    />
-                                                    {s}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                        <div className="mt-auto flex items-center justify-between border-t border-border pt-4">
-                                            <p className="text-[13.5px] text-soft">
-                                                from{' '}
-                                                <span className="text-[22px] font-extrabold text-foreground">
-                                                    {formatINR(p.price)}
-                                                </span>
-                                            </p>
+                                        <CtaButton
+                                            asChild
+                                            variant="primary"
+                                            size="sm"
+                                        >
                                             <Link
-                                                href="/contact"
-                                                className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-br from-primary to-primary-deep px-[18px] py-3 text-[14px] font-bold text-white shadow-[0_12px_24px_-14px_var(--ring-glow)] transition hover:-translate-y-0.5 hover:brightness-110"
+                                                href={`/contact?destination=${encodeURIComponent(p.location)}`}
                                             >
                                                 View
                                                 <MaterialSymbol
@@ -186,21 +173,25 @@ export default function Packages({ packages, offers }: Props) {
                                                     size={16}
                                                 />
                                             </Link>
-                                        </div>
+                                        </CtaButton>
                                     </div>
-                                </article>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </section>
+                                </div>
+                            </Card>
+                        ))}
+                    </div>
+                )}
+            </Section>
 
             {/* ===== OFFER CALLOUT ===== */}
             {liveOffer && (
-                <section className="bg-bg-2 px-5 pb-[clamp(48px,7vw,96px)] sm:px-8">
+                <Section
+                    bg="muted"
+                    spacing="none"
+                    className="pb-[clamp(48px,7vw,96px)]"
+                >
                     <div
                         data-reveal
-                        className="mx-auto flex max-w-[1240px] flex-col items-center gap-6 overflow-hidden rounded-[26px] border border-border bg-surface p-[clamp(24px,4vw,44px)] shadow-[var(--shadow-md)] md:flex-row md:justify-between"
+                        className="flex flex-col items-center gap-6 overflow-hidden rounded-panel border border-border bg-surface p-[clamp(24px,4vw,44px)] shadow-[var(--shadow-md)] md:flex-row md:justify-between"
                     >
                         <div className="flex items-center gap-5">
                             <span className="flex size-[72px] shrink-0 flex-col items-center justify-center rounded-full bg-green text-white shadow-[0_12px_26px_-10px_rgba(76,175,80,0.7)]">
@@ -220,46 +211,61 @@ export default function Packages({ packages, offers }: Props) {
                                 </p>
                             </div>
                         </div>
-                        <Link
-                            href={liveOffer.cta_url || '/contact'}
-                            className="inline-flex shrink-0 items-center gap-2 rounded-[14px] bg-gradient-to-br from-primary to-primary-deep px-7 py-3.5 text-[15px] font-bold text-white shadow-[0_14px_30px_-14px_var(--ring-glow)] transition hover:-translate-y-0.5 hover:brightness-110"
+                        <CtaButton
+                            asChild
+                            variant="primary"
+                            size="md"
+                            className="shrink-0"
                         >
-                            {liveOffer.cta}
-                            <MaterialSymbol name="arrow_forward" size={18} />
-                        </Link>
+                            <Link href={liveOffer.cta_url || '/contact'}>
+                                {liveOffer.cta}
+                                <MaterialSymbol
+                                    name="arrow_forward"
+                                    size={18}
+                                />
+                            </Link>
+                        </CtaButton>
                     </div>
-                </section>
+                </Section>
             )}
 
             {/* ===== CTA ===== */}
-            <section className="bg-background px-5 pb-[clamp(56px,8vw,96px)] sm:px-8">
+            <Section
+                bg="surface"
+                spacing="none"
+                className="pb-[clamp(56px,8vw,96px)]"
+            >
                 <div
                     data-reveal
-                    className="relative mx-auto max-w-[1240px] overflow-hidden rounded-[30px] px-[clamp(24px,5vw,72px)] py-[clamp(40px,6vw,72px)] text-center"
-                    style={{
-                        background:
-                            'linear-gradient(135deg,#083b7c 0%,#0b4ea2 50%,#1565c5 100%)',
-                    }}
+                    className="relative overflow-hidden rounded-panel brand-gradient-cta px-[clamp(24px,5vw,72px)] py-[clamp(40px,6vw,72px)] text-center"
                 >
-                    <div className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(45deg,rgba(255,255,255,0.05)_0_2px,transparent_2px_22px)]" />
+                    <div className="pointer-events-none absolute inset-0 brand-hatch" />
                     <div className="relative mx-auto max-w-[760px]">
                         <h2 className="font-serif text-[clamp(28px,4.4vw,52px)] leading-[1.08] font-semibold text-white">
                             Can&rsquo;t find your perfect trip?
                         </h2>
                         <p className="mx-auto mt-4 max-w-[560px] text-[clamp(15px,1.5vw,18px)] leading-[1.65] text-white/85">
                             Tell us where you want to go and we&rsquo;ll build a
-                            bespoke itinerary around your pace, taste and budget.
+                            bespoke itinerary around your pace, taste and
+                            budget.
                         </p>
-                        <Link
-                            href="/contact"
-                            className="mt-7 inline-flex items-center gap-2 rounded-[14px] bg-white px-8 py-4 text-[16px] font-extrabold text-[#083b7c] shadow-[0_18px_40px_-16px_rgba(0,0,0,0.4)] transition hover:-translate-y-0.5"
+                        <CtaButton
+                            asChild
+                            variant="white"
+                            size="lg"
+                            className="mt-7"
                         >
-                            Plan my trip
-                            <MaterialSymbol name="arrow_forward" size={18} />
-                        </Link>
+                            <Link href="/contact">
+                                Plan my trip
+                                <MaterialSymbol
+                                    name="arrow_forward"
+                                    size={18}
+                                />
+                            </Link>
+                        </CtaButton>
                     </div>
                 </div>
-            </section>
+            </Section>
         </>
     );
 }

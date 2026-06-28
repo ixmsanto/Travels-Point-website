@@ -17,7 +17,18 @@ export type Destination = Tinted & {
     updated_at?: string;
 };
 
-export type PackageRegion = 'India' | 'International';
+/** Region name — admin-managed, so any string the admin defines. */
+export type PackageRegion = string;
+
+export type Region = {
+    id: number;
+    name: string;
+    icon: string | null;
+    sort_order: number;
+    packages_count?: number;
+    created_at?: string;
+    updated_at?: string;
+};
 
 export type TourPackage = Tinted & {
     id: number;
@@ -71,6 +82,7 @@ export type Banner = Tinted & {
     subtitle: string;
     placement: BannerPlacement;
     active: boolean;
+    video?: string | null;
     sort_order: number;
     created_at?: string;
     updated_at?: string;

@@ -100,7 +100,7 @@ export default function Dashboard({
                                     <p className="text-[12.5px] text-faint">
                                         {o.discount}% off · till{' '}
                                         {new Date(o.expiry).toLocaleDateString(
-                                            undefined,
+                                            'en-GB',
                                             { month: 'short', day: 'numeric' },
                                         )}
                                     </p>

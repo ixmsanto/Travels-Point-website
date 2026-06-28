@@ -8,6 +8,8 @@ type Props = {
     className?: string;
     children?: ReactNode;
     rounded?: string;
+    /** How the image fills the box. `contain` shows the whole image uncropped. */
+    fit?: 'cover' | 'contain';
 };
 
 /**
@@ -22,6 +24,7 @@ export default function GradientThumb({
     className,
     children,
     rounded = 'rounded-xl',
+    fit = 'cover',
 }: Props) {
     return (
         <div
@@ -30,8 +33,9 @@ export default function GradientThumb({
                 img
                     ? {
                           backgroundImage: `url(${img})`,
-                          backgroundSize: 'cover',
+                          backgroundSize: fit,
                           backgroundPosition: 'center',
+                          backgroundRepeat: 'no-repeat',
                       }
                     : {
                           backgroundImage: `linear-gradient(135deg, ${tint0} 0%, ${tint1} 100%)`,
