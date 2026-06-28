@@ -9,6 +9,7 @@ type AdminCounts = {
     offers?: number;
     destinations?: number;
     packages?: number;
+    regions?: number;
     testimonials?: number;
     banners?: number;
     gallery?: number;
@@ -47,16 +48,16 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             count: counts.offers,
         },
         {
-            label: 'Destinations',
-            href: '/admin/destinations',
-            icon: 'travel_explore',
-            count: counts.destinations,
-        },
-        {
             label: 'Tour Packages',
             href: '/admin/packages',
             icon: 'luggage',
             count: counts.packages,
+        },
+        {
+            label: 'Regions',
+            href: '/admin/regions',
+            icon: 'map',
+            count: counts.regions,
         },
         {
             label: 'Testimonials',

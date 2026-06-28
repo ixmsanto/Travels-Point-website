@@ -7,6 +7,7 @@ use App\Models\Destination;
 use App\Models\GalleryItem;
 use App\Models\Inquiry;
 use App\Models\Offer;
+use App\Models\Region;
 use App\Models\Testimonial;
 use App\Models\TourPackage;
 use Illuminate\Http\Request;
@@ -57,6 +58,7 @@ class HandleInertiaRequests extends Middleware
                     'offers' => Offer::count(),
                     'destinations' => Destination::count(),
                     'packages' => TourPackage::count(),
+                    'regions' => Region::count(),
                     'testimonials' => Testimonial::count(),
                     'banners' => Banner::count(),
                     'gallery' => GalleryItem::count(),

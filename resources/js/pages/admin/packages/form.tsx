@@ -17,16 +17,16 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import type { PackageRegion, TourPackage } from '@/types';
+import type { TourPackage } from '@/types';
 
-type Props = { package: TourPackage | null };
+type Props = { package: TourPackage | null; regions: string[] };
 
-export default function PackageForm({ package: pkg }: Props) {
+export default function PackageForm({ package: pkg, regions }: Props) {
     const editing = Boolean(pkg);
     const form = useForm({
         title: pkg?.title ?? '',
         location: pkg?.location ?? '',
-        region: pkg?.region ?? ('International' as PackageRegion),
+        region: pkg?.region ?? regions[0] ?? '',
         duration: pkg?.duration ?? '',
         price: pkg?.price ?? 0,
         rating: pkg?.rating ?? 4.8,
@@ -124,22 +124,23 @@ export default function PackageForm({ package: pkg }: Props) {
                             label="Region"
                             htmlFor="region"
                             error={form.errors.region}
-                            hint="Drives the India / International tabs."
+                            hint="Filter tab on the packages page. Manage the list under Regions."
                         >
                             <Select
                                 value={form.data.region}
                                 onValueChange={(v) =>
-                                    form.setData('region', v as PackageRegion)
+                                    form.setData('region', v)
                                 }
                             >
                                 <SelectTrigger id="region" className="w-full">
-                                    <SelectValue />
+                                    <SelectValue placeholder="Select a region" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="India">India</SelectItem>
-                                    <SelectItem value="International">
-                                        International
-                                    </SelectItem>
+                                    {regions.map((r) => (
+                                        <SelectItem key={r} value={r}>
+                                            {r}
+                                        </SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                         </Field>

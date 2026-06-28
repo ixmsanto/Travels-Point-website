@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Concerns\HandlesImageUploads;
 use App\Http\Controllers\Controller;
+use App\Models\Region;
 use App\Models\TourPackage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -35,6 +36,7 @@ class TourPackageController extends Controller
     {
         return Inertia::render('admin/packages/form', [
             'package' => null,
+            'regions' => $this->regionOptions(),
         ]);
     }
 
@@ -49,6 +51,7 @@ class TourPackageController extends Controller
     {
         return Inertia::render('admin/packages/form', [
             'package' => $package,
+            'regions' => $this->regionOptions(),
         ]);
     }
 
@@ -75,7 +78,7 @@ class TourPackageController extends Controller
         $data = $request->validate([
             'title' => ['required', 'string', 'max:160'],
             'location' => ['required', 'string', 'max:120'],
-            'region' => ['required', Rule::in(['India', 'International'])],
+            'region' => ['required', Rule::in(Region::pluck('name')->all())],
             'duration' => ['required', 'string', 'max:120'],
             'price' => ['required', 'integer', 'min:0'],
             'rating' => ['required', 'numeric', 'min:0', 'max:5'],
@@ -93,5 +96,15 @@ class TourPackageController extends Controller
         unset($data['image_file']);
 
         return $data;
+    }
+
+    /**
+     * Region names for the form's dropdown, ordered as the admin arranged them.
+     *
+     * @return array<int, string>
+     */
+    private function regionOptions(): array
+    {
+        return Region::orderBy('sort_order')->orderBy('name')->pluck('name')->all();
     }
 }

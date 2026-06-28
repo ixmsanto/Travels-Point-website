@@ -7,6 +7,7 @@ use App\Models\Destination;
 use App\Models\GalleryItem;
 use App\Models\Inquiry;
 use App\Models\Offer;
+use App\Models\Region;
 use App\Models\Testimonial;
 use App\Models\TourPackage;
 use Illuminate\Http\RedirectResponse;
@@ -47,6 +48,7 @@ class SiteController extends Controller
     {
         return Inertia::render('public/packages', [
             'packages' => TourPackage::orderBy('sort_order')->get(),
+            'regions' => Region::orderBy('sort_order')->orderBy('name')->get(['id', 'name', 'icon']),
             'offers' => Offer::where('status', 'Active')->orderBy('sort_order')->get(),
             'contact' => $this->contactDetails(),
         ]);

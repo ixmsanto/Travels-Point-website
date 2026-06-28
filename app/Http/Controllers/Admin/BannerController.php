@@ -62,6 +62,7 @@ class BannerController extends Controller
     public function destroy(Banner $banner): RedirectResponse
     {
         $this->deleteStoredImage($banner->img);
+        $this->deleteStoredImage($banner->video);
         $banner->delete();
 
         return back()->with('success', 'Banner deleted.');
@@ -81,11 +82,14 @@ class BannerController extends Controller
             'tint1' => ['required', 'string', 'max:9'],
             'img' => ['nullable', 'string', 'max:2048'],
             'image_file' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'video' => ['nullable', 'string', 'max:2048'],
+            'video_file' => ['nullable', 'file', 'mimetypes:video/mp4,video/webm', 'max:102400'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
         ]);
 
         $data['img'] = $this->resolveImage($request, 'banners', $banner?->img);
-        unset($data['image_file']);
+        $data['video'] = $this->resolveUpload($request, 'video_file', 'video', 'banners', $banner?->video);
+        unset($data['image_file'], $data['video_file']);
 
         return $data;
     }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\DestinationController;
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\InquiryController;
 use App\Http\Controllers\Admin\OfferController;
+use App\Http\Controllers\Admin\RegionController;
 use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Admin\TourPackageController;
 use App\Http\Controllers\SiteController;
@@ -28,7 +29,7 @@ Route::post('/contact', [SiteController::class, 'submitInquiry'])->name('contact
 | Admin console (authenticated)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'verified'])
+Route::middleware(['auth', 'verified', 'admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
@@ -36,6 +37,7 @@ Route::middleware(['auth', 'verified'])
 
         Route::resource('destinations', DestinationController::class)->except('show');
         Route::resource('packages', TourPackageController::class)->except('show');
+        Route::resource('regions', RegionController::class)->only(['index', 'store', 'update', 'destroy']);
         Route::resource('offers', OfferController::class)->except('show');
         Route::resource('testimonials', TestimonialController::class)->except('show');
         Route::resource('banners', BannerController::class)->except('show');

@@ -35,20 +35,14 @@
         <link rel="icon" href="/logo-192.png" type="image/png" sizes="192x192">
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
-        {{-- Material Symbols Outlined (icon font used across the UI) --}}
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link
-            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=block"
-            rel="stylesheet"
-        >
-
+        {{-- Material Symbols Outlined (icon font used across the UI) is
+             self-hosted and bundled by Vite — see @font-face in app.css. --}}
         @fonts
 
         @viteReactRefresh
         @vite(['resources/css/app.css', 'resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
         <x-inertia::head>
-            <title>{{ config('app.name', 'Laravel') }}</title>
+            <title>{{ config('app.name', 'Travels Point') }}</title>
         </x-inertia::head>
     </head>
     <body class="font-sans antialiased">

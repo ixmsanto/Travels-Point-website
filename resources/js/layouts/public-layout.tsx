@@ -1,8 +1,10 @@
 import { Link, usePage } from '@inertiajs/react';
+import { Facebook, Instagram, Youtube } from 'lucide-react';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { toast } from 'sonner';
 import MaterialSymbol from '@/components/material-symbol';
+import ScrollToTop from '@/components/scroll-to-top';
 import ThemeToggle from '@/components/theme-toggle';
 import TravelLogo from '@/components/travel-logo';
 import { useFlashMessages } from '@/hooks/use-flash-messages';
@@ -27,10 +29,9 @@ const mobileTabs = [
 ];
 
 const socials = [
-    { label: 'Instagram', icon: 'photo_camera' },
-    { label: 'Facebook', icon: 'thumb_up' },
-    { label: 'Twitter', icon: 'tag' },
-    { label: 'YouTube', icon: 'smart_display' },
+    { label: 'Instagram', Icon: Instagram },
+    { label: 'Facebook', Icon: Facebook },
+    { label: 'YouTube', Icon: Youtube },
 ];
 
 const exploreLinks = [
@@ -70,9 +71,56 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
 
     return (
         <div className="flex min-h-dvh flex-col bg-background text-foreground">
-            <header className="sticky top-0 z-40 border-b border-[var(--glass-border,rgba(255,255,255,0.6))] bg-background/70 backdrop-blur-xl backdrop-saturate-150">
-                <div className="mx-auto flex h-[74px] w-full max-w-7xl items-center justify-between px-5 sm:px-8">
-                    <Link href="/" className="shrink-0" aria-label="Travels Point home">
+            <div className="relative z-20 bg-gradient-to-r from-primary to-primary-deep text-white">
+                <div className="mx-auto flex h-11 w-full max-w-[1240px] items-center justify-between gap-4 px-5 text-[13.5px] font-medium sm:px-8">
+                    <span className="flex items-center gap-2">
+                        <MaterialSymbol name="flight" size={18} />
+                        <span className="hidden sm:inline">
+                            Explore the World with Travels Point
+                        </span>
+                    </span>
+
+                    <div className="flex items-center gap-4">
+                        <a
+                            href={`tel:${contact.phone}`}
+                            className="flex items-center gap-1.5 transition-opacity hover:opacity-80"
+                        >
+                            <MaterialSymbol name="call" size={17} />
+                            <span className="hidden sm:inline">
+                                {contact.phone}
+                            </span>
+                        </a>
+                        <a
+                            href={`mailto:${contact.email}`}
+                            className="hidden items-center gap-1.5 transition-opacity hover:opacity-80 sm:flex"
+                        >
+                            <MaterialSymbol name="mail" size={17} />
+                            <span>{contact.email}</span>
+                        </a>
+                        <span className="hidden h-4 w-px bg-white/30 sm:block" />
+                        <div className="flex items-center gap-2.5">
+                            {socials.map(({ label, Icon }) => (
+                                <button
+                                    key={label}
+                                    type="button"
+                                    aria-label={label}
+                                    className="transition-opacity hover:opacity-80"
+                                >
+                                    <Icon size={17} />
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <header className="sticky top-0 z-40 border-b border-[var(--glass-border,rgba(255,255,255,0.6))] bg-background/80 backdrop-blur-md backdrop-saturate-150">
+                <div className="mx-auto flex h-[74px] w-full max-w-[1240px] items-center justify-between px-5 sm:px-8">
+                    <Link
+                        href="/"
+                        className="shrink-0"
+                        aria-label="Travels Point home"
+                    >
                         <TravelLogo />
                     </Link>
 
@@ -85,7 +133,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
                                     key={link.href}
                                     href={link.href}
                                     className={cn(
-                                        'relative rounded-[10px] px-[15px] py-2.5 text-[15px] font-semibold transition-colors',
+                                        'relative rounded-control px-[15px] py-2.5 text-[15px] font-semibold transition-colors',
                                         active
                                             ? 'text-primary'
                                             : 'text-foreground/85 hover:bg-primary-soft hover:text-primary',
@@ -102,13 +150,6 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
 
                     <div className="flex items-center gap-2.5">
                         <ThemeToggle />
-                        <Link
-                            href="/contact"
-                            className="hidden items-center gap-2 rounded-xl bg-gradient-to-br from-primary to-primary-deep px-[22px] py-3 text-[14.5px] font-bold text-white shadow-[0_12px_26px_-12px_var(--ring-glow)] transition hover:-translate-y-0.5 hover:brightness-110 sm:inline-flex"
-                        >
-                            Plan My Trip
-                            <MaterialSymbol name="arrow_forward" size={18} />
-                        </Link>
                     </div>
                 </div>
             </header>
@@ -117,24 +158,24 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
                 {children}
             </main>
 
-            <footer className="border-t border-border bg-bg-2">
-                <div className="mx-auto grid w-full max-w-7xl gap-10 px-5 pt-14 pb-0 sm:px-8 lg:grid-cols-[1.4fr_1fr_1fr_1.1fr]">
+            <footer className="relative z-20 border-t border-border bg-bg-2">
+                <div className="mx-auto grid w-full max-w-[1240px] gap-10 px-5 pt-14 pb-0 sm:px-8 lg:grid-cols-[1.4fr_1fr_1fr_1.1fr]">
                     <div>
                         <TravelLogo />
                         <p className="mt-4.5 max-w-sm text-[15px] leading-relaxed text-soft">
                             Tailor-made journeys across 120+ destinations —
-                            honeymoons, family escapes, group tours and corporate
-                            travel, handled end to end.
+                            honeymoons, family escapes, group tours and
+                            corporate travel, handled end to end.
                         </p>
                         <div className="mt-6 flex gap-2.5">
-                            {socials.map(({ label, icon }) => (
+                            {socials.map(({ label, Icon }) => (
                                 <button
                                     key={label}
                                     type="button"
                                     aria-label={label}
-                                    className="flex size-10 items-center justify-center rounded-[11px] border border-border-strong bg-surface text-soft transition hover:-translate-y-0.5 hover:border-primary hover:text-primary"
+                                    className="flex size-10 items-center justify-center rounded-control border border-border-strong bg-surface text-soft transition hover:-translate-y-0.5 hover:border-primary hover:text-primary"
                                 >
-                                    <MaterialSymbol name={icon} size={19} />
+                                    <Icon size={19} />
                                 </button>
                             ))}
                         </div>
@@ -145,16 +186,34 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
                             Explore
                         </p>
                         <ul className="mt-4 space-y-3 text-[15px]">
-                            {exploreLinks.map((link) => (
-                                <li key={link.label}>
-                                    <Link
-                                        href={link.href}
-                                        className="inline-block text-soft transition-all hover:translate-x-1 hover:text-primary"
-                                    >
-                                        {link.label}
-                                    </Link>
-                                </li>
-                            ))}
+                            {exploreLinks.map((link) => {
+                                const linkClass =
+                                    'inline-block text-soft transition-all hover:translate-x-1 hover:text-primary';
+
+                                // Section anchors (e.g. /#destinations) use a
+                                // native <a> so the browser navigates and scrolls
+                                // to the section; an Inertia <Link> would swap the
+                                // page without honouring the #fragment.
+                                return (
+                                    <li key={link.label}>
+                                        {link.href.includes('#') ? (
+                                            <a
+                                                href={link.href}
+                                                className={linkClass}
+                                            >
+                                                {link.label}
+                                            </a>
+                                        ) : (
+                                            <Link
+                                                href={link.href}
+                                                className={linkClass}
+                                            >
+                                                {link.label}
+                                            </Link>
+                                        )}
+                                    </li>
+                                );
+                            })}
                         </ul>
                     </div>
 
@@ -220,7 +279,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
                                     'You are on the list — welcome aboard!',
                                 );
                             }}
-                            className="mt-4 flex gap-2 rounded-[13px] border border-border-strong bg-surface p-1.5"
+                            className="mt-4 flex gap-2 rounded-button border border-border-strong bg-surface p-1.5"
                         >
                             <input
                                 type="email"
@@ -232,7 +291,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
                             />
                             <button
                                 type="submit"
-                                className="rounded-[9px] bg-gradient-to-br from-primary to-primary-deep px-[18px] py-2.5 text-[14px] font-bold text-white"
+                                className="rounded-control bg-gradient-to-br from-primary to-primary-deep px-[18px] py-2.5 text-[14px] font-bold text-white"
                             >
                                 Join
                             </button>
@@ -240,11 +299,11 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
                     </div>
                 </div>
 
-                <div className="mx-auto mt-12 w-full max-w-7xl px-5 sm:px-8">
+                <div className="mx-auto mt-12 w-full max-w-[1240px] px-5 sm:px-8">
                     <div className="flex flex-wrap items-center justify-between gap-3.5 border-t border-border py-6 text-[14px] text-faint">
                         <p>
-                            © {new Date().getFullYear()} Travels Point. All rights
-                            reserved.
+                            © {new Date().getFullYear()} Travels Point. All
+                            rights reserved.
                         </p>
                         <div className="flex items-center gap-5">
                             <span>IATA · ASTA · ATOL Protected</span>
@@ -259,6 +318,8 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
                     </div>
                 </div>
             </footer>
+
+            <ScrollToTop />
 
             <button
                 type="button"
@@ -275,7 +336,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
             {/* iOS-style sticky bottom tab bar — mobile only */}
             <nav
                 aria-label="Primary"
-                className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--glass-border,rgba(255,255,255,0.6))] bg-background/85 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl backdrop-saturate-150 md:hidden"
+                className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--glass-border,rgba(255,255,255,0.6))] bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md backdrop-saturate-150 md:hidden"
             >
                 <div className="mx-auto grid max-w-md grid-cols-4">
                     {mobileTabs.map((tab) => {

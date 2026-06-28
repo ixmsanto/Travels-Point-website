@@ -16,6 +16,7 @@ class Banner extends Model
         'tint0',
         'tint1',
         'img',
+        'video',
         'sort_order',
     ];
 

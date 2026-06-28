@@ -94,7 +94,7 @@ export default function OffersIndex({ offers, filters }: Props) {
                             </span>
                         </Td>
                         <Td className="text-soft">
-                            {new Date(o.expiry).toLocaleDateString(undefined, {
+                            {new Date(o.expiry).toLocaleDateString('en-GB', {
                                 month: 'short',
                                 day: 'numeric',
                                 year: 'numeric',

@@ -1,7 +1,10 @@
 import { Form, Head, usePage } from '@inertiajs/react';
 import type { ReactNode } from 'react';
 import MaterialSymbol from '@/components/material-symbol';
+import { CtaButton } from '@/components/public/button';
+import { Section } from '@/components/public/section';
 import { Eyebrow } from '@/components/public/section-heading';
+import { IconTile } from '@/components/public/ui';
 import type { ContactDetails } from '@/types';
 
 type Props = {
@@ -12,7 +15,7 @@ type Props = {
 const WHATSAPP_URL = 'https://wa.me/97145550192';
 
 const fieldClass =
-    'w-full rounded-[12px] border border-border-strong bg-surface-2 px-[15px] py-[13px] text-[15px] text-foreground outline-none transition focus:border-primary focus:shadow-[0_0_0_3px_var(--ring-glow)] placeholder:text-faint';
+    'w-full rounded-control border border-border-strong bg-surface-2 px-[15px] py-[13px] text-[15px] text-foreground outline-none transition focus:border-primary focus:shadow-[0_0_0_3px_var(--ring-glow)] placeholder:text-faint';
 
 function FieldLabel({
     icon,
@@ -85,8 +88,13 @@ export default function Contact({ destinations, contact }: Props) {
             <Head title="Contact — Travels Point" />
 
             {/* ===== HEADER ===== */}
-            <section className="bg-background px-5 pt-[clamp(48px,7vw,86px)] pb-[clamp(24px,3vw,36px)] sm:px-8">
-                <div data-reveal className="mx-auto max-w-[760px] text-center">
+            <Section
+                bg="surface"
+                spacing="none"
+                width="prose"
+                className="pt-[clamp(48px,7vw,86px)] pb-[clamp(24px,3vw,36px)]"
+            >
+                <div data-reveal className="text-center">
                     <Eyebrow className="justify-center">Get in touch</Eyebrow>
                     <h1 className="mt-4 font-serif text-[clamp(38px,5.4vw,64px)] leading-[1.04] font-semibold tracking-tight text-foreground">
                         Let&rsquo;s plan something unforgettable
@@ -97,21 +105,30 @@ export default function Contact({ destinations, contact }: Props) {
                         much sooner.
                     </p>
                 </div>
-            </section>
+            </Section>
 
             {/* ===== INFO + FORM ===== */}
-            <section className="bg-background px-5 pt-[clamp(20px,3vw,40px)] pb-[clamp(56px,8vw,90px)] sm:px-8">
-                <div className="mx-auto grid max-w-[1180px] items-start gap-6 lg:grid-cols-2">
+            <Section
+                bg="surface"
+                spacing="none"
+                className="pt-[clamp(20px,3vw,40px)] pb-[clamp(56px,8vw,90px)]"
+                containerClassName="max-w-[1180px]"
+            >
+                <div className="grid items-start gap-6 lg:grid-cols-2">
                     {/* Info column */}
                     <div data-stagger className="flex flex-col gap-3.5">
                         {channels.map((c) => (
                             <div
                                 key={c.label}
-                                className="flex items-start gap-3.5 rounded-[18px] border border-border bg-surface p-[22px] shadow-[var(--shadow-sm)]"
+                                className="flex items-start gap-3.5 rounded-card border border-border bg-surface p-[22px] shadow-[var(--shadow-sm)]"
                             >
-                                <span className="flex size-12 shrink-0 items-center justify-center rounded-[13px] bg-primary-soft text-primary-deep">
-                                    <MaterialSymbol name={c.icon} size={24} />
-                                </span>
+                                <IconTile
+                                    icon={c.icon}
+                                    iconSize={24}
+                                    tone="primary"
+                                    size="md"
+                                    className="shrink-0"
+                                />
                                 <div>
                                     <p className="text-[13px] font-bold tracking-[0.08em] text-faint uppercase">
                                         {c.label}
@@ -136,11 +153,7 @@ export default function Contact({ destinations, contact }: Props) {
                             href={WHATSAPP_URL}
                             target="_blank"
                             rel="noopener"
-                            className="flex items-center gap-3.5 rounded-[18px] p-[22px] shadow-[var(--shadow-md)]"
-                            style={{
-                                background:
-                                    'linear-gradient(135deg,#1faf5a,#11833f)',
-                            }}
+                            className="flex items-center gap-3.5 rounded-card brand-gradient-whatsapp p-[22px] shadow-[var(--shadow-md)]"
                         >
                             <MaterialSymbol
                                 name="chat"
@@ -156,7 +169,7 @@ export default function Contact({ destinations, contact }: Props) {
                                     Chat with a specialist right now.
                                 </p>
                             </div>
-                            <span className="rounded-[11px] bg-white px-4 py-2.5 text-[13.5px] font-extrabold text-[#11833f]">
+                            <span className="rounded-control bg-white px-4 py-2.5 text-[13.5px] font-extrabold text-[#11833f]">
                                 Open chat
                             </span>
                         </a>
@@ -165,7 +178,7 @@ export default function Contact({ destinations, contact }: Props) {
                     {/* Form column */}
                     <div
                         data-reveal
-                        className="rounded-[24px] border border-border bg-surface p-[clamp(24px,3.5vw,40px)] shadow-[var(--shadow-md)]"
+                        className="rounded-card border border-border bg-surface p-[clamp(24px,3.5vw,40px)] shadow-[var(--shadow-md)]"
                     >
                         <Form
                             action="/contact"
@@ -176,13 +189,7 @@ export default function Contact({ destinations, contact }: Props) {
                             {({ processing, errors, wasSuccessful }) =>
                                 wasSuccessful ? (
                                     <div className="py-[clamp(20px,4vw,48px)] text-center">
-                                        <span
-                                            className="mx-auto mb-5.5 flex size-[72px] items-center justify-center rounded-full text-white shadow-[0_16px_34px_-14px_rgba(17,131,63,0.6)]"
-                                            style={{
-                                                background:
-                                                    'linear-gradient(135deg,#1faf5a,#11833f)',
-                                            }}
-                                        >
+                                        <span className="mx-auto mb-5.5 flex size-[72px] items-center justify-center rounded-full brand-gradient-whatsapp text-white shadow-[0_16px_34px_-14px_rgba(17,131,63,0.6)]">
                                             <MaterialSymbol
                                                 name="check"
                                                 size={40}
@@ -195,8 +202,8 @@ export default function Contact({ destinations, contact }: Props) {
                                         <p className="mx-auto mt-2 max-w-[380px] text-[15.5px] leading-[1.65] text-soft">
                                             Thanks for reaching out. A Travels
                                             Point specialist will be in touch
-                                            within one business day. Your inquiry
-                                            has been logged.
+                                            within one business day. Your
+                                            inquiry has been logged.
                                         </p>
                                     </div>
                                 ) : (
@@ -206,8 +213,8 @@ export default function Contact({ destinations, contact }: Props) {
                                                 Send us a message
                                             </h2>
                                             <p className="mt-1 text-[14px] text-faint">
-                                                Fields marked with care — we read
-                                                every one.
+                                                Fields marked with care — we
+                                                read every one.
                                             </p>
                                         </div>
 
@@ -311,13 +318,16 @@ export default function Contact({ destinations, contact }: Props) {
                                             />
                                         </label>
 
-                                        <button
+                                        <CtaButton
                                             type="submit"
                                             disabled={processing}
-                                            className="mt-2 flex items-center justify-center gap-2 rounded-[13px] bg-gradient-to-br from-primary to-primary-deep py-4 text-[16px] font-bold text-white shadow-[0_14px_30px_-14px_var(--ring-glow)] transition hover:-translate-y-0.5 hover:brightness-110 disabled:opacity-70"
+                                            variant="primary"
+                                            size="lg"
+                                            block
+                                            className="mt-2"
                                         >
                                             {processing ? (
-                                                <span className="size-[18px] rounded-full border-2 border-white/40 border-t-white tp-spin" />
+                                                <span className="tp-spin size-[18px] rounded-full border-2 border-white/40 border-t-white" />
                                             ) : (
                                                 <MaterialSymbol
                                                     name="send"
@@ -325,7 +335,7 @@ export default function Contact({ destinations, contact }: Props) {
                                                 />
                                             )}
                                             Send message
-                                        </button>
+                                        </CtaButton>
 
                                         <p className="flex items-center justify-center gap-1.5 text-[12.5px] text-faint">
                                             <MaterialSymbol
@@ -333,8 +343,8 @@ export default function Contact({ destinations, contact }: Props) {
                                                 size={15}
                                                 className="text-primary-deep"
                                             />
-                                            Protected by spam filtering. We never
-                                            share your details.
+                                            Protected by spam filtering. We
+                                            never share your details.
                                         </p>
                                     </>
                                 )
@@ -342,11 +352,16 @@ export default function Contact({ destinations, contact }: Props) {
                         </Form>
                     </div>
                 </div>
-            </section>
+            </Section>
 
             {/* ===== MAP ===== */}
-            <section className="bg-background px-5 pb-[clamp(56px,8vw,90px)] sm:px-8">
-                <div className="mx-auto max-w-[1180px]">
+            <Section
+                bg="surface"
+                spacing="none"
+                className="pb-[clamp(56px,8vw,90px)]"
+                containerClassName="max-w-[1180px]"
+            >
+                <div>
                     <div
                         data-reveal
                         className="mb-4.5 flex items-center gap-2.5"
@@ -362,7 +377,7 @@ export default function Contact({ destinations, contact }: Props) {
                     </div>
                     <div
                         data-reveal
-                        className="relative h-[clamp(280px,38vw,420px)] overflow-hidden rounded-[22px] border border-border shadow-[var(--shadow-md)]"
+                        className="relative h-[clamp(280px,38vw,420px)] overflow-hidden rounded-card border border-border shadow-[var(--shadow-md)]"
                     >
                         <iframe
                             title="Travels Point office — Dubai Marina"
@@ -373,7 +388,7 @@ export default function Contact({ destinations, contact }: Props) {
                         />
                     </div>
                 </div>
-            </section>
+            </Section>
         </>
     );
 }

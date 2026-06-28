@@ -35,7 +35,7 @@ function formatDate(value: string | null) {
         return '—';
     }
 
-    return new Date(value).toLocaleDateString(undefined, {
+    return new Date(value).toLocaleDateString('en-GB', {
         month: 'short',
         day: 'numeric',
         year: 'numeric',
