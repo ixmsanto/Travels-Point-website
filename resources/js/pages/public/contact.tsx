@@ -12,8 +12,6 @@ type Props = {
     contact: ContactDetails;
 };
 
-const WHATSAPP_URL = 'https://wa.me/97145550192';
-
 const fieldClass =
     'w-full rounded-control border border-border-strong bg-surface-2 px-[15px] py-[13px] text-[15px] text-foreground outline-none transition focus:border-primary focus:shadow-[0_0_0_3px_var(--ring-glow)] placeholder:text-faint';
 
@@ -150,7 +148,7 @@ export default function Contact({ destinations, contact }: Props) {
                         ))}
 
                         <a
-                            href={WHATSAPP_URL}
+                            href={contact.whatsapp_url ?? `tel:${contact.phone}`}
                             target="_blank"
                             rel="noopener"
                             className="flex items-center gap-3.5 rounded-card brand-gradient-whatsapp p-[22px] shadow-[var(--shadow-md)]"
@@ -169,7 +167,7 @@ export default function Contact({ destinations, contact }: Props) {
                                     Chat with a specialist right now.
                                 </p>
                             </div>
-                            <span className="rounded-control bg-white px-4 py-2.5 text-[13.5px] font-extrabold text-[#11833f]">
+                            <span className="rounded-control bg-white px-4 py-2.5 text-[13.5px] font-extrabold text-primary-deep">
                                 Open chat
                             </span>
                         </a>
@@ -189,7 +187,7 @@ export default function Contact({ destinations, contact }: Props) {
                             {({ processing, errors, wasSuccessful }) =>
                                 wasSuccessful ? (
                                     <div className="py-[clamp(20px,4vw,48px)] text-center">
-                                        <span className="mx-auto mb-5.5 flex size-[72px] items-center justify-center rounded-full brand-gradient-whatsapp text-white shadow-[0_16px_34px_-14px_rgba(17,131,63,0.6)]">
+                                        <span className="mx-auto mb-5.5 flex size-[72px] items-center justify-center rounded-full brand-gradient-whatsapp text-white shadow-[0_16px_34px_-14px_rgba(234,88,12,0.6)]">
                                             <MaterialSymbol
                                                 name="check"
                                                 size={40}

@@ -42,7 +42,7 @@
        --color-ink        : deep navy body ink (on white/light chips)
        --color-ink-brand  : brand navy (on white buttons over brand gradients) */
     --color-ink: #1b2a41;
-    --color-ink-brand: #083b7c;
+    --color-ink-brand: #9a3412;
 
     --shadow-tp-sm: var(--shadow-sm);
     --shadow-tp-md: var(--shadow-md);
@@ -135,16 +135,18 @@
     --text-soft: #51617a;
     --text-faint: #8696aa;
     --border-strong: #d2deea;
-    --primary-deep: #083b7c;
-    --primary-soft: #e6effa;
-    --green: #4caf50;
-    --green-deep: #3c9440;
-    --green-soft: #e7f4e8;
+    --primary-deep: #9a3412;
+    --primary-soft: #ffedd5;
+    /* "green" now aliases the brand orange — the site palette is orange + gold
+       only (green removed), so success/active/WhatsApp surfaces read orange. */
+    --green: #ea580c;
+    --green-deep: #9a3412;
+    --green-soft: #ffedd5;
     --shadow-sm:
         0 1px 2px rgba(27, 42, 65, 0.06), 0 4px 14px -8px rgba(27, 42, 65, 0.12);
     --shadow-md: 0 12px 34px -14px rgba(27, 42, 65, 0.22);
     --shadow-lg: 0 36px 70px -28px rgba(27, 42, 65, 0.4);
-    --ring-glow: rgba(11, 78, 162, 0.45);
+    --ring-glow: rgba(234, 88, 12, 0.45);
 
     /* shadcn token mapping */
     --background: #ffffff;
@@ -153,38 +155,38 @@
     --card-foreground: #1b2a41;
     --popover: #ffffff;
     --popover-foreground: #1b2a41;
-    --primary: #0b4ea2;
+    --primary: #ea580c;
     --primary-foreground: #ffffff;
     --secondary: #f5f9ff;
     --secondary-foreground: #1b2a41;
     --muted: #f5f9ff;
     --muted-foreground: #51617a;
-    --accent: #eef4fb;
-    --accent-foreground: #0b4ea2;
+    --accent: #fff4ec;
+    --accent-foreground: #c2410c;
     --destructive: #e5484d;
     --destructive-foreground: #ffffff;
     --border: #e4ecf3;
     --input: #d2deea;
-    --ring: #0b4ea2;
-    --chart-1: #0b4ea2;
+    --ring: #ea580c;
+    --chart-1: #ea580c;
     --chart-2: #f57c00;
-    --chart-3: #4caf50;
-    --chart-4: #5b9bff;
-    --chart-5: #083b7c;
+    --chart-3: #f57c00;
+    --chart-4: #fb923c;
+    --chart-5: #9a3412;
     --radius: 0.75rem;
     --sidebar: #ffffff;
     --sidebar-foreground: #51617a;
-    --sidebar-primary: #0b4ea2;
+    --sidebar-primary: #ea580c;
     --sidebar-primary-foreground: #ffffff;
-    --sidebar-accent: #e6effa;
-    --sidebar-accent-foreground: #083b7c;
+    --sidebar-accent: #ffedd5;
+    --sidebar-accent-foreground: #9a3412;
     --sidebar-border: #e4ecf3;
-    --sidebar-ring: #0b4ea2;
+    --sidebar-ring: #ea580c;
 
     /* Brand tokens */
-    --brand: #0b4ea2;
+    --brand: #ea580c;
     --brand-foreground: #ffffff;
-    --brand-soft: #e6effa;
+    --brand-soft: #ffedd5;
     --gold: #f57c00;
     --gold-foreground: #ffffff;
     --gold-soft: #fdecd9;
@@ -195,25 +197,26 @@
        utilities below — never re-type the raw hex stops in a page. */
     --gradient-brand: linear-gradient(
         150deg,
-        #083b7c 0%,
-        #0b4ea2 38%,
-        #1565c5 70%,
-        #2f8fd6 100%
+        #9a3412 0%,
+        #c2410c 38%,
+        #ea580c 70%,
+        #f97316 100%
     );
     --gradient-brand-cta: linear-gradient(
         135deg,
-        #083b7c 0%,
-        #0b4ea2 50%,
-        #1565c5 100%
+        #9a3412 0%,
+        #c2410c 50%,
+        #ea580c 100%
     );
     --gradient-brand-deep: linear-gradient(
         165deg,
-        #062a52 0%,
-        #083b7c 55%,
-        #0b4ea2 100%
+        #7c2d12 0%,
+        #9a3412 55%,
+        #c2410c 100%
     );
     --gradient-gold: linear-gradient(135deg, #f57c00, #d96b00);
-    --gradient-whatsapp: linear-gradient(135deg, #1faf5a, #11833f);
+    /* Was WhatsApp green — now orange to keep the 2-colour palette. */
+    --gradient-whatsapp: linear-gradient(135deg, #ea580c, #9a3412);
     /* Bottom-up scrim for text laid over imagery */
     --overlay-media: linear-gradient(
         180deg,
@@ -232,16 +235,17 @@
     --text-soft: #a3b6c9;
     --text-faint: #6a8197;
     --border-strong: #27405d;
-    --primary-deep: #2f6fe0;
-    --primary-soft: rgba(91, 155, 255, 0.16);
-    --green: #5cc561;
-    --green-deep: #4caf50;
-    --green-soft: rgba(92, 197, 97, 0.16);
+    --primary-deep: #ea580c;
+    --primary-soft: rgba(251, 146, 60, 0.16);
+    /* "green" aliases the brand orange (see light theme note). */
+    --green: #fb923c;
+    --green-deep: #ea580c;
+    --green-soft: rgba(251, 146, 60, 0.16);
     --shadow-sm:
         0 1px 2px rgba(0, 0, 0, 0.35), 0 6px 20px -10px rgba(0, 0, 0, 0.5);
     --shadow-md: 0 16px 40px -16px rgba(0, 0, 0, 0.6);
     --shadow-lg: 0 40px 80px -30px rgba(0, 0, 0, 0.7);
-    --ring-glow: rgba(91, 155, 255, 0.5);
+    --ring-glow: rgba(251, 146, 60, 0.5);
 
     /* shadcn token mapping */
     --background: #070d17;
@@ -250,37 +254,37 @@
     --card-foreground: #eaf2fb;
     --popover: #101e31;
     --popover-foreground: #eaf2fb;
-    --primary: #5b9bff;
-    --primary-foreground: #04263b;
+    --primary: #fb923c;
+    --primary-foreground: #2a1606;
     --secondary: #0d1929;
     --secondary-foreground: #eaf2fb;
     --muted: #0d1929;
     --muted-foreground: #a3b6c9;
-    --accent: #16273c;
-    --accent-foreground: #cfe9fb;
+    --accent: #2a1810;
+    --accent-foreground: #ffd9b8;
     --destructive: #ff6166;
     --destructive-foreground: #1a0606;
     --border: #1d2f47;
     --input: #27405d;
-    --ring: #5b9bff;
-    --chart-1: #5b9bff;
+    --ring: #fb923c;
+    --chart-1: #fb923c;
     --chart-2: #f9952f;
-    --chart-3: #5cc561;
-    --chart-4: #2f6fe0;
-    --chart-5: #cfe9fb;
+    --chart-3: #f9952f;
+    --chart-4: #ea580c;
+    --chart-5: #ffd9b8;
     --sidebar: #101e31;
     --sidebar-foreground: #a3b6c9;
-    --sidebar-primary: #5b9bff;
-    --sidebar-primary-foreground: #04263b;
-    --sidebar-accent: rgba(91, 155, 255, 0.16);
-    --sidebar-accent-foreground: #cfe9fb;
+    --sidebar-primary: #fb923c;
+    --sidebar-primary-foreground: #2a1606;
+    --sidebar-accent: rgba(251, 146, 60, 0.16);
+    --sidebar-accent-foreground: #ffd9b8;
     --sidebar-border: #1d2f47;
-    --sidebar-ring: #5b9bff;
+    --sidebar-ring: #fb923c;
 
     /* Brand tokens */
-    --brand: #5b9bff;
-    --brand-foreground: #04263b;
-    --brand-soft: rgba(91, 155, 255, 0.16);
+    --brand: #fb923c;
+    --brand-foreground: #2a1606;
+    --brand-soft: rgba(251, 146, 60, 0.16);
     --gold: #f9952f;
     --gold-foreground: #1a0d00;
     --gold-soft: rgba(249, 149, 47, 0.16);
@@ -294,6 +298,10 @@
     body {
         @apply bg-background text-foreground;
         font-family: var(--font-serif);
+        /* Suppress stray horizontal scroll from decorative/overflowing bands.
+           `clip` (not `hidden`) avoids creating a scroll container, so the
+           sticky header and fixed hero backdrop keep working. */
+        overflow-x: clip;
     }
 
     /* Smooth in-page anchor jumps (e.g. footer → #destinations / #offers).
@@ -388,13 +396,13 @@
 }
 @keyframes tpPulse {
     0% {
-        box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.5);
+        box-shadow: 0 0 0 0 rgba(234, 88, 12, 0.5);
     }
     70% {
-        box-shadow: 0 0 0 16px rgba(37, 211, 102, 0);
+        box-shadow: 0 0 0 16px rgba(234, 88, 12, 0);
     }
     100% {
-        box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
+        box-shadow: 0 0 0 0 rgba(234, 88, 12, 0);
     }
 }
 @keyframes tpSpin {
