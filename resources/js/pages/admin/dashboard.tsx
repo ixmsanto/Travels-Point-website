@@ -98,11 +98,7 @@ export default function Dashboard({
                                         {o.title}
                                     </p>
                                     <p className="text-[12.5px] text-faint">
-                                        {o.discount}% off · till{' '}
-                                        {new Date(o.expiry).toLocaleDateString(
-                                            'en-GB',
-                                            { month: 'short', day: 'numeric' },
-                                        )}
+                                        {o.discount}% off
                                     </p>
                                 </div>
                                 <StatusBadge status={o.status} />

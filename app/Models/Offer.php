@@ -12,7 +12,6 @@ class Offer extends Model
         'title',
         'discount',
         'description',
-        'expiry',
         'cta',
         'cta_url',
         'status',
@@ -27,7 +26,6 @@ class Offer extends Model
     {
         return [
             'discount' => 'integer',
-            'expiry' => 'date',
             'featured' => 'boolean',
             'sort_order' => 'integer',
         ];

@@ -69,7 +69,6 @@ export default function OffersIndex({ offers, filters }: Props) {
                 columns={[
                     { label: 'Offer' },
                     { label: 'Discount' },
-                    { label: 'Valid till' },
                     { label: 'Featured' },
                     { label: 'Status' },
                     { label: 'Actions', align: 'right' },
@@ -92,13 +91,6 @@ export default function OffersIndex({ offers, filters }: Props) {
                             <span className="inline-flex rounded-full bg-gold-soft px-[11px] py-1 text-[11.5px] font-bold text-gold">
                                 {o.discount}% OFF
                             </span>
-                        </Td>
-                        <Td className="text-soft">
-                            {new Date(o.expiry).toLocaleDateString('en-GB', {
-                                month: 'short',
-                                day: 'numeric',
-                                year: 'numeric',
-                            })}
                         </Td>
                         <Td>
                             <BoolCell value={o.featured} />

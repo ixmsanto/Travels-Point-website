@@ -77,7 +77,6 @@ class OfferController extends Controller
             'title' => ['required', 'string', 'max:160'],
             'discount' => ['required', 'integer', 'min:0', 'max:100'],
             'description' => ['required', 'string', 'max:500'],
-            'expiry' => ['required', 'date'],
             'cta' => ['required', 'string', 'max:60'],
             'cta_url' => ['required', 'string', 'max:2048'],
             'status' => ['required', Rule::in(['Active', 'Scheduled', 'Expired'])],

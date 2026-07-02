@@ -59,7 +59,8 @@ export function useHeroSlider(banners: Banner[]): HeroSliderState {
 }
 
 /**
- * A single hero slide. Images fill the box with `object-cover`. Video banners
+ * A single hero slide. Images fill the box edge-to-edge with `object-cover`
+ * (like GT) — no letterbox gaps, cropped to the box as needed. Video banners
  * play only while their slide is active — paused and not downloaded otherwise —
  * so a large clip never loads behind a slide the visitor can't see. The banner
  * image (if any) is used as the video poster.
@@ -123,7 +124,7 @@ function HeroSlide({
 /**
  * The cross-fading media slides — image or video — that fill the hero box.
  * Rendered in the fixed parallax backdrop; the foreground content scrolls over
- * it. Pixel-sharp at every breakpoint via `object-cover`.
+ * it. Fills the box edge-to-edge at every breakpoint via `object-cover`.
  */
 export function HeroBackdrop({
     banners,
@@ -168,17 +169,17 @@ export function HeroControls({ state }: { state: HeroSliderState }) {
                 type="button"
                 aria-label="Previous slide"
                 onClick={prev}
-                className="absolute top-1/2 left-3 z-20 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/25 text-white backdrop-blur-md transition hover:bg-black/45 sm:left-5 sm:flex"
+                className="absolute top-1/2 left-2 z-20 flex size-12 -translate-y-1/2 items-center justify-center text-white/70 drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)] transition hover:text-white sm:left-6"
             >
-                <MaterialSymbol name="chevron_left" size={26} />
+                <MaterialSymbol name="chevron_left" size={40} />
             </button>
             <button
                 type="button"
                 aria-label="Next slide"
                 onClick={next}
-                className="absolute top-1/2 right-3 z-20 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-black/25 text-white backdrop-blur-md transition hover:bg-black/45 sm:right-5 sm:flex"
+                className="absolute top-1/2 right-2 z-20 flex size-12 -translate-y-1/2 items-center justify-center text-white/70 drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)] transition hover:text-white sm:right-6"
             >
-                <MaterialSymbol name="chevron_right" size={26} />
+                <MaterialSymbol name="chevron_right" size={40} />
             </button>
 
             <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2">

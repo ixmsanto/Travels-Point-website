@@ -26,7 +26,6 @@ export default function OfferForm({ offer }: Props) {
         title: offer?.title ?? '',
         discount: offer?.discount ?? 0,
         description: offer?.description ?? '',
-        expiry: offer?.expiry ?? '',
         cta: offer?.cta ?? 'Book Now',
         cta_url: offer?.cta_url ?? '#',
         status: offer?.status ?? 'Active',
@@ -65,7 +64,7 @@ export default function OfferForm({ offer }: Props) {
             <Head title={editing ? 'Edit offer' : 'New offer'} />
             <PageHeader
                 title={editing ? 'Edit offer' : 'New offer'}
-                description="Promotions with a discount and expiry date."
+                description="Promotions with a discount."
             />
 
             <Card className="p-6">
@@ -102,20 +101,6 @@ export default function OfferForm({ offer }: Props) {
                                         'discount',
                                         Number(e.target.value),
                                     )
-                                }
-                            />
-                        </Field>
-                        <Field
-                            label="Expiry"
-                            htmlFor="expiry"
-                            error={form.errors.expiry}
-                        >
-                            <Input
-                                id="expiry"
-                                type="date"
-                                value={form.data.expiry}
-                                onChange={(e) =>
-                                    form.setData('expiry', e.target.value)
                                 }
                             />
                         </Field>

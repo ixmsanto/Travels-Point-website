@@ -19,6 +19,9 @@ export default defineConfig({
                     weights: [400, 500, 600, 700],
                     styles: ['normal', 'italic'],
                 }),
+                bunny('Dancing Script', {
+                    weights: [500, 600, 700],
+                }),
             ],
         }),
         inertia(),

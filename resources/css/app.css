@@ -16,6 +16,9 @@
         'Cormorant Garamond', ui-serif, Georgia, Cambria, 'Times New Roman',
         serif;
 
+    /* Handwritten accent — the gold script word above hero headlines. */
+    --font-script: 'Dancing Script', 'Cormorant Garamond', ui-serif, cursive;
+
     /* Travels Point brand palette */
     --color-brand: var(--brand);
     --color-brand-foreground: var(--brand-foreground);
