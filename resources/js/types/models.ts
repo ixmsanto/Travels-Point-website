@@ -52,7 +52,6 @@ export type Offer = Tinted & {
     title: string;
     discount: number;
     description: string;
-    expiry: string;
     cta: string;
     cta_url: string;
     status: OfferStatus;

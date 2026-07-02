@@ -1,19 +1,13 @@
-import { Head, Link, router } from '@inertiajs/react';
-import { useState } from 'react';
-import type { ReactNode } from 'react';
+import { Head, Link } from '@inertiajs/react';
+import { useEffect, useRef, useState } from 'react';
 import GradientThumb from '@/components/gradient-thumb';
-import {
-    HeroBackdrop,
-    HeroControls,
-    useHeroSlider,
-} from '@/components/hero-slider';
+import { HeroControls, useHeroSlider } from '@/components/hero-slider';
 import MaterialSymbol from '@/components/material-symbol';
 import BlogCard from '@/components/public/blog-card';
 import { CtaButton } from '@/components/public/button';
 import { Section, Container } from '@/components/public/section';
 import { Eyebrow, SectionHeading } from '@/components/public/section-heading';
 import { Chip, IconTile } from '@/components/public/ui';
-import { useInView } from '@/hooks/use-in-view';
 import { formatINR } from '@/lib/currency';
 import { cn } from '@/lib/utils';
 import type {
@@ -74,15 +68,85 @@ const stats = [
     { icon: 'workspace_premium', value: '16+', label: 'Years of Experience' },
 ];
 
-const tripTypes = ['Honeymoon', 'Family', 'Group tour', 'Solo', 'Corporate'];
-const budgets = ['Under $2k', '$2k – $5k', '$5k – $10k', '$10k+'];
+// Handwritten gold words that rotate above the hero headline.
+const heroWords = ['unforgettable', 'life-changing', 'tailor-made', 'worldclass'];
 
-const heroStats = [
-    { value: '120+', label: 'Destinations' },
-    { value: '24K+', label: 'Happy travelers' },
-    { value: '4.9★', label: 'Average rating' },
-    { value: '15 yrs', label: 'Crafting trips' },
+// Static reassurance perks shown on every offer card to fill the layout.
+const offerPerks = [
+    'Handpicked stays',
+    'Free cancellation',
+    '24/7 travel concierge',
+    'Best-price promise',
 ];
+
+// Animates the numeric portion of a stat (e.g. "3,200+", "4.9/5") counting up
+// from zero once it scrolls into view. Non-numeric prefix/suffix and any comma
+// grouping / decimal precision from the source string are preserved.
+function CountUp({ value }: { value: string }) {
+    const ref = useRef<HTMLSpanElement>(null);
+    const match = value.match(/^(\D*)([\d,]+(?:\.\d+)?)(.*)$/);
+    const [display, setDisplay] = useState(() => (match ? match[1] + '0' + match[3] : value));
+
+    useEffect(() => {
+        const el = ref.current;
+        if (!el || !match) return;
+
+        const prefix = match[1];
+        const numStr = match[2];
+        const suffix = match[3];
+        const target = parseFloat(numStr.replace(/,/g, ''));
+        const decimals = numStr.includes('.') ? numStr.split('.')[1].length : 0;
+        const grouped = numStr.includes(',');
+
+        const format = (n: number) => {
+            const str = n.toLocaleString('en-US', {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals,
+                useGrouping: grouped,
+            });
+            return prefix + str + suffix;
+        };
+
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduced) {
+            setDisplay(format(target));
+            return;
+        }
+
+        let raf = 0;
+        let start = 0;
+        const duration = 2600;
+        const tick = (now: number) => {
+            if (!start) start = now;
+            const t = Math.min((now - start) / duration, 1);
+            const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
+            setDisplay(format(target * eased));
+            if (t < 1) raf = requestAnimationFrame(tick);
+        };
+
+        const observer = new IntersectionObserver(
+            ([entry], obs) => {
+                if (entry.isIntersecting) {
+                    raf = requestAnimationFrame(tick);
+                    obs.disconnect();
+                }
+            },
+            { threshold: 0.4 },
+        );
+        observer.observe(el);
+
+        return () => {
+            observer.disconnect();
+            cancelAnimationFrame(raf);
+        };
+    }, [value]);
+
+    return (
+        <span ref={ref} className="tabular-nums">
+            {display}
+        </span>
+    );
+}
 
 function Stars({ rating, size = 16 }: { rating: number; size?: number }) {
     return (
@@ -106,7 +170,6 @@ function Stars({ rating, size = 16 }: { rating: number; size?: number }) {
 
 export default function Home({
     banners,
-    destinations,
     packages,
     offers,
     testimonials,
@@ -115,14 +178,32 @@ export default function Home({
     contact,
 }: Props) {
     const whatsappUrl = contact.whatsapp_url ?? `tel:${contact.phone}`;
-    const [destination, setDestination] = useState('');
     const [offerIndex, setOfferIndex] = useState(0);
     const [tIndex, setTIndex] = useState(0);
+    // Cycles the gold script word above the hero headline.
+    const [heroWord, setHeroWord] = useState(0);
 
-    // Freeze the fixed parallax backdrop once the hero scrolls away — it is
-    // covered by opaque content past that point, so painting it (and looping its
-    // blurred decorations) is wasted work and a scroll-jank source.
-    const [heroRef, heroInView] = useInView<HTMLElement>('0px', 0);
+    useEffect(() => {
+        const id = setInterval(
+            () => setHeroWord((i) => (i + 1) % heroWords.length),
+            3200,
+        );
+        return () => clearInterval(id);
+    }, []);
+    // Full-size preview of an offer poster, opened by clicking its thumbnail.
+    const [offerPreview, setOfferPreview] = useState<{
+        src: string;
+        title: string;
+    } | null>(null);
+
+    useEffect(() => {
+        if (!offerPreview) return;
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') setOfferPreview(null);
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [offerPreview]);
 
     const offerCount = offers.length;
     const tCount = testimonials.length;
@@ -142,188 +223,81 @@ export default function Home({
             <Head title="Travels Point — Explore the world, tailor-made" />
 
             {/* ===== HERO ===== */}
-            {/* Fixed parallax backdrop — stays put while the page scrolls over it. */}
-            <div
-                aria-hidden
-                className={cn(
-                    'fixed inset-0 z-0 overflow-hidden brand-gradient',
-                    !heroInView && 'backdrop-frozen',
-                )}
+            {/* Mobile: the active image sits in normal flow at its natural
+                aspect ratio — the WHOLE image is shown, uncropped (the solid
+                header above it means no overlap). Desktop (md+): a fixed band
+                where images fill with `object-cover`, cropped like GT. */}
+            <section
+                className="brand-gradient relative overflow-hidden md:h-[68svh] lg:h-[80svh]"
                 onMouseEnter={() => heroSlider.setPaused(true)}
                 onMouseLeave={() => heroSlider.setPaused(false)}
             >
-                {/* Admin-managed Hero banners (image or video) as a slider. */}
-                <HeroBackdrop banners={heroBanners} index={heroSlider.index} />
-                <div className="pointer-events-none absolute inset-0 brand-hatch opacity-50" />
-                <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(4,16,28,0.45)_0%,rgba(4,16,28,0.28)_32%,rgba(4,16,28,0.7)_100%)]" />
-                <div className="tp-float pointer-events-none absolute top-24 right-[8%] size-[200px] rounded-full bg-[radial-gradient(circle,rgba(245,124,0,0.55),transparent_70%)] blur-[6px]" />
-                <div className="tp-float2 pointer-events-none absolute bottom-24 left-[6%] size-[140px] rounded-full bg-[radial-gradient(circle,rgba(91,155,255,0.5),transparent_70%)] blur-[4px]" />
-                <MaterialSymbol
-                    name="flight"
-                    size={30}
-                    className="tp-float pointer-events-none absolute top-28 left-[10%] text-white/30"
-                />
-                <MaterialSymbol
-                    name="near_me"
-                    size={26}
-                    className="tp-float2 pointer-events-none absolute right-[12%] bottom-28 text-white/25"
-                />
-            </div>
+                {heroBanners.length > 0 ? (
+                    heroBanners.map((b, i) => {
+                        const active = i === heroSlider.index;
+                        const cls = cn(
+                            'block w-full object-center transition-opacity duration-1000 ease-in-out',
+                            active
+                                ? 'relative h-auto opacity-100 md:absolute md:inset-0 md:size-full md:object-cover'
+                                : 'absolute inset-0 size-full object-cover opacity-0',
+                        );
 
-            {/* Hero foreground — scrolls up over the fixed backdrop. */}
-            <section ref={heroRef} className="relative z-10 overflow-hidden">
+                        return b.video ? (
+                            <video
+                                key={b.id}
+                                src={b.video ?? undefined}
+                                poster={b.img ?? undefined}
+                                muted
+                                loop
+                                playsInline
+                                autoPlay
+                                className={cls}
+                            />
+                        ) : (
+                            <img
+                                key={b.id}
+                                src={b.img ?? ''}
+                                alt=""
+                                draggable={false}
+                                loading={i === 0 ? 'eager' : 'lazy'}
+                                className={cls}
+                            />
+                        );
+                    })
+                ) : (
+                    <div className="min-h-[56svh] w-full" />
+                )}
+
+                {/* Light scrim so the white text stays legible on any image. */}
+                <div className="pointer-events-none absolute inset-0 bg-black/30" />
+
+                {/* Centered text overlay. */}
                 <div
                     data-stagger
-                    className="relative mx-auto flex min-h-[clamp(640px,93svh,940px)] max-w-[1240px] flex-col justify-center px-5 pt-24 pb-16 sm:px-8"
+                    className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center sm:px-10"
                 >
-                    <span className="inline-flex w-fit items-center gap-2.5 rounded-full border border-white/25 bg-white/15 px-[17px] py-2.5 text-[13px] font-semibold text-white backdrop-blur-md">
-                        <Stars rating={5} size={15} />
-                        Rated 4.9 / 5 · 24,000+ journeys crafted
+                    <span
+                        key={heroWord}
+                        className="animate-in fade-in slide-in-from-bottom-2 block -rotate-2 font-script text-[clamp(28px,5vw,58px)] leading-none font-semibold text-gold duration-700 [text-shadow:0_2px_16px_rgba(0,0,0,0.4)]"
+                    >
+                        {heroWords[heroWord]}
                     </span>
 
-                    <h1 className="mt-5.5 max-w-[14ch] font-serif text-[clamp(44px,7.2vw,88px)] leading-[1.02] font-semibold tracking-[-0.012em] text-white">
-                        Explore The World With{' '}
-                        <span className="text-gold italic">Travels Point</span>
+                    <h1 className="-mt-1 font-serif text-[clamp(36px,7vw,92px)] leading-[0.98] font-semibold tracking-[-0.015em] text-white [text-shadow:0_3px_22px_rgba(0,0,0,0.5)]">
+                        Explore the world
                     </h1>
 
-                    <p className="mt-6 max-w-[580px] text-[clamp(16px,1.6vw,20px)] leading-[1.65] text-white/90">
+                    <p className="mt-4 max-w-[560px] text-[clamp(13px,1.4vw,17px)] leading-[1.6] text-white/90 [text-shadow:0_1px_10px_rgba(0,0,0,0.5)]">
                         Discover unforgettable journeys, exclusive tour packages
                         and personalized travel experiences — designed end to
-                        end by people who know the world.
+                        end by Travels Point, people who know the world.
                     </p>
-
-                    <div className="mt-8.5 flex flex-wrap gap-3.5">
-                        <CtaButton asChild variant="primary" size="lg">
-                            <Link href="/packages">
-                                <MaterialSymbol name="luggage" size={20} />
-                                Explore Packages
-                            </Link>
-                        </CtaButton>
-                        <CtaButton asChild variant="ghost" size="lg">
-                            <Link href="/contact">
-                                <MaterialSymbol name="chat_bubble" size={20} />
-                                Contact Us
-                            </Link>
-                        </CtaButton>
-                    </div>
-
-                    {/* Trust / stats strip */}
-                    <dl className="mt-9 flex flex-wrap gap-x-8 gap-y-4 sm:gap-x-11">
-                        {heroStats.map((s) => (
-                            <div key={s.label}>
-                                <dt className="font-serif text-[clamp(26px,3.6vw,34px)] leading-none font-semibold text-white">
-                                    {s.value}
-                                </dt>
-                                <dd className="mt-1.5 text-[12px] font-semibold tracking-[0.12em] text-white/65 uppercase">
-                                    {s.label}
-                                </dd>
-                            </div>
-                        ))}
-                    </dl>
-
-                    {/* Search bar */}
-                    <form
-                        data-reveal
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            router.get(
-                                '/contact',
-                                destination ? { destination } : {},
-                            );
-                        }}
-                        className="mt-11 grid grid-cols-1 gap-2.5 rounded-card border border-white/40 bg-[var(--glass-strong,rgba(255,255,255,0.82))] p-4 shadow-[0_36px_70px_-28px_rgba(0,0,0,0.5)] backdrop-blur-lg sm:grid-cols-2 lg:grid-cols-6"
-                    >
-                        <Field
-                            icon="place"
-                            className="sm:col-span-2 lg:col-span-1"
-                        >
-                            <input
-                                list="dest-list"
-                                value={destination}
-                                onChange={(e) => setDestination(e.target.value)}
-                                placeholder="Where to?"
-                                aria-label="Destination"
-                                className="w-full bg-transparent text-[15px] font-semibold outline-none placeholder:text-faint"
-                            />
-                            <datalist id="dest-list">
-                                {destinations.map((d) => (
-                                    <option key={d.id} value={d.name} />
-                                ))}
-                            </datalist>
-                        </Field>
-                        <Field icon="calendar_month">
-                            <input
-                                type="text"
-                                onFocus={(e) => (e.target.type = 'date')}
-                                placeholder="Travel dates"
-                                aria-label="Travel dates"
-                                className="w-full bg-transparent text-[15px] font-semibold outline-none placeholder:text-faint"
-                            />
-                        </Field>
-                        <Field icon="group">
-                            <select
-                                aria-label="Travelers"
-                                className="w-full bg-transparent text-[15px] font-semibold outline-none"
-                            >
-                                <option>2 Adults</option>
-                                <option>1 Adult</option>
-                                <option>Family (3–5)</option>
-                                <option>Group (6+)</option>
-                            </select>
-                        </Field>
-                        <Field icon="tune">
-                            <select
-                                aria-label="Trip type"
-                                className="w-full bg-transparent text-[15px] font-semibold outline-none"
-                            >
-                                {tripTypes.map((t) => (
-                                    <option key={t}>{t}</option>
-                                ))}
-                            </select>
-                        </Field>
-                        <Field icon="payments">
-                            <select
-                                aria-label="Budget"
-                                className="w-full bg-transparent text-[15px] font-semibold outline-none"
-                            >
-                                {budgets.map((b) => (
-                                    <option key={b}>{b}</option>
-                                ))}
-                            </select>
-                        </Field>
-                        <CtaButton
-                            type="submit"
-                            variant="primary"
-                            size="md"
-                            className="sm:col-span-2 lg:col-span-1"
-                        >
-                            <MaterialSymbol name="search" size={20} />
-                            Search
-                        </CtaButton>
-                    </form>
-
-                    {/* Scroll cue — hidden when the slider shows dot indicators
-                        in the same spot to avoid overlap. */}
-                    {heroBanners.length < 2 && (
-                        <div className="mt-10 flex flex-col items-center gap-1 self-center text-white/70">
-                            <span className="text-[11px] tracking-[0.16em] uppercase">
-                                Scroll
-                            </span>
-                            <MaterialSymbol
-                                name="keyboard_arrow_down"
-                                size={22}
-                                className="tp-cue"
-                            />
-                        </div>
-                    )}
                 </div>
 
-                {/* Slider controls — in the foreground so they stay clickable. */}
+                {/* Slider controls. */}
                 <HeroControls state={heroSlider} />
             </section>
 
-            {/* Everything below the hero sits on an opaque layer that scrolls
-                up over the fixed parallax backdrop. */}
             <div className="relative z-10 bg-background">
                 {/* ===== WHY TRAVELS POINT ===== */}
                 <Section bg="surface">
@@ -391,13 +365,43 @@ export default function Home({
                                                 key={o.id}
                                                 className="flex w-full shrink-0 flex-col overflow-hidden md:min-h-110 md:flex-row md:items-stretch"
                                             >
-                                                <div className="relative flex shrink-0 items-center justify-center bg-muted p-4 md:w-80">
+                                                <div className="relative flex shrink-0 items-center justify-center overflow-hidden bg-muted md:w-80">
                                                     {o.img ? (
-                                                        <img
-                                                            src={o.img}
-                                                            alt={o.title}
-                                                            className="mx-auto block max-h-105 w-auto max-w-full object-contain"
-                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                setOfferPreview({
+                                                                    src: o.img!,
+                                                                    title: o.title,
+                                                                })
+                                                            }
+                                                            aria-label={`View full poster for ${o.title}`}
+                                                            className="group relative flex size-full min-h-72 cursor-zoom-in items-center justify-center overflow-hidden md:min-h-0"
+                                                        >
+                                                            {/* Blurred copy fills the panel so the whole
+                                                                poster shows (object-contain) with no flat
+                                                                bands, whatever its aspect ratio. */}
+                                                            <img
+                                                                src={o.img}
+                                                                alt=""
+                                                                aria-hidden
+                                                                className="absolute inset-0 size-full scale-110 object-cover blur-2xl"
+                                                            />
+                                                            <img
+                                                                src={o.img}
+                                                                alt={o.title}
+                                                                className="relative z-10 mx-auto block max-h-105 w-auto max-w-[90%] object-contain shadow-[var(--shadow-md)] transition-transform duration-500 ease-fluid group-hover:scale-105"
+                                                            />
+                                                            <span className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center opacity-0 transition duration-300 group-hover:bg-ink/25 group-hover:opacity-100">
+                                                                <span className="flex items-center gap-1.5 rounded-full bg-white/95 px-3.5 py-2 text-[13px] font-bold text-ink shadow-[var(--shadow-md)]">
+                                                                    <MaterialSymbol
+                                                                        name="zoom_in"
+                                                                        size={18}
+                                                                    />
+                                                                    View poster
+                                                                </span>
+                                                            </span>
+                                                        </button>
                                                     ) : (
                                                         <GradientThumb
                                                             tint0={o.tint0}
@@ -406,14 +410,6 @@ export default function Home({
                                                             className="h-64 w-full md:h-full md:min-h-105"
                                                         />
                                                     )}
-                                                    <span className="absolute top-5 left-5 flex size-[84px] flex-col items-center justify-center rounded-full bg-green text-white shadow-[0_12px_26px_-10px_rgba(76,175,80,0.7)]">
-                                                        <span className="text-[24px] leading-none font-extrabold">
-                                                            {o.discount}%
-                                                        </span>
-                                                        <span className="text-[10px] font-extrabold tracking-[0.14em]">
-                                                            OFF
-                                                        </span>
-                                                    </span>
                                                 </div>
                                                 <div className="flex flex-1 flex-col justify-center bg-surface p-[clamp(26px,3.5vw,42px)]">
                                                     <Chip
@@ -429,24 +425,33 @@ export default function Home({
                                                     <p className="mt-3 text-[16px] leading-[1.65] text-soft">
                                                         {o.description}
                                                     </p>
-                                                    <p className="mt-4.5 flex items-center gap-2 text-[14px] text-soft">
-                                                        <MaterialSymbol
-                                                            name="event_busy"
-                                                            size={18}
-                                                            className="text-gold"
-                                                        />
-                                                        Valid until{' '}
-                                                        {new Date(
-                                                            o.expiry,
-                                                        ).toLocaleDateString(
-                                                            'en-GB',
-                                                            {
-                                                                month: 'short',
-                                                                day: 'numeric',
-                                                                year: 'numeric',
-                                                            },
+                                                    <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-2.5 border-t border-border pt-6 sm:grid-cols-2">
+                                                        {offerPerks.map(
+                                                            (perk) => (
+                                                                <span
+                                                                    key={perk}
+                                                                    className="flex items-center gap-2 text-[14.5px] font-medium text-foreground"
+                                                                >
+                                                                    <MaterialSymbol
+                                                                        name="check_circle"
+                                                                        size={18}
+                                                                        fill
+                                                                        className="shrink-0 text-green"
+                                                                    />
+                                                                    {perk}
+                                                                </span>
+                                                            ),
                                                         )}
-                                                    </p>
+                                                    </div>
+                                                    <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                                                        <Stars rating={5} size={16} />
+                                                        <span className="text-[14px] font-semibold text-foreground">
+                                                            4.9/5
+                                                        </span>
+                                                        <span className="text-[14px] text-soft">
+                                                            from 2,400+ reviews
+                                                        </span>
+                                                    </div>
                                                     <CtaButton
                                                         asChild
                                                         variant="primary"
@@ -513,6 +518,32 @@ export default function Home({
                                 )}
                             </div>
                     </Section>
+                )}
+
+                {/* ===== OFFER POSTER LIGHTBOX ===== */}
+                {offerPreview && (
+                    <div
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label={offerPreview.title}
+                        onClick={() => setOfferPreview(null)}
+                        className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 p-5 backdrop-blur-sm"
+                    >
+                        <button
+                            type="button"
+                            aria-label="Close"
+                            onClick={() => setOfferPreview(null)}
+                            className="absolute top-5 right-5 flex size-11 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25"
+                        >
+                            <MaterialSymbol name="close" size={24} />
+                        </button>
+                        <img
+                            src={offerPreview.src}
+                            alt={offerPreview.title}
+                            onClick={(e) => e.stopPropagation()}
+                            className="max-h-[90vh] w-auto max-w-[92vw] rounded-card object-contain shadow-[var(--shadow-lg)]"
+                        />
+                    </div>
                 )}
 
                 {/* ===== POPULAR TOUR PACKAGES ===== */}
@@ -855,7 +886,7 @@ export default function Home({
                                     className="mx-auto mb-4"
                                 />
                                 <p className="bg-gradient-to-br from-primary-deep to-gold bg-clip-text text-[clamp(38px,5vw,58px)] leading-none font-extrabold tracking-[-0.02em] text-transparent">
-                                    {s.value}
+                                    <CountUp value={s.value} />
                                 </p>
                                 <p className="mt-2.5 text-[14.5px] font-bold text-soft">
                                     {s.label}
@@ -924,32 +955,6 @@ export default function Home({
                 </Section>
             </div>
         </>
-    );
-}
-
-function Field({
-    icon,
-    children,
-    className,
-}: {
-    icon: string;
-    children: ReactNode;
-    className?: string;
-}) {
-    return (
-        <label
-            className={cn(
-                'flex items-center gap-2 rounded-control border border-border bg-surface-2 px-3 py-2.5 transition focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20',
-                className,
-            )}
-        >
-            <MaterialSymbol
-                name={icon}
-                size={18}
-                className="shrink-0 text-primary"
-            />
-            {children}
-        </label>
     );
 }
 

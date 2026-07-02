@@ -8,7 +8,7 @@ import {
     Youtube,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { toast } from 'sonner';
 import MaterialSymbol from '@/components/material-symbol';
@@ -108,6 +108,18 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
     const [email, setEmail] = useState('');
     const [menuOpen, setMenuOpen] = useState(false);
 
+    // On the home page the header floats transparently over the full-bleed hero
+    // image, turning into a solid bar once the visitor scrolls past the top.
+    const isHome = currentPath === '/';
+    const [scrolled, setScrolled] = useState(false);
+    useEffect(() => {
+        const onScroll = () => setScrolled(window.scrollY > 40);
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
+    }, [page.url]);
+    const overlay = isHome && !scrolled;
+
     const isLinkActive = (href: string) => {
         const path = new URL(href, 'http://x').pathname;
 
@@ -120,7 +132,25 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
 
     return (
         <div className="flex min-h-dvh flex-col bg-background text-foreground">
-            <div className="relative z-20 bg-gradient-to-r from-primary to-primary-deep text-white">
+            {/* Top group. On mobile it's a normal solid bar sitting ABOVE the
+                hero (in flow — no overlap). On desktop home it floats
+                transparently OVER the hero (image reaches the top), turning
+                solid once scrolled. `overlay` transparency is md-only. */}
+            <div
+                className={cn(
+                    isHome
+                        ? 'contents md:fixed md:inset-x-0 md:top-0 md:z-40 md:block'
+                        : 'contents',
+                    overlay &&
+                        'md:bg-gradient-to-b md:from-black/45 md:via-black/15 md:to-transparent',
+                )}
+            >
+            <div
+                className={cn(
+                    'relative z-20 bg-gradient-to-r from-primary to-primary-deep text-white transition-colors',
+                    overlay && 'md:bg-none',
+                )}
+            >
                 <div className="mx-auto flex h-11 w-full max-w-[1240px] items-center justify-between gap-4 px-5 text-[13.5px] font-medium sm:px-8">
                     <span className="flex items-center gap-2">
                         <MaterialSymbol name="flight" size={18} />
@@ -150,14 +180,22 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
                 </div>
             </div>
 
-            <header className="sticky top-0 z-40 border-b border-[var(--glass-border,rgba(255,255,255,0.6))] bg-background/80 backdrop-blur-md backdrop-saturate-150">
+            <header
+                className={cn(
+                    'sticky top-0 z-40 border-b border-[var(--glass-border,rgba(255,255,255,0.6))] bg-background/80 backdrop-blur-md backdrop-saturate-150 transition-colors',
+                    overlay &&
+                        'md:border-transparent md:bg-transparent md:backdrop-blur-none md:backdrop-saturate-100',
+                )}
+            >
                 <div className="mx-auto flex h-[74px] w-full max-w-[1240px] items-center justify-between px-5 sm:px-8">
                     <Link
                         href="/"
                         className="shrink-0"
                         aria-label="Travels Point home"
                     >
-                        <TravelLogo />
+                        <TravelLogo
+                            wordClassName={overlay ? 'md:text-white' : undefined}
+                        />
                     </Link>
 
                     <nav className="hidden items-center gap-1.5 md:flex">
@@ -170,9 +208,13 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
                                     href={link.href}
                                     className={cn(
                                         'relative rounded-control px-[15px] py-2.5 text-[15px] font-semibold transition-colors',
-                                        active
-                                            ? 'text-primary'
-                                            : 'text-foreground/85 hover:bg-primary-soft hover:text-primary',
+                                        overlay
+                                            ? active
+                                                ? 'text-white'
+                                                : 'text-white/85 hover:bg-white/10 hover:text-white'
+                                            : active
+                                              ? 'text-primary'
+                                              : 'text-foreground/85 hover:bg-primary-soft hover:text-primary',
                                     )}
                                 >
                                     {link.label}
@@ -269,6 +311,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
                     </div>
                 </div>
             </header>
+            </div>
 
             <main className="flex-1">{children}</main>
 
