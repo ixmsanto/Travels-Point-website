@@ -1,4 +1,4 @@
-name: Deploy travel.mytune.in
+name: Deploy mytravelspoint.com
 
 on:
   push:
