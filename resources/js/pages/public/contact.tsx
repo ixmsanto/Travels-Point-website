@@ -370,7 +370,7 @@ export default function Contact({ destinations, contact }: Props) {
                             className="text-primary-deep"
                         />
                         <h2 className="text-[20px] font-extrabold text-foreground">
-                            Find us in Dubai Marina
+                            Find us
                         </h2>
                     </div>
                     <div
@@ -378,8 +378,8 @@ export default function Contact({ destinations, contact }: Props) {
                         className="relative h-[clamp(280px,38vw,420px)] overflow-hidden rounded-card border border-border shadow-[var(--shadow-md)]"
                     >
                         <iframe
-                            title="Travels Point office — Dubai Marina"
-                            src="https://www.google.com/maps?q=Dubai%20Marina&output=embed"
+                            title="Travels Point office location"
+                            src="https://www.google.com/maps?q=13.07179069519043,80.20101928710938&z=17&output=embed"
                             loading="lazy"
                             referrerPolicy="no-referrer-when-downgrade"
                             className="absolute inset-0 size-full border-0"

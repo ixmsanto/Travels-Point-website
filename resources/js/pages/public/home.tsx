@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import GradientThumb from '@/components/gradient-thumb';
 import { HeroControls, useHeroSlider } from '@/components/hero-slider';
 import MaterialSymbol from '@/components/material-symbol';
@@ -36,7 +37,7 @@ type Props = {
 const HOME_PACKAGE_LIMIT = 6;
 
 // How many gallery images to preview on the home page before "View all".
-const HOME_GALLERY_LIMIT = 8;
+const HOME_GALLERY_LIMIT = 7;
 
 const features = [
     {
@@ -69,7 +70,12 @@ const stats = [
 ];
 
 // Handwritten gold words that rotate above the hero headline.
-const heroWords = ['unforgettable', 'life-changing', 'tailor-made', 'worldclass'];
+const heroWords = [
+    'unforgettable',
+    'life-changing',
+    'tailor-made',
+    'worldclass',
+];
 
 // Static reassurance perks shown on every offer card to fill the layout.
 const offerPerks = [
@@ -85,7 +91,9 @@ const offerPerks = [
 function CountUp({ value }: { value: string }) {
     const ref = useRef<HTMLSpanElement>(null);
     const match = value.match(/^(\D*)([\d,]+(?:\.\d+)?)(.*)$/);
-    const [display, setDisplay] = useState(() => (match ? match[1] + '0' + match[3] : value));
+    const [display, setDisplay] = useState(() =>
+        match ? match[1] + '0' + match[3] : value,
+    );
 
     useEffect(() => {
         const el = ref.current;
@@ -107,7 +115,9 @@ function CountUp({ value }: { value: string }) {
             return prefix + str + suffix;
         };
 
-        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const reduced = window.matchMedia(
+            '(prefers-reduced-motion: reduce)',
+        ).matches;
         if (reduced) {
             setDisplay(format(target));
             return;
@@ -190,20 +200,39 @@ export default function Home({
         );
         return () => clearInterval(id);
     }, []);
-    // Full-size preview of an offer poster, opened by clicking its thumbnail.
-    const [offerPreview, setOfferPreview] = useState<{
-        src: string;
-        title: string;
+    // Full-size poster viewer with prev/next. It carries its own list so the
+    // offer posters and the package posters each navigate within their own set.
+    const [viewer, setViewer] = useState<{
+        items: { src: string; title: string }[];
+        index: number;
     } | null>(null);
 
+    const viewerItem = viewer ? viewer.items[viewer.index] : null;
+
+    const viewerPrev = () =>
+        setViewer((v) =>
+            v
+                ? {
+                      ...v,
+                      index: (v.index - 1 + v.items.length) % v.items.length,
+                  }
+                : v,
+        );
+    const viewerNext = () =>
+        setViewer((v) =>
+            v ? { ...v, index: (v.index + 1) % v.items.length } : v,
+        );
+
     useEffect(() => {
-        if (!offerPreview) return;
+        if (!viewer) return;
         const onKey = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') setOfferPreview(null);
+            if (e.key === 'Escape') setViewer(null);
+            else if (e.key === 'ArrowLeft') viewerPrev();
+            else if (e.key === 'ArrowRight') viewerNext();
         };
         window.addEventListener('keydown', onKey);
         return () => window.removeEventListener('keydown', onKey);
-    }, [offerPreview]);
+    }, [viewer]);
 
     const offerCount = offers.length;
     const tCount = testimonials.length;
@@ -218,6 +247,14 @@ export default function Home({
     // filterable list lives on /packages.
     const previewPackages = packages.slice(0, HOME_PACKAGE_LIMIT);
 
+    // Poster lists for the full-size viewer (only items that have an image).
+    const offerPosters = offers
+        .filter((o) => o.img)
+        .map((o) => ({ src: o.img as string, title: o.title }));
+    const packagePosters = previewPackages
+        .filter((p) => p.img)
+        .map((p) => ({ src: p.img as string, title: p.title }));
+
     return (
         <>
             <Head title="Travels Point — Explore the world, tailor-made" />
@@ -228,7 +265,7 @@ export default function Home({
                 header above it means no overlap). Desktop (md+): a fixed band
                 where images fill with `object-cover`, cropped like GT. */}
             <section
-                className="brand-gradient relative overflow-hidden md:h-[68svh] lg:h-[80svh]"
+                className="relative overflow-hidden brand-gradient md:h-[68svh] lg:h-[80svh]"
                 onMouseEnter={() => heroSlider.setPaused(true)}
                 onMouseLeave={() => heroSlider.setPaused(false)}
             >
@@ -278,7 +315,7 @@ export default function Home({
                 >
                     <span
                         key={heroWord}
-                        className="animate-in fade-in slide-in-from-bottom-2 block -rotate-2 font-script text-[clamp(28px,5vw,58px)] leading-none font-semibold text-gold duration-700 [text-shadow:0_2px_16px_rgba(0,0,0,0.4)]"
+                        className="block -rotate-2 animate-in font-script text-[clamp(28px,5vw,58px)] leading-none font-semibold text-gold duration-700 [text-shadow:0_2px_16px_rgba(0,0,0,0.4)] fade-in slide-in-from-bottom-2"
                     >
                         {heroWords[heroWord]}
                     </span>
@@ -353,198 +390,240 @@ export default function Home({
                         </div>
 
                         <div data-reveal className="mx-auto mt-10 max-w-4xl">
-                                <div className="overflow-hidden rounded-panel shadow-[var(--shadow-md)]">
-                                    <div
-                                        className="flex transition-transform duration-700 ease-fluid"
-                                        style={{
-                                            transform: `translateX(-${offerIndex * 100}%)`,
-                                        }}
-                                    >
-                                        {offers.map((o) => (
-                                            <div
-                                                key={o.id}
-                                                className="flex w-full shrink-0 flex-col overflow-hidden md:min-h-110 md:flex-row md:items-stretch"
-                                            >
-                                                <div className="relative flex shrink-0 items-center justify-center overflow-hidden bg-muted md:w-80">
-                                                    {o.img ? (
-                                                        <button
-                                                            type="button"
-                                                            onClick={() =>
-                                                                setOfferPreview({
-                                                                    src: o.img!,
-                                                                    title: o.title,
-                                                                })
-                                                            }
-                                                            aria-label={`View full poster for ${o.title}`}
-                                                            className="group relative flex size-full min-h-72 cursor-zoom-in items-center justify-center overflow-hidden md:min-h-0"
-                                                        >
-                                                            {/* Blurred copy fills the panel so the whole
-                                                                poster shows (object-contain) with no flat
-                                                                bands, whatever its aspect ratio. */}
-                                                            <img
-                                                                src={o.img}
-                                                                alt=""
-                                                                aria-hidden
-                                                                className="absolute inset-0 size-full scale-110 object-cover blur-2xl"
-                                                            />
-                                                            <img
-                                                                src={o.img}
-                                                                alt={o.title}
-                                                                className="relative z-10 mx-auto block max-h-105 w-auto max-w-[90%] object-contain shadow-[var(--shadow-md)] transition-transform duration-500 ease-fluid group-hover:scale-105"
-                                                            />
-                                                            <span className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center opacity-0 transition duration-300 group-hover:bg-ink/25 group-hover:opacity-100">
-                                                                <span className="flex items-center gap-1.5 rounded-full bg-white/95 px-3.5 py-2 text-[13px] font-bold text-ink shadow-[var(--shadow-md)]">
-                                                                    <MaterialSymbol
-                                                                        name="zoom_in"
-                                                                        size={18}
-                                                                    />
-                                                                    View poster
-                                                                </span>
-                                                            </span>
-                                                        </button>
-                                                    ) : (
-                                                        <GradientThumb
-                                                            tint0={o.tint0}
-                                                            tint1={o.tint1}
-                                                            rounded="rounded-none"
-                                                            className="h-64 w-full md:h-full md:min-h-105"
+                            <div className="overflow-hidden rounded-panel shadow-[var(--shadow-md)]">
+                                <div
+                                    className="flex transition-transform duration-700 ease-fluid"
+                                    style={{
+                                        transform: `translateX(-${offerIndex * 100}%)`,
+                                    }}
+                                >
+                                    {offers.map((o) => (
+                                        <div
+                                            key={o.id}
+                                            className="flex w-full shrink-0 flex-col overflow-hidden md:min-h-110 md:flex-row md:items-stretch"
+                                        >
+                                            <div className="relative flex shrink-0 items-center justify-center overflow-hidden bg-muted md:w-80">
+                                                {o.img ? (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            setViewer({
+                                                                items: offerPosters,
+                                                                index: offerPosters.findIndex(
+                                                                    (x) =>
+                                                                        x.src ===
+                                                                        o.img,
+                                                                ),
+                                                            })
+                                                        }
+                                                        aria-label={`View full poster for ${o.title}`}
+                                                        className="group relative flex w-full cursor-zoom-in items-center justify-center overflow-hidden md:size-full"
+                                                    >
+                                                        {/* Mobile (stacked): the whole poster shows at
+                                                                its natural size. Desktop: it fills the side
+                                                                panel. Full image opens on click either way. */}
+                                                        <img
+                                                            src={o.img}
+                                                            alt={o.title}
+                                                            className="relative block h-auto w-full object-contain transition-transform duration-500 ease-fluid group-hover:scale-105 md:absolute md:inset-0 md:size-full md:object-cover"
                                                         />
-                                                    )}
-                                                </div>
-                                                <div className="flex flex-1 flex-col justify-center bg-surface p-[clamp(26px,3.5vw,42px)]">
-                                                    <Chip
-                                                        icon="schedule"
-                                                        tone="green"
-                                                        className="w-fit"
-                                                    >
-                                                        {o.status}
-                                                    </Chip>
-                                                    <h3 className="mt-4 font-serif text-[clamp(28px,3.4vw,40px)] leading-[1.08] font-semibold text-foreground">
-                                                        {o.title}
-                                                    </h3>
-                                                    <p className="mt-3 text-[16px] leading-[1.65] text-soft">
-                                                        {o.description}
-                                                    </p>
-                                                    <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-2.5 border-t border-border pt-6 sm:grid-cols-2">
-                                                        {offerPerks.map(
-                                                            (perk) => (
-                                                                <span
-                                                                    key={perk}
-                                                                    className="flex items-center gap-2 text-[14.5px] font-medium text-foreground"
-                                                                >
-                                                                    <MaterialSymbol
-                                                                        name="check_circle"
-                                                                        size={18}
-                                                                        fill
-                                                                        className="shrink-0 text-green"
-                                                                    />
-                                                                    {perk}
-                                                                </span>
-                                                            ),
-                                                        )}
-                                                    </div>
-                                                    <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1.5">
-                                                        <Stars rating={5} size={16} />
-                                                        <span className="text-[14px] font-semibold text-foreground">
-                                                            4.9/5
+                                                        <span className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center opacity-0 transition duration-300 group-hover:bg-ink/25 group-hover:opacity-100">
+                                                            <span className="flex items-center gap-1.5 rounded-full bg-white/95 px-3.5 py-2 text-[13px] font-bold text-ink shadow-[var(--shadow-md)]">
+                                                                <MaterialSymbol
+                                                                    name="zoom_in"
+                                                                    size={18}
+                                                                />
+                                                                View poster
+                                                            </span>
                                                         </span>
-                                                        <span className="text-[14px] text-soft">
-                                                            from 2,400+ reviews
-                                                        </span>
-                                                    </div>
-                                                    <CtaButton
-                                                        asChild
-                                                        variant="primary"
-                                                        size="md"
-                                                        className="mt-6 w-fit"
-                                                    >
-                                                        <Link
-                                                            href={
-                                                                o.cta_url ||
-                                                                '/contact'
-                                                            }
-                                                        >
-                                                            {o.cta}
-                                                            <MaterialSymbol
-                                                                name="arrow_forward"
-                                                                size={18}
-                                                            />
-                                                        </Link>
-                                                    </CtaButton>
-                                                </div>
+                                                    </button>
+                                                ) : (
+                                                    <GradientThumb
+                                                        tint0={o.tint0}
+                                                        tint1={o.tint1}
+                                                        rounded="rounded-none"
+                                                        className="h-64 w-full md:h-full md:min-h-105"
+                                                    />
+                                                )}
                                             </div>
+                                            <div className="flex flex-1 flex-col justify-center bg-surface p-[clamp(26px,3.5vw,42px)]">
+                                                <Chip
+                                                    icon="schedule"
+                                                    tone="green"
+                                                    className="w-fit"
+                                                >
+                                                    {o.status}
+                                                </Chip>
+                                                <h3 className="mt-4 font-serif text-[clamp(28px,3.4vw,40px)] leading-[1.08] font-semibold text-foreground">
+                                                    {o.title}
+                                                </h3>
+                                                <p className="mt-3 text-[16px] leading-[1.65] text-soft">
+                                                    {o.description}
+                                                </p>
+                                                <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-2.5 border-t border-border pt-6 sm:grid-cols-2">
+                                                    {offerPerks.map((perk) => (
+                                                        <span
+                                                            key={perk}
+                                                            className="flex items-center gap-2 text-[14.5px] font-medium text-foreground"
+                                                        >
+                                                            <MaterialSymbol
+                                                                name="check_circle"
+                                                                size={18}
+                                                                fill
+                                                                className="shrink-0 text-green"
+                                                            />
+                                                            {perk}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                                <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                                                    <Stars
+                                                        rating={5}
+                                                        size={16}
+                                                    />
+                                                    <span className="text-[14px] font-semibold text-foreground">
+                                                        4.9/5
+                                                    </span>
+                                                    <span className="text-[14px] text-soft">
+                                                        from 2,400+ reviews
+                                                    </span>
+                                                </div>
+                                                <CtaButton
+                                                    asChild
+                                                    variant="primary"
+                                                    size="md"
+                                                    className="mt-6 w-fit"
+                                                >
+                                                    <Link
+                                                        href={
+                                                            o.cta_url ||
+                                                            '/contact'
+                                                        }
+                                                    >
+                                                        {o.cta}
+                                                        <MaterialSymbol
+                                                            name="arrow_forward"
+                                                            size={18}
+                                                        />
+                                                    </Link>
+                                                </CtaButton>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            {offerCount > 1 && (
+                                <div className="mt-5 flex items-center justify-center gap-2.5">
+                                    <CarouselArrow
+                                        dir="prev"
+                                        onClick={() =>
+                                            setOfferIndex(
+                                                (i) =>
+                                                    (i - 1 + offerCount) %
+                                                    offerCount,
+                                            )
+                                        }
+                                    />
+                                    <div className="flex gap-2">
+                                        {offers.map((o, i) => (
+                                            <button
+                                                key={o.id}
+                                                type="button"
+                                                aria-label={`Offer ${i + 1}`}
+                                                onClick={() => setOfferIndex(i)}
+                                                className={cn(
+                                                    'h-2.5 rounded-full transition-all',
+                                                    i === offerIndex
+                                                        ? 'w-7 bg-primary'
+                                                        : 'w-2.5 bg-border-strong',
+                                                )}
+                                            />
                                         ))}
                                     </div>
+                                    <CarouselArrow
+                                        dir="next"
+                                        onClick={() =>
+                                            setOfferIndex(
+                                                (i) => (i + 1) % offerCount,
+                                            )
+                                        }
+                                    />
                                 </div>
-                                {offerCount > 1 && (
-                                    <div className="mt-5 flex items-center justify-center gap-2.5">
-                                        <CarouselArrow
-                                            dir="prev"
-                                            onClick={() =>
-                                                setOfferIndex(
-                                                    (i) =>
-                                                        (i - 1 + offerCount) %
-                                                        offerCount,
-                                                )
-                                            }
-                                        />
-                                        <div className="flex gap-2">
-                                            {offers.map((o, i) => (
-                                                <button
-                                                    key={o.id}
-                                                    type="button"
-                                                    aria-label={`Offer ${i + 1}`}
-                                                    onClick={() =>
-                                                        setOfferIndex(i)
-                                                    }
-                                                    className={cn(
-                                                        'h-2.5 rounded-full transition-all',
-                                                        i === offerIndex
-                                                            ? 'w-7 bg-primary'
-                                                            : 'w-2.5 bg-border-strong',
-                                                    )}
-                                                />
-                                            ))}
-                                        </div>
-                                        <CarouselArrow
-                                            dir="next"
-                                            onClick={() =>
-                                                setOfferIndex(
-                                                    (i) => (i + 1) % offerCount,
-                                                )
-                                            }
-                                        />
-                                    </div>
-                                )}
-                            </div>
+                            )}
+                        </div>
                     </Section>
                 )}
 
-                {/* ===== OFFER POSTER LIGHTBOX ===== */}
-                {offerPreview && (
-                    <div
-                        role="dialog"
-                        aria-modal="true"
-                        aria-label={offerPreview.title}
-                        onClick={() => setOfferPreview(null)}
-                        className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 p-5 backdrop-blur-sm"
-                    >
-                        <button
-                            type="button"
-                            aria-label="Close"
-                            onClick={() => setOfferPreview(null)}
-                            className="absolute top-5 right-5 flex size-11 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25"
+                {/* ===== OFFER / PACKAGE POSTER LIGHTBOX =====
+                    Portaled to <body> so it escapes the animated sections'
+                    stacking context and covers the sticky header. */}
+                {viewer &&
+                    viewerItem &&
+                    createPortal(
+                        <div
+                            role="dialog"
+                            aria-modal="true"
+                            aria-label={viewerItem.title}
+                            onClick={() => setViewer(null)}
+                            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 p-5 backdrop-blur-sm"
                         >
-                            <MaterialSymbol name="close" size={24} />
-                        </button>
-                        <img
-                            src={offerPreview.src}
-                            alt={offerPreview.title}
-                            onClick={(e) => e.stopPropagation()}
-                            className="max-h-[90vh] w-auto max-w-[92vw] rounded-card object-contain shadow-[var(--shadow-lg)]"
-                        />
-                    </div>
-                )}
+                            <button
+                                type="button"
+                                aria-label="Close"
+                                onClick={() => setViewer(null)}
+                                className="absolute top-5 right-5 flex size-11 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25"
+                            >
+                                <MaterialSymbol name="close" size={24} />
+                            </button>
+
+                            {viewer.items.length > 1 && (
+                                <>
+                                    <button
+                                        type="button"
+                                        aria-label="Previous"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            viewerPrev();
+                                        }}
+                                        className="absolute top-1/2 left-4 z-20 flex size-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25 sm:left-6"
+                                    >
+                                        <MaterialSymbol
+                                            name="chevron_left"
+                                            size={28}
+                                        />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        aria-label="Next"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            viewerNext();
+                                        }}
+                                        className="absolute top-1/2 right-4 z-20 flex size-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25 sm:right-6"
+                                    >
+                                        <MaterialSymbol
+                                            name="chevron_right"
+                                            size={28}
+                                        />
+                                    </button>
+                                </>
+                            )}
+
+                            <img
+                                src={viewerItem.src}
+                                alt={viewerItem.title}
+                                onClick={(e) => e.stopPropagation()}
+                                className="max-h-[90vh] w-auto max-w-[92vw] rounded-card object-contain shadow-[var(--shadow-lg)]"
+                            />
+
+                            {viewer.items.length > 1 && (
+                                <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-white/15 px-3 py-1 text-[13px] font-semibold text-white">
+                                    {viewer.index + 1} / {viewer.items.length}
+                                </span>
+                            )}
+                        </div>,
+                        document.body,
+                    )}
 
                 {/* ===== POPULAR TOUR PACKAGES ===== */}
                 <Section id="packages" bg="surface">
@@ -567,21 +646,48 @@ export default function Home({
                     ) : (
                         <div
                             data-stagger
-                            className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+                            className="mt-10 grid items-start gap-6 sm:grid-cols-2 lg:grid-cols-3"
                         >
                             {previewPackages.map((p) => (
                                 <article
                                     key={p.id}
-                                    className="flex flex-col overflow-hidden rounded-card border border-border bg-surface shadow-[var(--shadow-sm)] transition hover:-translate-y-2 hover:shadow-[var(--shadow-lg)]"
+                                    className="group relative flex flex-col overflow-hidden rounded-card border border-border bg-surface shadow-[var(--shadow-sm)] transition hover:-translate-y-2 hover:shadow-[var(--shadow-lg)]"
                                 >
-                                    <div className="relative h-[200px] overflow-hidden">
-                                        <GradientThumb
-                                            tint0={p.tint0}
-                                            tint1={p.tint1}
-                                            img={p.img}
-                                            rounded="rounded-none"
-                                            className="h-full"
-                                        />
+                                    {/* Full poster shown complete — fills the
+                                        card width at its natural height, never
+                                        cropped. Click opens the full image. */}
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            p.img &&
+                                            setViewer({
+                                                items: packagePosters,
+                                                index: packagePosters.findIndex(
+                                                    (x) => x.src === p.img,
+                                                ),
+                                            })
+                                        }
+                                        aria-label={`View full poster for ${p.title}`}
+                                        className={cn(
+                                            'relative block w-full text-left',
+                                            p.img && 'cursor-zoom-in',
+                                        )}
+                                    >
+                                        {p.img ? (
+                                            <img
+                                                src={p.img}
+                                                alt={p.title}
+                                                loading="lazy"
+                                                className="block h-auto w-full"
+                                            />
+                                        ) : (
+                                            <GradientThumb
+                                                tint0={p.tint0}
+                                                tint1={p.tint1}
+                                                rounded="rounded-none"
+                                                className="aspect-square w-full"
+                                            />
+                                        )}
                                         <Chip
                                             icon="schedule"
                                             tone="light"
@@ -598,38 +704,40 @@ export default function Home({
                                             />
                                             {p.rating.toFixed(1)}
                                         </span>
-                                    </div>
-                                    <div className="flex flex-1 flex-col p-[22px]">
-                                        <p className="flex items-center gap-1.5 text-[13.5px] text-soft">
+                                    </button>
+                                    {/* Details — a scrim overlay that reveals on
+                                        hover (always visible on touch screens). */}
+                                    <div className="pointer-events-auto absolute inset-x-0 bottom-0 flex flex-col bg-linear-to-t from-ink/95 via-ink/85 to-transparent px-[22px] pt-16 pb-[22px] text-white transition-all duration-300 md:pointer-events-none md:translate-y-3 md:opacity-0 md:group-hover:pointer-events-auto md:group-hover:translate-y-0 md:group-hover:opacity-100">
+                                        <p className="flex items-center gap-1.5 text-[13.5px] text-white/80">
                                             <MaterialSymbol
                                                 name="location_on"
                                                 size={15}
-                                                className="text-primary"
+                                                className="text-gold"
                                             />
                                             {p.location}
                                         </p>
-                                        <h3 className="mt-1 text-[20px] font-bold text-foreground">
+                                        <h3 className="mt-1 text-[20px] font-bold text-white">
                                             {p.title}
                                         </h3>
                                         <ul className="mt-3 flex flex-wrap gap-1.5">
                                             {p.services.slice(0, 4).map((s) => (
                                                 <li
                                                     key={s}
-                                                    className="inline-flex items-center gap-1 rounded-lg border border-border bg-surface-2 px-2.5 py-1 text-[12px] font-semibold text-soft"
+                                                    className="inline-flex items-center gap-1 rounded-lg border border-white/25 bg-white/10 px-2.5 py-1 text-[12px] font-semibold text-white/90"
                                                 >
                                                     <MaterialSymbol
                                                         name="check_circle"
                                                         size={14}
-                                                        className="text-primary-deep"
+                                                        className="text-gold"
                                                     />
                                                     {s}
                                                 </li>
                                             ))}
                                         </ul>
-                                        <div className="mt-auto flex items-center justify-between border-t border-border pt-4">
-                                            <p className="text-[13.5px] text-soft">
+                                        <div className="mt-4 flex items-center justify-between border-t border-white/20 pt-4">
+                                            <p className="text-[13.5px] text-white/80">
                                                 from{' '}
-                                                <span className="text-[22px] font-extrabold text-foreground">
+                                                <span className="text-[22px] font-extrabold text-white">
                                                     {formatINR(p.price)}
                                                 </span>
                                             </p>
@@ -683,32 +791,50 @@ export default function Home({
                         </div>
                         <div
                             data-stagger
-                            className="mt-10 grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-4"
+                            className="mt-10 grid grid-flow-dense auto-rows-[clamp(150px,20vw,210px)] grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-4"
                         >
-                            {gallery.slice(0, HOME_GALLERY_LIMIT).map((g) => (
-                                <figure
-                                    key={g.id}
-                                    className="group relative aspect-square overflow-hidden rounded-card shadow-[var(--shadow-sm)]"
-                                >
-                                    <GradientThumb
-                                        tint0={g.tint0}
-                                        tint1={g.tint1}
-                                        img={g.img}
-                                        rounded="rounded-none"
-                                        className="h-full transition-transform duration-700 group-hover:scale-[1.09]"
-                                    />
-                                    <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent_38%,rgba(6,18,30,0.62)_100%)]" />
-                                    <Chip
-                                        tone="light"
-                                        className="absolute top-2.5 left-2.5"
-                                    >
-                                        {g.category}
-                                    </Chip>
-                                    <figcaption className="absolute right-3.5 bottom-3.5 left-3.5 text-[14px] leading-[1.25] font-bold text-white">
-                                        {g.topic}
-                                    </figcaption>
-                                </figure>
-                            ))}
+                            {gallery
+                                .slice(0, HOME_GALLERY_LIMIT)
+                                .map((g, i) => {
+                                    // Deterministic mosaic rhythm — a feature tile plus
+                                    // occasional tall/wide tiles break up the grid.
+                                    const shape = i % 8;
+                                    const span =
+                                        shape === 0
+                                            ? 'sm:col-span-2 sm:row-span-2'
+                                            : shape === 3
+                                              ? 'row-span-2'
+                                              : shape === 5
+                                                ? 'sm:col-span-2'
+                                                : '';
+                                    return (
+                                        <figure
+                                            key={g.id}
+                                            className={cn(
+                                                'group relative overflow-hidden rounded-card shadow-[var(--shadow-sm)]',
+                                                span,
+                                            )}
+                                        >
+                                            <GradientThumb
+                                                tint0={g.tint0}
+                                                tint1={g.tint1}
+                                                img={g.img}
+                                                rounded="rounded-none"
+                                                className="h-full transition-transform duration-700 group-hover:scale-[1.09]"
+                                            />
+                                            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent_38%,rgba(6,18,30,0.62)_100%)]" />
+                                            <Chip
+                                                tone="light"
+                                                className="absolute top-2.5 left-2.5"
+                                            >
+                                                {g.category}
+                                            </Chip>
+                                            <figcaption className="absolute right-3.5 bottom-3.5 left-3.5 text-[14px] leading-[1.25] font-bold text-white">
+                                                {g.topic}
+                                            </figcaption>
+                                        </figure>
+                                    );
+                                })}
                         </div>
                         {gallery.length > HOME_GALLERY_LIMIT && (
                             <div className="mt-12 flex justify-center">
