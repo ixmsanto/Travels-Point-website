@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import GradientThumb from '@/components/gradient-thumb';
 import MaterialSymbol from '@/components/material-symbol';
 import { CtaButton } from '@/components/public/button';
@@ -51,11 +52,8 @@ export default function Gallery({ gallery }: Props) {
             if (e.key === 'Escape') {
                 setLightboxIndex(null);
             } else if (e.key === 'ArrowLeft') {
-                setLightboxIndex(
-                    (i) =>
-                        i === null
-                            ? i
-                            : (i - 1 + visible.length) % visible.length,
+                setLightboxIndex((i) =>
+                    i === null ? i : (i - 1 + visible.length) % visible.length,
                 );
             } else if (e.key === 'ArrowRight') {
                 setLightboxIndex((i) =>
@@ -134,38 +132,55 @@ export default function Gallery({ gallery }: Props) {
 
                         <div
                             data-stagger
-                            className="mt-10 grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-4"
+                            className="mt-10 grid grid-flow-dense auto-rows-[clamp(150px,20vw,210px)] grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-4"
                         >
-                            {visible.map((g, i) => (
-                                <button
-                                    key={g.id}
-                                    type="button"
-                                    onClick={() => setLightboxIndex(i)}
-                                    aria-label={`View ${g.topic}`}
-                                    className="group relative aspect-square overflow-hidden rounded-card text-left shadow-[var(--shadow-sm)]"
-                                >
-                                    <GradientThumb
-                                        tint0={g.tint0}
-                                        tint1={g.tint1}
-                                        img={g.img}
-                                        rounded="rounded-none"
-                                        className="h-full transition-transform duration-700 group-hover:scale-[1.09]"
-                                    />
-                                    <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent_38%,rgba(6,18,30,0.62)_100%)]" />
-                                    <span className="absolute top-2.5 left-2.5 rounded-full bg-white/90 px-2.5 py-1 text-[10.5px] font-bold text-ink">
-                                        {g.category}
-                                    </span>
-                                    <span className="pointer-events-none absolute top-2.5 right-2.5 flex size-8 items-center justify-center rounded-full bg-white/20 text-white opacity-0 backdrop-blur transition group-hover:opacity-100">
-                                        <MaterialSymbol
-                                            name="zoom_in"
-                                            size={18}
+                            {visible.map((g, i) => {
+                                // Deterministic mosaic rhythm: an occasional big
+                                // feature tile, tall tiles and wide tiles break up
+                                // the uniform grid. grid-flow-dense backfills gaps.
+                                const shape = i % 8;
+                                const span =
+                                    shape === 0
+                                        ? 'sm:col-span-2 sm:row-span-2'
+                                        : shape === 3
+                                          ? 'row-span-2'
+                                          : shape === 5
+                                            ? 'sm:col-span-2'
+                                            : '';
+                                return (
+                                    <button
+                                        key={g.id}
+                                        type="button"
+                                        onClick={() => setLightboxIndex(i)}
+                                        aria-label={`View ${g.topic}`}
+                                        className={cn(
+                                            'group relative overflow-hidden rounded-card text-left shadow-[var(--shadow-sm)]',
+                                            span,
+                                        )}
+                                    >
+                                        <GradientThumb
+                                            tint0={g.tint0}
+                                            tint1={g.tint1}
+                                            img={g.img}
+                                            rounded="rounded-none"
+                                            className="h-full transition-transform duration-700 group-hover:scale-[1.09]"
                                         />
-                                    </span>
-                                    <span className="absolute right-3.5 bottom-3.5 left-3.5 text-[14px] leading-[1.25] font-bold text-white">
-                                        {g.topic}
-                                    </span>
-                                </button>
-                            ))}
+                                        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent_38%,rgba(6,18,30,0.62)_100%)]" />
+                                        <span className="absolute top-2.5 left-2.5 rounded-full bg-white/90 px-2.5 py-1 text-[10.5px] font-bold text-ink">
+                                            {g.category}
+                                        </span>
+                                        <span className="pointer-events-none absolute top-2.5 right-2.5 flex size-8 items-center justify-center rounded-full bg-white/20 text-white opacity-0 backdrop-blur transition group-hover:opacity-100">
+                                            <MaterialSymbol
+                                                name="zoom_in"
+                                                size={18}
+                                            />
+                                        </span>
+                                        <span className="absolute right-3.5 bottom-3.5 left-3.5 text-[14px] leading-[1.25] font-bold text-white">
+                                            {g.topic}
+                                        </span>
+                                    </button>
+                                );
+                            })}
                         </div>
                     </>
                 )}
@@ -197,80 +212,91 @@ export default function Gallery({ gallery }: Props) {
                 </div>
             </Section>
 
-            {/* ===== LIGHTBOX ===== */}
-            {lightbox && (
-                <div
-                    role="dialog"
-                    aria-modal="true"
-                    aria-label={lightbox.topic}
-                    onClick={() => setLightboxIndex(null)}
-                    className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 p-5 backdrop-blur-sm"
-                >
-                    <button
-                        type="button"
-                        aria-label="Close"
+            {/* ===== LIGHTBOX — portaled to <body> so it escapes the animated
+                sections' stacking context and covers the sticky header. ===== */}
+            {lightbox &&
+                createPortal(
+                    <div
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label={lightbox.topic}
                         onClick={() => setLightboxIndex(null)}
-                        className="absolute top-5 right-5 flex size-11 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25"
+                        className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 p-5 backdrop-blur-sm"
                     >
-                        <MaterialSymbol name="close" size={24} />
-                    </button>
+                        <button
+                            type="button"
+                            aria-label="Close"
+                            onClick={() => setLightboxIndex(null)}
+                            className="absolute top-5 right-5 flex size-11 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25"
+                        >
+                            <MaterialSymbol name="close" size={24} />
+                        </button>
 
-                    {visible.length > 1 && (
-                        <>
-                            <button
-                                type="button"
-                                aria-label="Previous"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    showPrev();
-                                }}
-                                className="absolute top-1/2 left-4 flex size-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25 sm:left-6"
-                            >
-                                <MaterialSymbol name="chevron_left" size={28} />
-                            </button>
-                            <button
-                                type="button"
-                                aria-label="Next"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    showNext();
-                                }}
-                                className="absolute top-1/2 right-4 flex size-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25 sm:right-6"
-                            >
-                                <MaterialSymbol name="chevron_right" size={28} />
-                            </button>
-                        </>
-                    )}
+                        {visible.length > 1 && (
+                            <>
+                                <button
+                                    type="button"
+                                    aria-label="Previous"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        showPrev();
+                                    }}
+                                    className="absolute top-1/2 left-4 z-20 flex size-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25 sm:left-6"
+                                >
+                                    <MaterialSymbol
+                                        name="chevron_left"
+                                        size={28}
+                                    />
+                                </button>
+                                <button
+                                    type="button"
+                                    aria-label="Next"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        showNext();
+                                    }}
+                                    className="absolute top-1/2 right-4 z-20 flex size-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25 sm:right-6"
+                                >
+                                    <MaterialSymbol
+                                        name="chevron_right"
+                                        size={28}
+                                    />
+                                </button>
+                            </>
+                        )}
 
-                    <figure
-                        onClick={(e) => e.stopPropagation()}
-                        className="flex max-h-[88vh] w-full max-w-[860px] flex-col overflow-hidden rounded-card shadow-[var(--shadow-lg)]"
-                    >
-                        <GradientThumb
-                            tint0={lightbox.tint0}
-                            tint1={lightbox.tint1}
-                            img={lightbox.img}
-                            fit="contain"
-                            rounded="rounded-none"
-                            className="h-[min(62vh,560px)] w-full bg-ink"
-                        />
-                        <figcaption className="flex items-center justify-between gap-4 bg-surface px-6 py-4">
-                            <p className="text-[16px] font-bold text-foreground">
-                                {lightbox.topic}
-                            </p>
-                            <div className="flex items-center gap-3">
-                                {visible.length > 1 && (
-                                    <span className="text-[13px] font-semibold text-soft">
-                                        {(lightboxIndex ?? 0) + 1} /{' '}
-                                        {visible.length}
-                                    </span>
-                                )}
-                                <Chip tone="primary">{lightbox.category}</Chip>
-                            </div>
-                        </figcaption>
-                    </figure>
-                </div>
-            )}
+                        <figure
+                            onClick={(e) => e.stopPropagation()}
+                            className="flex max-h-[88vh] w-full max-w-[860px] flex-col overflow-hidden rounded-card shadow-[var(--shadow-lg)]"
+                        >
+                            <GradientThumb
+                                tint0={lightbox.tint0}
+                                tint1={lightbox.tint1}
+                                img={lightbox.img}
+                                fit="contain"
+                                rounded="rounded-none"
+                                className="h-[min(62vh,560px)] w-full bg-ink"
+                            />
+                            <figcaption className="flex items-center justify-between gap-4 bg-surface px-6 py-4">
+                                <p className="text-[16px] font-bold text-foreground">
+                                    {lightbox.topic}
+                                </p>
+                                <div className="flex items-center gap-3">
+                                    {visible.length > 1 && (
+                                        <span className="text-[13px] font-semibold text-soft">
+                                            {(lightboxIndex ?? 0) + 1} /{' '}
+                                            {visible.length}
+                                        </span>
+                                    )}
+                                    <Chip tone="primary">
+                                        {lightbox.category}
+                                    </Chip>
+                                </div>
+                            </figcaption>
+                        </figure>
+                    </div>,
+                    document.body,
+                )}
         </>
     );
 }

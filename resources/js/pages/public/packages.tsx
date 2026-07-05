@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import GradientThumb from '@/components/gradient-thumb';
 import MaterialSymbol from '@/components/material-symbol';
 import { CtaButton } from '@/components/public/button';
@@ -7,6 +8,7 @@ import { Section } from '@/components/public/section';
 import { Eyebrow } from '@/components/public/section-heading';
 import { Card, Chip, FilterTabs } from '@/components/public/ui';
 import { formatINR } from '@/lib/currency';
+import { cn } from '@/lib/utils';
 import type { Offer, Region, TourPackage } from '@/types';
 
 type Props = {
@@ -27,6 +29,33 @@ export default function Packages({ packages, regions, offers }: Props) {
         () => (tab === 'All' ? packages : packages.filter((p) => p.region === tab)),
         [packages, tab],
     );
+
+    // Full-size poster viewer with prev/next, navigating the packages that
+    // actually have an image (within the current filter).
+    const previewable = useMemo(() => visible.filter((p) => p.img), [visible]);
+    const [previewIndex, setPreviewIndex] = useState<number | null>(null);
+    const preview =
+        previewIndex !== null ? (previewable[previewIndex] ?? null) : null;
+
+    const showPrev = () =>
+        setPreviewIndex((i) =>
+            i === null ? i : (i - 1 + previewable.length) % previewable.length,
+        );
+    const showNext = () =>
+        setPreviewIndex((i) =>
+            i === null ? i : (i + 1) % previewable.length,
+        );
+
+    useEffect(() => {
+        if (previewIndex === null) return;
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') setPreviewIndex(null);
+            else if (e.key === 'ArrowLeft') showPrev();
+            else if (e.key === 'ArrowRight') showNext();
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [previewIndex, previewable.length]);
 
     const liveOffer = offers[0];
 
@@ -93,22 +122,47 @@ export default function Packages({ packages, regions, offers }: Props) {
                 ) : (
                     <div
                         data-stagger
-                        className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+                        className="mt-10 grid items-start gap-6 sm:grid-cols-2 lg:grid-cols-3"
                     >
                         {visible.map((p) => (
                             <Card
                                 key={p.id}
                                 interactive
-                                className="flex flex-col"
+                                className="group relative flex flex-col"
                             >
-                                <div className="relative h-[200px] overflow-hidden">
-                                    <GradientThumb
-                                        tint0={p.tint0}
-                                        tint1={p.tint1}
-                                        img={p.img}
-                                        rounded="rounded-none"
-                                        className="h-full"
-                                    />
+                                {/* Full poster shown complete — fills the card
+                                    width at its natural height, never cropped.
+                                    Click opens the full image. */}
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        if (!p.img) return;
+                                        const idx = previewable.findIndex(
+                                            (x) => x.id === p.id,
+                                        );
+                                        if (idx !== -1) setPreviewIndex(idx);
+                                    }}
+                                    aria-label={`View full poster for ${p.title}`}
+                                    className={cn(
+                                        'relative block w-full text-left',
+                                        p.img && 'cursor-zoom-in',
+                                    )}
+                                >
+                                    {p.img ? (
+                                        <img
+                                            src={p.img}
+                                            alt={p.title}
+                                            loading="lazy"
+                                            className="block w-full h-auto"
+                                        />
+                                    ) : (
+                                        <GradientThumb
+                                            tint0={p.tint0}
+                                            tint1={p.tint1}
+                                            rounded="rounded-none"
+                                            className="aspect-square w-full"
+                                        />
+                                    )}
                                     <Chip
                                         icon="schedule"
                                         className="absolute top-3.5 left-3.5"
@@ -124,38 +178,40 @@ export default function Packages({ packages, regions, offers }: Props) {
                                         />
                                         {p.rating.toFixed(1)}
                                     </span>
-                                </div>
-                                <div className="flex flex-1 flex-col p-[22px]">
-                                    <p className="flex items-center gap-1.5 text-[13.5px] text-soft">
+                                </button>
+                                {/* Details — a scrim overlay that reveals on
+                                    hover (always visible on touch screens). */}
+                                <div className="pointer-events-auto absolute inset-x-0 bottom-0 flex flex-col bg-linear-to-t from-ink/95 via-ink/85 to-transparent px-[22px] pt-16 pb-[22px] text-white transition-all duration-300 md:pointer-events-none md:translate-y-3 md:opacity-0 md:group-hover:pointer-events-auto md:group-hover:translate-y-0 md:group-hover:opacity-100">
+                                    <p className="flex items-center gap-1.5 text-[13.5px] text-white/80">
                                         <MaterialSymbol
                                             name="location_on"
                                             size={15}
-                                            className="text-primary"
+                                            className="text-gold"
                                         />
                                         {p.location}
                                     </p>
-                                    <h3 className="mt-1 text-[20px] font-bold text-foreground">
+                                    <h3 className="mt-1 text-[20px] font-bold text-white">
                                         {p.title}
                                     </h3>
                                     <ul className="mt-3 flex flex-wrap gap-1.5">
                                         {p.services.slice(0, 4).map((s) => (
                                             <li
                                                 key={s}
-                                                className="inline-flex items-center gap-1 rounded-lg border border-border bg-surface-2 px-2.5 py-1 text-[12px] font-semibold text-soft"
+                                                className="inline-flex items-center gap-1 rounded-lg border border-white/25 bg-white/10 px-2.5 py-1 text-[12px] font-semibold text-white/90"
                                             >
                                                 <MaterialSymbol
                                                     name="check_circle"
                                                     size={14}
-                                                    className="text-primary-deep"
+                                                    className="text-gold"
                                                 />
                                                 {s}
                                             </li>
                                         ))}
                                     </ul>
-                                    <div className="mt-auto flex items-center justify-between border-t border-border pt-4">
-                                        <p className="text-[13.5px] text-soft">
+                                    <div className="mt-4 flex items-center justify-between border-t border-white/20 pt-4">
+                                        <p className="text-[13.5px] text-white/80">
                                             from{' '}
-                                            <span className="text-[22px] font-extrabold text-foreground">
+                                            <span className="text-[22px] font-extrabold text-white">
                                                 {formatINR(p.price)}
                                             </span>
                                         </p>
@@ -266,6 +322,75 @@ export default function Packages({ packages, regions, offers }: Props) {
                     </div>
                 </div>
             </Section>
+
+            {/* Full-size poster lightbox — portaled to <body> so it escapes
+                the animated sections' stacking context and covers the header. */}
+            {preview &&
+                createPortal(
+                    <div
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label={preview.title}
+                        onClick={() => setPreviewIndex(null)}
+                        className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 p-5 backdrop-blur-sm"
+                    >
+                        <button
+                            type="button"
+                            aria-label="Close"
+                            onClick={() => setPreviewIndex(null)}
+                            className="absolute top-5 right-5 flex size-11 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25"
+                        >
+                            <MaterialSymbol name="close" size={24} />
+                        </button>
+
+                        {previewable.length > 1 && (
+                            <>
+                                <button
+                                    type="button"
+                                    aria-label="Previous"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        showPrev();
+                                    }}
+                                    className="absolute top-1/2 left-4 z-20 flex size-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25 sm:left-6"
+                                >
+                                    <MaterialSymbol
+                                        name="chevron_left"
+                                        size={28}
+                                    />
+                                </button>
+                                <button
+                                    type="button"
+                                    aria-label="Next"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        showNext();
+                                    }}
+                                    className="absolute top-1/2 right-4 z-20 flex size-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25 sm:right-6"
+                                >
+                                    <MaterialSymbol
+                                        name="chevron_right"
+                                        size={28}
+                                    />
+                                </button>
+                            </>
+                        )}
+
+                        <img
+                            src={preview.img ?? ''}
+                            alt={preview.title}
+                            onClick={(e) => e.stopPropagation()}
+                            className="max-h-[90vh] w-auto max-w-[92vw] rounded-card object-contain shadow-[var(--shadow-lg)]"
+                        />
+
+                        {previewable.length > 1 && (
+                            <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-white/15 px-3 py-1 text-[13px] font-semibold text-white">
+                                {(previewIndex ?? 0) + 1} / {previewable.length}
+                            </span>
+                        )}
+                    </div>,
+                    document.body,
+                )}
         </>
     );
 }
